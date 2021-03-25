@@ -10,11 +10,8 @@
   </head>
   <body>
     <?php
-      require "database.php";
-      require "error.php";
+      require "teacher_variables.php";
       require "navbar.php";
-      require "teacher.php";
-      require "organisation.php";
 
       $teacher = null;
       $current_organisation = null;
@@ -22,6 +19,7 @@
       $connected = null;
       $blocked_user = false; // true if we have blocked the viewed user
       $qualification = null; // this is the most recent qualification
+      $employment_history = null; // this is the most recent employment history if any
 
       /**
         * These variables hold the sender and receiver of the connection between the teacher and viewer if any
@@ -48,80 +46,77 @@
       }
 
       /**
-        * Loads the teacher from the database into a Teacher Object
-        */
-      function loadTeacher() {
-        global $teacher;
-        global $username;
-        global $conn;
-
-        $sql = "SELECT * FROM teachers WHERE username = ?;";
-
-        if ($stmt = $conn->prepare($sql)) {
-          $stmt->bind_param("s", $param_user);
-          $param_user = $username;
-
-          if ($stmt->execute()) {
-            $result = $stmt->get_result();
-
-            if ($result->num_rows == 1) {
-              while ($row = $result->fetch_assoc()) {
-                $teacher = new Teacher($row['username'], $row['first_name'],
-                $row['last_name'], $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
-              }
-
-              loadCurrentOrganisation();
-            } else {
-              doError("No teacher found for username {$username}!");
-            }
-          } else {
-            doSQLError($stmt->error);
-          }
-
-          $stmt->close();
-        } else {
-          doSQLError($conn->error);
-        }
-      }
-
-      /**
-        * Load the current organisation of this teacher if any
-        */
-      function loadCurrentOrganisation() {
-        global $username;
-        global $current_organisation;
-        global $conn;
-
-        $sql = "SELECT * FROM organisations WHERE organisation_id IN (SELECT organisation_id FROM organisation_members WHERE teacher_username = ?);";
-
-        if ($stmt = $conn->prepare($sql)) {
-          $stmt->bind_param("s", $param_user);
-          $param_user = $username;
-
-          if ($stmt->execute()) {
-            $result = $stmt->get_result();
-
-            if ($result->num_rows == 1) {
-              while ($row = $result->fetch_assoc()) {
-                $current_organisation = new Organisation($row['organisation_id'], $row['username'],
-                $row['name'], $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
-              }
-            }
-          } else {
-            doSQLError($stmt->error);
-          }
-
-          $stmt->close();
-        } else {
-          doSQLError($conn->error);
-        }
-      }
-
-      /**
         * This function loads the teacher's most recent qualification if any
         */
       function loadRecentQualification() {
-        // TODO load recent qualification if any here
+        global $username;
+        global $conn;
+        global $qualification;
+        global $teacher;
+
+        $sql = "SELECT * FROM qualifications NATURAL JOIN academic_degrees WHERE username = ?
+          AND date_obtained = (SELECT MAX(date_obtained) FROM qualifications WHERE username = ?)";
+
+        if ($stmt = $conn->prepare($sql)) {
+          $stmt->bind_param("ss", $param_user, $param_user);
+          $param_user = $username;
+
+          if ($stmt->execute()) {
+            $result = $stmt->get_result();
+
+            if ($result->num_rows == 1) {
+              while ($row = $result->fetch_assoc()) {
+                $academic_degree = new AcademicDegree($row['degree_id'],
+                  $row['title'], $row['type'], $row['school'], $row['description'], $row['level']);
+                $qualification = new Qualification($teacher, $academic_degree, $row['date_obtained']);
+              }
+            }
+
+            $stmt->close();
+          } else {
+            doSQLError($stmt->error);
+          }
+        } else {
+          doSQLError($conn->error);
+        }
+      }
+
+      /**
+        * Loads the most recent employment history if available
+        */
+      function loadRecentEmploymentHistory() {
+        global $username;
+        global $teacher;
+        global $conn;
+        global $employment_history;
+
+        $sql = "SELECT * FROM employment_history JOIN organisations ON employment_history.organisation_id = organisations.organisation_id
+          WHERE employment_history.username = ? AND dateTo = (SELECT MAX(dateTo) FROM employment_history WHERE username = ?);";
+
+          if ($stmt = $conn->prepare($sql)) {
+            $stmt->bind_param("ss", $param_user, $param_user);
+            $param_user = $username;
+
+            if ($stmt->execute()) {
+              $result = $stmt->get_result();
+
+              if ($result->num_rows == 1) {
+                while ($row = $result->fetch_assoc()) {
+                  $organisation = new Organisation($row['organisation_id'],
+                    $row['username'], $row['name'], $row['headline'],
+                    $row['about'], $row['location'], $row['profile_photo']);
+                  $employment_history = new EmploymentHistory($row['history_id'],
+                    $teacher, $organisation, $row['dateFrom'], $row['dateTo'], $row['job_title']);
+                }
+              }
+
+              $stmt->close();
+            } else {
+              doSQLError($stmt->error);
+            }
+          } else {
+            doSQLError($conn->error);
+          }
       }
 
       /**
@@ -201,47 +196,6 @@
       }
 
       /**
-        * Gets the URL for the connection_handler
-        */
-      function getHandlerURL($connected) {
-        global $connection_sender;
-        global $connection_receiver;
-        global $connection_pending;
-
-        $action = $connected ? REMOVE:ADD;
-
-        if (displayAcceptConnection()) {
-          $action = ACCEPT;
-        }
-
-        $data = array(ACTION => CONNECT, SENDER => $connection_sender, DESTINATION => $connection_receiver, ACTION_PARAM => $action, RETURN_URL => $_SERVER["REQUEST_URI"]);
-        $url = http_build_query($data, '', '&amp;');
-        return "profile-action.php?{$url}";
-      }
-
-      /**
-        * Gets the URL for blocking this user
-        */
-      function getBlockURL() {
-          global $own_profile;
-
-          if (!$own_profile) {
-            global $username;
-            global $blocked_user;
-
-            $loggedin_username = $_SESSION[USERNAME];
-            $action = ($blocked_user) ? REMOVE:ADD;
-
-
-            $data = array(ACTION => BLOCK, SENDER => $loggedin_username, DESTINATION => $username, ACTION_PARAM => $action, RETURN_URL => ($blocked_user) ? $_SERVER['REQUEST_URI']:"teacher_profile.php");
-            $url = http_build_query($data, '', '&amp;');
-            return "profile-action.php?{$url}";
-          }
-
-          return "#";
-      }
-
-      /**
         * If this profile is not the user's own profile, it checks if they have been blocked.
         * Returns true if they can be viewed, false if not
         */
@@ -312,7 +266,8 @@
         global $own_profile;
 
         $btn_class = "\"btn btn-primary\"";
-        $btn = "<button class={$btn_class} style=\"margin-right: 1vw;\" id=\"connect-button\" onclick=\"handleConnection();\">";
+        $btn_target = ($own_profile) ? "onclick=\"handleEdit();\"":"onclick=\"handleConnection();\"";
+        $btn = "<button class={$btn_class} style=\"margin-right: 1vw;\" id=\"connect-button\" {$btn_target}>";
         if ($own_profile) {
           return "{$btn}Edit</button></a>";
         } else {
@@ -325,37 +280,79 @@
             $text = "Connection Requested";
           }
 
-          $url = getHandlerURL($connected);
+          return "{$btn}{$text}</button>";
+        }
+      }
 
-          if (isset($url)) {
-            return "{$btn}{$text}</button>";
-          } else {
-            return "{$btn}{$text}</button>";
+      $loggedin_username = $_SESSION[USERNAME];
+      $user_type = $_SESSION[USER_TYPE];
+
+      // parse the URL for get parameters which may include a username to view a different user's profile
+      parseURL();
+
+      $own_profile = $user_type == ADMIN || $loggedin_username == $username; // if user is admin treat as own profile. If not, it's our own profile is username matches logged in one
+
+      if (canView()) {
+        loadTeacher($username);
+        if (empty($error_message)) {
+          loadCurrentOrganisation($username);
+          if (empty($error_message)) {
+            loadRecentQualification();
+
+            if (empty($error_message)) {
+              loadRecentEmploymentHistory();
+            }
           }
         }
       }
 
-      if (isset($_SESSION[LOGGED_IN]) && $_SESSION[LOGGED_IN] == true) {
-        if (!isset($_SESSION[USERNAME]) || !isset($_SESSION[USER_TYPE])) {
-          goToLogin();
+      /**
+        * Retrieve the dates of the recent organisation if not null
+        */
+      function getEmploymentDates() {
+        global $employment_history;
+
+        if (isset($employment_history)) {
+          $from = strtotime($employment_history->dateFrom());
+          $to = strtotime($employment_history->dateTo());
+          $from = date("d/m/Y", $from);
+          $to = date("d/m/Y", $to);
+
+          return "{$from} - {$to}";
         }
+      }
 
-        $loggedin_username = $_SESSION[USERNAME];
-        $user_type = $_SESSION[USER_TYPE];
+      /**
+        * Load and display this user's skills
+        */
+      function loadSkills() {
+        global $username;
+        global $conn;
 
-        // parse the URL for get parameters which may include a username to view a different user's profile
-        parseURL();
+        $sql = "SELECT * FROM teacher_skills JOIN skills on teacher_skills.skill_id = skills.skill_id WHERE username = ?;";
 
-        $own_profile = $user_type == ADMIN || $loggedin_username == $username; // if user is admin treat as own profile. If not, it's our own profile is username matches logged in one
+        if ($stmt = $conn->prepare($sql)) {
+          $stmt->bind_param("s", $param_username);
+          $param_username = $username;
 
-        if (canView()) {
-          loadTeacher();
-          if (empty($error_message)) {
-            loadRecentQualification();
+          if ($stmt->execute()) {
+            $result = $stmt->get_result();
+
+            if ($result->num_rows > 0) {
+              echo "<div class=\"row padding-5pcent-lr\"><ul class=\"list-group list-group-flush\">";
+              while ($row = $result->fetch_assoc()) {
+                echo "<li class=\"list-group-item\">{$row['name']}</li>";
+              }
+              echo "</ul></div>";
+            }
+          } else {
+            doSQLError($stmt->error);
           }
+
+          $stmt->close();
+        } else {
+          doSQLError($conn->error);
         }
-      } else {
-        goToLogin();
       }
      ?>
 
@@ -374,30 +371,27 @@
             <h4 class="underlined-header">Teacher</h4>
           </div>
           <div class="col-3">
-            <img class="img-fluid rounded-circle" src="<?php $photo = $teacher->profile_photo(); echo ($photo == null) ? "":$photo; ?>" alt="profile-picture">
+            <img class="img-fluid rounded-circle" src="<?php $photo = $teacher->profile_photo(); echo ($photo == null) ? "images/logo.png":$photo; ?>" alt="profile-picture">
           </div>
           <div class="col-9">
             <h3><?php echo "{$teacher->firstName()} {$teacher->lastName()}"; ?></h3>
             <h4 class="subtitle"><?php $headline = $teacher->headline(); echo ($headline == null) ? "":$headline; ?></h4>
+            <h5><?php echo $teacher->location(); ?></h5>
             <p class="about-me-text"><?php $about = $teacher->about(); echo ($about == null) ? "":$about; ?></p>
           </div>
           <?php
             if (isset($current_organisation)):
           ?>
           <div class="row text-align-center">
-            <div class="col-3 current-organisation d-flex align-items-center">
-              <h5><?php echo $current_organisation->name(); ?></h5>
-            </div>
-            <div class="col-3 d-flex align-items-center">
-              <img class="img-fluid rounded-circle current-organisation-photo" src="<?php $photo = ($current_organisation != null) ? $current_organisation->profile_photo():null; echo ($photo == null) ? "":$photo; ?>" alt="organisation-photo">
+            <div class="col current-organisation d-flex align-items-center">
+              <a href="organisation_profile.php?username=<?php echo $current_organisation->username(); ?>"><h5><?php echo $current_organisation->name(); ?></h5></a>
+              <img class="img-fluid rounded-circle current-organisation-photo" src="<?php $photo = ($current_organisation != null) ? $current_organisation->profile_photo():null; echo ($photo == null) ? "images/logo.png":$photo; ?>" alt="organisation-photo">
             </div>
           </div>
         <?php endif; ?>
-        <div class="row">
+        <div class="row mt-2">
           <div class="btn-toolbar">
-            <?php if ($own_profile || !$blocked_user): ?>
               <?php echo getPrimaryProfileButton(); ?>
-            <?php endif; ?>
             <?php if (!$own_profile): ?>
             <div class="dropdown">
               <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -416,19 +410,59 @@
           <div class="row">
             <h4 class="underlined-header">Most Recent Education</h4>
           </div>
-          <?php
-            if (isset($qualification)) {
-              echo "<div class=\"row\">";
-              // TODO education stuff here
-              echo "</div>";
-            }
-          ?>
+          <?php if (isset($qualification)): ?>
+          <div class="row align-items-center">
+            <div class="col">
+              <h4><?php echo $qualification->degree()->title(); ?></h4>
+              <h6><?php echo $qualification->degree()->type(); ?></h6>
+              <h6><?php echo $qualification->degree()->school(); ?></h6>
+              <h5 class="subtitle"><?php $timestamp = strtotime($qualification->date_obtained()); echo date("d/m/Y", $timestamp); ?></h5>
+            </div>
+            <div class="col">
+              <p><?php echo $qualification->degree()->description(); ?></p>
+            </div>
+          </div>
+          <div class="row justify-content-center text-center">
+            <div class="col">
+              <a href="#">See more</a>
+            </div>
+          </div>
+        <?php endif; ?>
         </div>
         <div class="col shadow profile-card">
           <div class="row">
             <h4 class="underlined-header">Most Recent Employment</h4>
           </div>
+          <?php if (isset($employment_history)): ?>
+          <div class="row align-items-center">
+            <div class="col-4">
+              <img class="img-fluid rounded-circle" src="<?php $photo = $employment_history->organisation()->profile_photo(); echo ($photo == null) ? "images/logo.png":$photo; ?>" alt="org_photo">
+            </div>
+            <div class="col-8">
+              <?php if ($employment_history->organisation()->username() != null): ?>
+                <a href="organisation_profile.php?username=<?php echo $employment_history->organisation()->username(); ?>">
+                  <h4><?php echo $employment_history->organisation()->name(); ?></h4>
+                </a>
+              <?php else: ?>
+                <h4><?php echo $employment_history->organisation()->name(); ?></h4>
+              <?php endif; ?>
+              <h5><?php echo $employment_history->job_title()?></h5>
+              <h5 class="subtitle"><?php echo getEmploymentDates(); ?></h5>
+            </div>
+          </div>
+          <div class="row justify-content-center text-center">
+            <div class="col">
+              <a href="#">See more</a>
+            </div>
+          </div>
+          <?php endif; ?>
         </div>
+      </div>
+      <div class="row shadow profile-card">
+        <div class="row">
+          <h4 class="underlined-header">Skills</h4>
+        </div>
+        <?php loadSkills(); ?>
       </div>
       <div class="row shadow profile-card">
         <div class="row">
@@ -448,13 +482,17 @@
       var connection_pending = <?php echo json_encode($connection_pending); ?>;
       const connection_sender = <?php echo json_encode($connection_sender); ?>;
       const connection_receiver = <?php echo json_encode($connection_receiver); ?>;
-      const server_uri = <?php echo json_encode($_SERVER['REQUEST_URI']); ?>;
       var accept_connection = <?php echo json_encode(displayAcceptConnection()); ?>;
       var request_sent = <?php echo json_encode(displayConnectionRequested()); ?>;
 
       var ajax_progress = document.getElementById('ajax-progress');
       ajax_progress.style.display = "none";
       var profile_header = document.getElementById('profile-header');
+
+      var connectButton = document.getElementById('connect-button');
+      if (blocked_user) {
+        connectButton.style.display = "none";
+      }
 
       /**
         * Updates the ajax_progress message
@@ -562,37 +600,38 @@
                 var responseBody = JSON.parse(response);
                 handleConnectionResponse(responseBody, null);
               } catch (e) {
-                alert(response);
+                alert(e);
               }
             }
           }
 
-          var url = null;
+          var url = "profile-action-ajax.php";
+          var data = {};
+          data['action'] = "connect";
+          data['sender'] = connection_sender;
+          data['destination'] = connection_receiver;
 
           if (!connected) {
             update_progress("Sending connection request", true);
-            url = `profile-action-ajax.php?action=connect&sender=${connection_sender}&destination=${connection_receiver}&action_param=add`;
+            data['action_param'] = "add";
           } else {
             if (connection_pending) {
               if (accept_connection) {
                 update_progress("Accepting connection request", true);
-                url = `profile-action-ajax.php?action=connect&sender=${connection_sender}&destination=${connection_receiver}&action_param=accept`;
+                data['action_param'] = "accept";
               } else if (request_sent) {
                 update_progress("Removing connection request", true);
-                url = getRemoveConnectionURL();
+                data['action_param'] = "remove";
               }
             } else {
               update_progress("Removing connection", true);
-              url = getRemoveConnectionURL();
+              data['action_param'] = "remove";
             }
           }
 
-          if (url != null) {
-            ajaxRequest.open("GET", url, true);
-            ajaxRequest.send(null);
-          } else {
-            console.warn("Connection request URL is null, may be an error");
-          }
+          ajaxRequest.open("POST", url, true);
+          var json = JSON.stringify(data);
+          ajaxRequest.send(json);
         }
       }
 
@@ -616,7 +655,10 @@
                   if (message == "REMOVED") {
                     button.innerHTML = "Block";
                     blocked_user = false;
-                    window.location.reload();
+                    if (connectButton != null) {
+                      connectButton.style.display = "block";
+                      connectButton.innerHTML = "Connect";
+                    }
                   } else if (message == "BLOCKED") {
                     button.innerHTML = "Blocked";
                     window.location.href = "teacher_profile.php";
@@ -627,26 +669,27 @@
                   alert(message);
                 }
               } catch (e) {
-                alert(response);
+                alert(e);
               }
             }
           }
 
-          var url = null;
+          var url = "profile-action-ajax.php";
+          var data = {};
+          data['action'] = "block";
+          data['sender'] = loggedin_username;
+          data['destination'] = username;
 
           if (!own_profile) {
             if (!blocked_user) {
-              url = `profile-action-ajax.php?action=block&sender=${loggedin_username}&destination=${username}&action_param=add`;
+              data['action_param'] = "add";
             } else {
-              url = `profile-action-ajax.php?action=block&sender=${loggedin_username}&destination=${username}&action_param=remove`;
+              data['action_param'] = "remove";
             }
 
-            if (url != null) {
-              ajaxRequest.open("GET", url, true);
-              ajaxRequest.send(null);
-            } else {
-              console.warn("Block URL is null, may be an error");
-            }
+            ajaxRequest.open("POST", url, true);
+            var json = JSON.stringify(data);
+            ajaxRequest.send(json);
           }
         }
       }
@@ -665,31 +708,37 @@
                 var responseBody = JSON.parse(response);
                 handleConnectionResponse(responseBody, blockCallback); // we have removed any connection between these users, so we can now block them
               } catch (e) {
-                alert(response);
+                alert(e);
               }
             }
           }
 
-          var url = null;
+          var url = "profile-action-ajax.php";
+          var data = {};
+          data['action'] = "connect";
+          data['sender'] = connection_sender;
+          data['destination'] = connection_receiver;
+          data['action_param'] = "remove";
 
           if (!own_profile) {
-
             if (!blocked_user) {
               update_progress("Blocking user", true);
-              url = getRemoveConnectionURL();
-
-              if (url != null) {
-                ajaxRequest.open("GET", url, true);
-                ajaxRequest.send(null);
-              } else {
-                console.warn("Connection request URL is null, may be an error");
-              }
+              ajaxRequest.open("POST", url, true);
+              var json = JSON.stringify(data);
+              ajaxRequest.send(json);
             } else {
               update_progress("Unblocking user", true);
               blockCallback();
             }
           }
         }
+      }
+
+      /**
+        * Handles the edit button being pressed
+        */
+      function handleEdit() {
+        window.location.href = window.location.href = `edit_teacher.php?username=${username}`;
       }
 
     </script>

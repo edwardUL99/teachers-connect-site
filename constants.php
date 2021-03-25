@@ -10,10 +10,10 @@
   define('DESTINATION', 'destination');
   define('ACTION', 'action');
   define('CONNECT', 'connect');
+  define('FOLLOW', 'follow');
   define('BLOCK', 'block');
   define('ACTION_PARAM', 'action_param');
   define('REMOVE', 'remove');
   define('ADD', 'add');
   define('ACCEPT', 'accept');
-  define('RETURN_URL', 'return_url');
  ?>

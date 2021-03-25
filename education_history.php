@@ -16,6 +16,10 @@
       */
     private $type;
     /**
+      * The school this degree was obtained from
+      */
+    private $school;
+    /**
       * The description for this degree
       */
     private $description;
@@ -27,10 +31,11 @@
     /**
       * Construct an academic degree object
       */
-    function __construct($degree_id, $title, $type, $description, $level) {
+    function __construct($degree_id, $title, $type, $school, $description, $level) {
       $this->degree_id = $degree_id;
       $this->title = $title;
       $this->type = $type;
+      $this->school = $school;
       $this->description = $description;
       $this->level = $level;
     }
@@ -47,6 +52,13 @@
       */
     function title() {
       return $this->title;
+    }
+
+    /**
+      * The school this degree was obtained in
+      */
+    function school() {
+      return $this->school;
     }
 
     /**

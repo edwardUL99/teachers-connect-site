@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS organisation_members (
 CREATE TABLE IF NOT EXISTS followed_organisations (
   teacher_username VARCHAR(32),
   organisation_id INTEGER,
-  PRIMARY KEY (teacher_username),
+  PRIMARY KEY (teacher_username, organisation_id),
   FOREIGN KEY (teacher_username) REFERENCES teachers(username)
     ON DELETE CASCADE
     ON UPDATE RESTRICT,
@@ -211,7 +211,7 @@ CREATE TABLE IF NOT EXISTS teacher_skills (
 */
 
 CREATE TABLE IF NOT EXISTS employment_history (
-  history_id INTEGER,
+  history_id INTEGER AUTO_INCREMENT,
   username VARCHAR(32),
   organisation_id INTEGER,
   dateFrom DATE,
@@ -236,6 +236,7 @@ CREATE TABLE IF NOT EXISTS academic_degrees (
   degree_id INTEGER AUTO_INCREMENT,
   title VARCHAR(32),
   type VARCHAR(32),
+  school VARCHAR(32),
   description VARCHAR(255),
   level VARCHAR(32),
   PRIMARY KEY (degree_id)

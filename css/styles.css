@@ -70,9 +70,8 @@ html, body {
 }
 
 .login-button {
-  margin-left: 25%;
-  margin-right: 25%;
-  width: 75%;
+  margin-left: auto;
+  margin-right: auto;
   margin-bottom: 5%;
 }
 
@@ -90,9 +89,15 @@ html, body {
   padding: 1%;
 }
 
+.padding-5pcent-lr {
+  padding-left: 5%;
+  padding-right: 5%;
+}
+
 .profile-card {
   margin-top: 2%;
   background-color: white;
+  border-radius: 5px;
 }
 
 .right-margin-1pcent {
@@ -116,8 +121,9 @@ html, body {
 }
 
 .current-organisation-photo {
-  width: 50%;
-  height: 50%;
+  margin-left: 2%;
+  height: 80px;
+  width: 80px;
 }
 
 .margin-auto {

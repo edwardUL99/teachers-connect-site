@@ -7,16 +7,10 @@
   define("CONNECTIONS", "connections", true);
   define("VACANCIES", "vacancies", true);
   define("NOTIFICATIONS", "notifications", true);
+  define("SEARCH", "search", true);
   define("PROFILE", "profile", true);
   define("ACTIVE", "class=\"nav-link active\" aria-current=\"page\" ", true);
   define ("INACTIVE", "class=\"nav-link\" ", true);
-
-  /**
-   * This is testing only. These variables should be setup elsewhere
-   */
-   $_SESSION[LOGGED_IN] = true;
-   $_SESSION[USERNAME] = "eddylynch9";
-   $_SESSION[USER_TYPE] = TEACHER;
 
    /**
     * The user name that has been set by the session check in this navigation php file
@@ -42,6 +36,8 @@
 
       $username = $_SESSION[USERNAME];
       $user_type = $_SESSION[USER_TYPE];
+    } else {
+      goToLogin();
     }
 
     /**
@@ -49,7 +45,7 @@
       */
     function checkPageName($page) {
       if (empty($page) || ($page != HOME && $page != CONNECTIONS && $page != VACANCIES
-        && $page != NOTIFICATIONS && $page != PROFILE)) {
+        && $page != NOTIFICATIONS && $page != PROFILE && $page != SEARCH)) {
           die("Invalid page option given to navbar.php. Value: {$page}");
       }
     }
@@ -108,13 +104,22 @@
         </li>";
       }
 
-      echo "</ul>
-      <form class=\"d-flex\">
-      <input class=\"form-control me-2\" type=\"search\" placeholder=\"Search\" aria-label=\"Search\">
-      <button class=\"btn btn-outline-success\" type=\"submit\">Search</button>
-      </form>
-      </div>
-      </div>
-      </nav>";
+       if($page != SEARCH) {
+         echo "</ul>
+         <form class=\"d-flex\">
+         <input class=\"form-control me-2\" name =\"q\" type=\"search\" placeholder=\"Search\" aria-label=\"Search\">
+         <button class=\"btn btn-outline-success\" type=\"submit\">Search</button>
+         </form>";
+
+         if(isset($_GET['q'])) {
+          $q = $_GET['q'];
+
+          header('Location: '. 'search2.php?q=' . $q);
+        }
+      }
+
+      echo "</div>
+          </div>
+          </nav>";
     }
 ?>
