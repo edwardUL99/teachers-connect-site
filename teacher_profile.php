@@ -480,8 +480,8 @@
       var blocked_user = <?php echo json_encode($blocked_user); ?>;
       var connected = <?php echo json_encode(checkConnection()); ?>;
       var connection_pending = <?php echo json_encode($connection_pending); ?>;
-      const connection_sender = <?php echo json_encode($connection_sender); ?>;
-      const connection_receiver = <?php echo json_encode($connection_receiver); ?>;
+      var connection_sender = <?php echo json_encode($connection_sender); ?>;
+      var connection_receiver = <?php echo json_encode($connection_receiver); ?>;
       var accept_connection = <?php echo json_encode(displayAcceptConnection()); ?>;
       var request_sent = <?php echo json_encode(displayConnectionRequested()); ?>;
 
@@ -553,6 +553,9 @@
             connected = false;
             connection_pending = false;
             request_sent = false;
+            connection_sender = loggedin_username;
+            connection_receiver = username;
+            accept_connection = false;
           } else if (message == "PENDING") {
             if (button != null)
               button.innerHTML = "Connection Requested";
