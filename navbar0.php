@@ -1,4 +1,5 @@
 <?php
+//TODO maybe rename this to navigation since it also sets up the page ("scene") being displayed such as logged in user etc.
   require "constants.php";
 
   session_start();
@@ -7,10 +8,16 @@
   define("CONNECTIONS", "connections", true);
   define("VACANCIES", "vacancies", true);
   define("NOTIFICATIONS", "notifications", true);
-  define("SEARCH", "search", true);
   define("PROFILE", "profile", true);
   define("ACTIVE", "class=\"nav-link active\" aria-current=\"page\" ", true);
   define ("INACTIVE", "class=\"nav-link\" ", true);
+
+  /**
+   * This is testing only. These variables should be setup elsewhere
+   */
+   $_SESSION[LOGGED_IN] = true;
+   $_SESSION[USERNAME] = "eddylynch9";
+   $_SESSION[USER_TYPE] = TEACHER;
 
    /**
     * The user name that has been set by the session check in this navigation php file
@@ -36,8 +43,6 @@
 
       $username = $_SESSION[USERNAME];
       $user_type = $_SESSION[USER_TYPE];
-    } else {
-      goToLogin();
     }
 
     /**
@@ -45,7 +50,7 @@
       */
     function checkPageName($page) {
       if (empty($page) || ($page != HOME && $page != CONNECTIONS && $page != VACANCIES
-        && $page != NOTIFICATIONS && $page != PROFILE && $page != SEARCH)) {
+        && $page != NOTIFICATIONS && $page != PROFILE)) {
           die("Invalid page option given to navbar.php. Value: {$page}");
       }
     }
@@ -76,7 +81,7 @@
 
       $class_name = ($page == HOME) ? ACTIVE:INACTIVE;
       echo "<li class=\"nav-item\">
-      <a {$class_name} href=\"feed.php\">Home</a>
+      <a {$class_name} href=\"#\">Home</a>
       </li>";
 
       if ($user_type == TEACHER) {
@@ -88,7 +93,7 @@
 
       $class_name = ($page == VACANCIES) ? ACTIVE:INACTIVE;
       echo "<li class=\"nav-item\">
-      <a {$class_name} href=\"vacancies.php\">Vacancies</a>
+      <a {$class_name} href=\"#\">Vacancies</a>
       </li>";
 
       $class_name = ($page == NOTIFICATIONS) ? ACTIVE:INACTIVE;
@@ -96,30 +101,18 @@
       <a {$class_name} href=\"#\">Notifications</a>
       </li>";
 
-      if ($user_type != ADMIN) {
-        $class_name = ($page == PROFILE) ? ACTIVE:INACTIVE;
-        $link = ($user_type == TEACHER) ? "teacher_profile.php":"organisation_profile.php";
-        echo "<li class=\"nav-item\">
-        <a {$class_name} href=\"{$link}\">Profile</a>
-        </li>";
-      }
+      $class_name = ($page == PROFILE) ? ACTIVE:INACTIVE;
+      echo "<li class=\"nav-item\">
+      <a {$class_name} href=\"#\">Profile</a>
+      </li>";
 
-       if($page != SEARCH) {
-         echo "</ul>
-         <form class=\"d-flex\">
-         <input class=\"form-control me-2\" name =\"q\" type=\"search\" placeholder=\"Search\" aria-label=\"Search\">
-         <button class=\"btn btn-outline-success\" type=\"submit\">Search</button>
-         </form>";
-
-         if(isset($_GET['q'])) {
-          $q = $_GET['q'];
-
-          header('Location: '. 'search2.php?q=' . $q);
-        }
-      }
-
-      echo "</div>
-          </div>
-          </nav>";
+      echo "</ul>
+      <form class=\"d-flex\">
+      <input class=\"form-control me-2\" type=\"search\" placeholder=\"Search\" aria-label=\"Search\">
+      <button class=\"btn btn-outline-success\" type=\"submit\">Search</button>
+      </form>
+      </div>
+      </div>
+      </nav>";
     }
 ?>
