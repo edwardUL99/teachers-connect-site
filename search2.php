@@ -55,10 +55,30 @@
       
       <div class="container main-background">
       
-     <form action= "search2.php" method = "GET" id ="searchForm" />
-         <input type="text" name ="q" id="searchBar" placeholder="" value="Search..." maxlength = "25" autocomplete="off" onMouseDown="active();" onBlur ="inactive();" />
-         <input type = "submit" id="searchBtn" value="Search" />
-   </form>
+    
+   
+<form class="d-flex" action= "search2.php" method = "GET" style ="margin-top: 20px">
+
+
+<input class="form-control me-2"
+type="search"  name ="q" placeholder="Search"
+aria-label="Search">
+
+
+<button class="btn btn" style="background-color:white"
+type="submit">Search</button>
+
+
+</form>
+
+
+
+
+
+
+
+
+
    
    
    
@@ -68,13 +88,28 @@
        $q =$_GET['q'];
    
    
-   $query = mysqli_query($conn, "select * from teachers where first_name like '%$q%'");
+   $query = mysqli_query($conn, "select * from teachers where first_name like '%$q%' or concat(first_name, \" \", last_name) like '%$q%'");
    while($row = mysqli_fetch_array($query)){
        $first_name = $row['first_name'];
+       $last_name = $row['last_name'];
        $username = $row['username'];
+       $headline = $row['headline'];
        
-       
-        echo '<a href="teacher_profile.php?username='.$username.'">' . $first_name . '</a><br />';
+        echo '<div class="card" style ="margin-top: 20px; margin-bottom: 20px">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-4">
+                                    <img class="card-img-top" src="Face.jpg" alt="Card image" style="width:100%">
+                                </div>
+                                <div class="col-8">
+                                    <a href="teacher_profile.php?username='.$username.'">' . $first_name . ' '. $last_name . '</a><br />
+                                    
+                                    <h5 class="card-title">'. $headline .'</h5>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>';
        
    }}
    ?>

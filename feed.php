@@ -51,18 +51,40 @@
                 <div class="col-9">
 					<div class="card" style="margin-top:20px;">
 						<div class="form-group">
-							<textarea class="form-control" id="exampleFormControlTextarea1" rows="3">
+						    <form name="form" action="" method="post">
+                                <textarea class="form-control" name="content" id="exampleFormControlTextarea1" rows="3">
 								
-							</textarea>
+							    </textarea>
+                                <div class="card-body text-center">
+							        <button type="submit" class="btn btn-primary">Post</button>
+						        </div>
+                            </form>
+                            <?php
+                                if($_SERVER["REQUEST_METHOD"] == "POST"){
+                                    if(isset($_POST['content'])){
+                                        $content = $_POST['content'];
+                                        $username = $_SESSION['username'];
+    							    
+                                        $sql = "INSERT INTO posts (`username`, `content`) VALUES ('{$username}', '{$content}');";
+                                        
+    
+                                        if ($conn->query($sql) === FALSE) {
+                                        echo "Error uplaoding post, try again";
+                                        } else {
+                                            header('Location: feed.php');
+                                        }
+                                    }  
+                                }
+                            ?> 
+                        
+                                
+                            
 						</div>
-						<div class="card-body text-center">
-							<button type="button" class="btn btn-primary">Post</button>
-						</div>
-                    </div>
+                        </div>
 
                     <?php
                         
-                            $query = mysqli_query($conn, "select * from posts");
+                            $query = mysqli_query($conn, "select * from posts order by created_at desc");
                             while($row = mysqli_fetch_array($query)){
                                 $content = $row['content'];
                                 $username = $row['username'];
