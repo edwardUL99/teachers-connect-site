@@ -16,4 +16,14 @@
   define('REMOVE', 'remove');
   define('ADD', 'add');
   define('ACCEPT', 'accept');
+  define('EDIT_TYPE', 'edit_type');
+  define('EDIT_FORM', 'edit_form');
+  define('UPDATE_PROFILE', 'update_profile');
+  define('UPDATE_PASSWORD', 'update_password');
+  define('JOIN_ORGANISATION', 'join_organisation');
+  define('EDUCATION_HISTORY', 'education_history');
+  define('DELETE_EDUCATION', 'delete_education');
+  define('ADD_SKILLS', 'add_skills');
+  define('REMOVE_SKILL', 'remove_skill');
+  define('DELETE_ACCOUNT', 'delete_account');
  ?>

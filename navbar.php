@@ -37,7 +37,13 @@
       $username = $_SESSION[USERNAME];
       $user_type = $_SESSION[USER_TYPE];
     } else {
-      goToLogin();
+      if (isset($_COOKIE[USERNAME]) && isset($_COOKIE[USER_TYPE])) {
+        $username = $_SESSION[USERNAME] = $_COOKIE[USERNAME];
+        $user_type = $_SESSION[USER_TYPE] = $_COOKIE[USER_TYPE];
+        $_SESSION[LOGGED_IN] = true; 
+      } else {
+        goToLogin();
+      }
     }
 
     /**
@@ -105,8 +111,7 @@
       }
 
        if($page != SEARCH) {
-         echo "</ul>
-         <form class=\"d-flex\">
+         echo "</ul><form class=\"d-flex\">
          <input class=\"form-control me-2\" name =\"q\" type=\"search\" placeholder=\"Search\" aria-label=\"Search\">
          <button class=\"btn btn-outline-success\" type=\"submit\">Search</button>
          </form>";
@@ -116,7 +121,12 @@
 
           header('Location: '. 'search2.php?q=' . $q);
         }
+      } else {
+        echo "</ul>";
       }
+
+      echo "<a class=\"nav-link\" href=\"logout.php\">Logout</a>";
+
 
       echo "</div>
           </div>

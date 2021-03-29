@@ -114,24 +114,26 @@
        <div class="row">
          <div class="alert alert-info" id="ajax-progress"></div>
        </div>
-        <div class="row shadow profile-card padding-1pcent" id="profile-header">
-          <div class="row">
-            <h4 class="underlined-header">Organisation</h4>
+       <div class="row shadow profile-card padding-1pcent" id="profile-header">
+        <div class="row">
+          <h4 class="underlined-header">Organisation</h4>
+        </div>
+        <div class="col-3">
+          <img class="img-fluid rounded-circle" src="<?php $photo = $organisation->profile_photo(); echo ($photo == null) ? "images/logo.png":$photo; ?>" alt="profile-picture">
+        </div>
+        <div class="col-9">
+          <h3><?php echo "{$organisation->name()}"; ?></h3>
+          <h4 class="subtitle"><?php $headline = $organisation->headline(); echo ($headline == null) ? "":$headline; ?></h4>
+          <h5><?php echo $organisation->location(); ?></h5>
+          <p class="about-me-text"><?php $about = $organisation->about(); echo ($about == null) ? "":$about; ?></p>
+        </div>
+        <?php if ($_SESSION[USER_TYPE] != ORGANISATION || $own_profile): ?>
+        <div class="row mt-2">
+          <div class="btn-toolbar">
+            <?php echo getPrimaryProfileButton(); ?>
           </div>
-          <div class="col-3">
-            <img class="img-fluid rounded-circle" src="<?php $photo = $organisation->profile_photo(); echo ($photo == null) ? "images/logo.png":$photo; ?>" alt="profile-picture">
-          </div>
-          <div class="col-9">
-            <h3><?php echo "{$organisation->name()}"; ?></h3>
-            <h4 class="subtitle"><?php $headline = $organisation->headline(); echo ($headline == null) ? "":$headline; ?></h4>
-            <h5><?php echo $organisation->location(); ?></h5>
-            <p class="about-me-text"><?php $about = $organisation->about(); echo ($about == null) ? "":$about; ?></p>
-          </div>
-          <div class="row mt-2">
-            <div class="btn-toolbar">
-              <?php echo getPrimaryProfileButton(); ?>
-            </div>
-          </div>
+        </div>
+        <?php endif; ?>
         </div>
         <!--<div class="row shadow profile-card">
           <div class="row">
@@ -147,6 +149,7 @@
       <?php endif; ?>
     </div>
 
+    <script type="text/javascript" src="ajax.js"></script>
     <script>
       const username = <?php echo json_encode($username); ?>;
       const organisation_id = <?php if ($organisation != null) { echo json_encode($organisation->organisation_id()); } ?>;
@@ -179,30 +182,6 @@
           ajax_progress.style.marginBottom = "2%";
           profile_header.style.marginTop = "0%";
         }
-      }
-
-      /**
-        * Get the AJAX object
-        */
-      function getAJAX() {
-        var ajaxRequest;
-
-        try {
-          ajaxRequest = new XMLHttpRequest();
-        } catch (e) {
-          try {
-            ajaxRequest = new ActiveXObject("Msxml2.XMLHTTP");
-          } catch (e) {
-            try {
-              ajaxRequest = new ActiveXObject("Microsoft.XMLHTTP");
-            } catch (e) {
-              alert("An error occurred. Your browser may not be supported by this website");
-              return null;
-            }
-          }
-        }
-
-        return ajaxRequest;
       }
 
       /**

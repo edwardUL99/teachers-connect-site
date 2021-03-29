@@ -202,7 +202,7 @@
       function canView() {
         global $own_profile;
 
-        if (!$own_profile) {
+        if (!$own_profile && $_SESSION[USER_TYPE] == TEACHER) {
           global $conn;
           global $username;
 
@@ -366,32 +366,33 @@
        <div class="row">
          <div class="alert alert-info" id="ajax-progress"></div>
        </div>
-        <div class="row shadow profile-card padding-1pcent" id="profile-header">
-          <div class="row">
-            <h4 class="underlined-header">Teacher</h4>
+       <div class="row shadow profile-card padding-1pcent" id="profile-header">
+        <div class="row">
+          <h4 class="underlined-header">Teacher</h4>
+        </div>
+        <div class="col-3">
+          <img class="img-fluid rounded-circle" src="<?php $photo = $teacher->profile_photo(); echo ($photo == null) ? "images/logo.png":$photo; ?>" alt="profile-picture">
+        </div>
+        <div class="col-9">
+          <h3><?php echo "{$teacher->firstName()} {$teacher->lastName()}"; ?></h3>
+          <h4 class="subtitle"><?php $headline = $teacher->headline(); echo ($headline == null) ? "":$headline; ?></h4>
+          <h5><?php echo $teacher->location(); ?></h5>
+          <p class="about-me-text"><?php $about = $teacher->about(); echo ($about == null) ? "":$about; ?></p>
+        </div>
+        <?php
+          if (isset($current_organisation)):
+        ?>
+        <div class="row text-align-center">
+          <div class="col current-organisation d-flex align-items-center">
+            <a href="organisation_profile.php?username=<?php echo $current_organisation->username(); ?>"><h5><?php echo $current_organisation->name(); ?></h5></a>
+            <img class="img-fluid rounded-circle current-organisation-photo" src="<?php $photo = ($current_organisation != null) ? $current_organisation->profile_photo():null; echo ($photo == null) ? "images/logo.png":$photo; ?>" alt="organisation-photo">
           </div>
-          <div class="col-3">
-            <img class="img-fluid rounded-circle" src="<?php $photo = $teacher->profile_photo(); echo ($photo == null) ? "images/logo.png":$photo; ?>" alt="profile-picture">
-          </div>
-          <div class="col-9">
-            <h3><?php echo "{$teacher->firstName()} {$teacher->lastName()}"; ?></h3>
-            <h4 class="subtitle"><?php $headline = $teacher->headline(); echo ($headline == null) ? "":$headline; ?></h4>
-            <h5><?php echo $teacher->location(); ?></h5>
-            <p class="about-me-text"><?php $about = $teacher->about(); echo ($about == null) ? "":$about; ?></p>
-          </div>
-          <?php
-            if (isset($current_organisation)):
-          ?>
-          <div class="row text-align-center">
-            <div class="col current-organisation d-flex align-items-center">
-              <a href="organisation_profile.php?username=<?php echo $current_organisation->username(); ?>"><h5><?php echo $current_organisation->name(); ?></h5></a>
-              <img class="img-fluid rounded-circle current-organisation-photo" src="<?php $photo = ($current_organisation != null) ? $current_organisation->profile_photo():null; echo ($photo == null) ? "images/logo.png":$photo; ?>" alt="organisation-photo">
-            </div>
-          </div>
+        </div>
         <?php endif; ?>
+        <?php if ($_SESSION[USER_TYPE] == TEACHER || $_SESSION[USER_TYPE] == ADMIN): ?>
         <div class="row mt-2">
           <div class="btn-toolbar">
-              <?php echo getPrimaryProfileButton(); ?>
+            <?php echo getPrimaryProfileButton(); ?>
             <?php if (!$own_profile): ?>
             <div class="dropdown">
               <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -404,6 +405,7 @@
           <?php endif; ?>
           </div>
         </div>
+        <?php endif; ?>
       </div>
       <div class="row">
         <div class="col shadow profile-card right-margin-1pcent">
@@ -473,6 +475,7 @@
       <?php endif; ?>
     </div>
 
+    <script type="text/javascript" src="ajax.js"></script>
     <script>
       const username = <?php echo json_encode($username); ?>;
       const loggedin_username = <?php echo json_encode($_SESSION[USERNAME]); ?>;
@@ -512,30 +515,6 @@
           ajax_progress.style.marginBottom = "2%";
           profile_header.style.marginTop = "0%";
         }
-      }
-
-      /**
-        * Get the AJAX object
-        */
-      function getAJAX() {
-        var ajaxRequest;
-
-        try {
-          ajaxRequest = new XMLHttpRequest();
-        } catch (e) {
-          try {
-            ajaxRequest = new ActiveXObject("Msxml2.XMLHTTP");
-          } catch (e) {
-            try {
-              ajaxRequest = new ActiveXObject("Microsoft.XMLHTTP");
-            } catch (e) {
-              alert("An error occurred. Your browser may not be supported by this website");
-              return null;
-            }
-          }
-        }
-
-        return ajaxRequest;
       }
 
       /**

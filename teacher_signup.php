@@ -265,7 +265,7 @@
                 </div>
                 <div class="form-group login-input <?php echo (!empty($username_error)) ? 'has-error' : ''; ?>">
                   <label>Username</label>
-                  <input type="text" pattern="[A-Za-z0-9]*" title="Please enter alphanumeric characters only" name="username" class="form-control" placeholder="jdoe" value="<?php echo $username; ?>" required>
+                  <input type="text" pattern="[A-Za-z0-9_\-]*" title="Please enter alphanumeric characters only" name="username" class="form-control" placeholder="jdoe" value="<?php echo $username; ?>" required>
                   <span class="help-block login-error-message"><?php echo $username_error; ?></span>
                 </div>
                 <div class="form-group login-input <?php echo (!empty($email_error)) ? 'has-error' : ''; ?>">

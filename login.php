@@ -50,9 +50,14 @@
                 $row = mysqli_fetch_array($result);
                 if (isset($row)) {
                   if((password_verify($password, $row["password"]) || $row["password"] == $password)) {
+                    $user_type = $row["type"];
+                    if (isset($_POST["stay_signed_in"])) {
+                      setcookie(USERNAME, $username, time() + (86400 * 30));
+                      setcookie(USER_TYPE, $user_type, time() + (86400 * 30));
+                    }
                     $_SESSION[LOGGED_IN] = true;
                     $_SESSION[USERNAME] = $username;
-                    $_SESSION[USER_TYPE] = $row["type"];
+                    $_SESSION[USER_TYPE] = $user_type;
                     header("Location: feed.php");
                   } else {
                     $password_error = "Your password is incorrect";
@@ -83,7 +88,7 @@
                 <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method ="POST">
                   <div class="form-group login-input <?php echo (!empty($username_error)) ? 'has-error' : ''; ?>">
                     <label>Username</label>
-                    <input type="text"  name = "username" pattern="[A-Za-z0-9_]*" title="Please enter alphanumeric characters only" class="form-control" value="<?php echo $username; ?>" required>
+                    <input type="text"  name = "username" pattern="[A-Za-z0-9_\-]*" title="Please enter alphanumeric characters only" class="form-control" value="<?php echo $username; ?>" required>
                     <span class="help-block login-error-message"><?php echo $username_error; ?></span>
                   </div>
                   <div class="form-group login-input <?php echo (!empty($password_error)) ? 'has-error' : ''; ?>">
@@ -94,7 +99,7 @@
                   <div class="form-group checkbox login-input">
                     <div class="row">
                       <div class="col">
-                        <label><input type="checkbox">Stay signed in</label>
+                        <label><input type="checkbox" name="stay_signed_in">Stay signed in</label>
                       </div>
                       <div class="col align-self-end text-end">
                         <a href="url">Forgot password?</a>

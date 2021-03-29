@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
@@ -9,15 +9,15 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
-    
+
 	<body>
-        
+
         <?php
             require "database.php";
             require "error.php";
             require "navbar.php";
         ?>
-        
+
         <?php
             generateNavBar(HOME);
         ?>
@@ -31,15 +31,15 @@
 							<h4 class="card-title">
 							    <?php
 							    $username = $_SESSION['username'];
-							    
+
                                 $sql = "select * from teachers where username = '$username';";
                                 $result = $conn->query($sql);
                                 while($row = $result->fetch_assoc()) {
                                     echo "" . $row["first_name"] . " " . $row["last_name"] . " ";
                                 }
-                                ?> 
+                                ?>
 							</h4>
-							    
+
 							<p class="card-text">Some example text some example text. John Doe is an architect and engineer</p>
 							<button type="button" class="btn btn-primary">
 								Notifications <span class="badge bg-secondary">4</span>
@@ -47,14 +47,12 @@
 						</div>
 					</div>
                 </div>
-                
+
                 <div class="col-9">
 					<div class="card" style="margin-top:20px;">
 						<div class="form-group">
 						    <form name="form" action="" method="post">
-                                <textarea class="form-control" name="content" id="exampleFormControlTextarea1" rows="3">
-								
-							    </textarea>
+                                <textarea class="form-control" name="content" id="exampleFormControlTextarea1" rows="3"></textarea>
                                 <div class="card-body text-center">
 							        <button type="submit" class="btn btn-primary">Post</button>
 						        </div>
@@ -64,35 +62,35 @@
                                     if(isset($_POST['content'])){
                                         $content = $_POST['content'];
                                         $username = $_SESSION['username'];
-    							    
+
                                         $sql = "INSERT INTO posts (`username`, `content`) VALUES ('{$username}', '{$content}');";
-                                        
-    
+
+
                                         if ($conn->query($sql) === FALSE) {
                                         echo "Error uplaoding post, try again";
                                         } else {
                                             header('Location: feed.php');
                                         }
-                                    }  
+                                    }
                                 }
-                            ?> 
-                        
-                                
-                            
+                            ?>
+
+
+
 						</div>
                         </div>
 
                     <?php
-                        
+
                             $query = mysqli_query($conn, "select * from posts order by created_at desc");
                             while($row = mysqli_fetch_array($query)){
                                 $content = $row['content'];
                                 $username = $row['username'];
-                            
+
                                 $sql = "select * from teachers where username = '$username';";
                                 $result = $conn->query($sql);
                                 while($row = $result->fetch_assoc()) {
-                    
+
                             echo '<div class="card" style="margin-top:5%; margin-bottom:5%;">
                             <div class="card-body">
                                 <div class="row">
@@ -109,12 +107,12 @@
                         </div>';
                                 }
                             }
-                        
+
                     ?>
 				</div>
 			</div>
 		</div>
-		
-		
+
+
 	</body>
 </html>

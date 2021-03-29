@@ -46,6 +46,7 @@
 
   require "database.php";
   require "constants.php";
+  require "ajax.php";
 
   $sender = "";
   $destination = "";
@@ -60,47 +61,32 @@
   }
 
   /**
-    * Respond to the request
-    */
-  function respond($success, $message) {
-    http_response_code(($success) ? 200:401);
-    $response = [
-      'success' => $success,
-      'message' => $message
-    ];
-    echo json_encode($response);
-  }
-
-  /**
-    * Parses the URL for any post parameters
+    * Parses any post parameters
     */
   function profile_action_parsePOST() {
     global $sender;
     global $destination;
     global $action;
     global $action_param;
-    global $return_url;
 
-    $params = json_decode(file_get_contents('php://input'), true); // parse the JSON POST input
-
-    if (isset($params[ACTION])) {
-      $action = $params[ACTION];
+    if (isset($_POST[ACTION])) {
+      $action = $_POST[ACTION];
     } else {
       throwError();
     }
 
-    if (isset($params[ACTION_PARAM])) {
-      $action_param = $params[ACTION_PARAM];
+    if (isset($_POST[ACTION_PARAM])) {
+      $action_param = $_POST[ACTION_PARAM];
     }
 
-    if (isset($params[SENDER])) {
-      $sender = $params[SENDER];
+    if (isset($_POST[SENDER])) {
+      $sender = $_POST[SENDER];
     } else {
       throwError();
     }
 
-    if (isset($params[DESTINATION])) {
-      $destination = $params[DESTINATION];
+    if (isset($_POST[DESTINATION])) {
+      $destination = $_POST[DESTINATION];
     } else {
       throwError();
     }
