@@ -345,6 +345,34 @@
     }
 
     /**
+      * Retrieve the degree title and school for the provided degree id
+      */
+    function getDegreeTitleAndSchool($degree_id) {
+      global $conn;
+
+      $sql = "SELECT title, school FROM academic_degrees WHERE degree_id = ?;";
+
+      if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param("i", $param_id);
+        $param_id = $degree_id;
+
+        if ($stmt->execute()) {
+          $result = $stmt->get_result();
+
+          while ($row = $result->fetch_assoc()) {
+            return array('title' => $row['title'], 'school' => $row['school']);
+          }
+        } else {
+          die("Database error: {$stmt->error}");
+        }
+
+        $stmt->close();
+      } else {
+        die("Database error: {$conn->error}");
+      }
+    }
+
+    /**
       * Processes the creation of an education history object
       */
     function processEducationHistory() {
@@ -353,6 +381,8 @@
 
       if (isset($_POST['degree_choice'])) {
         $value = $_POST['degree_choice'];
+
+        $data = array();
 
         $degree_id = 0;
         if ($value == "New degree") {
@@ -382,10 +412,17 @@
           }
 
           $stmt->close();
-          respond(true, "UPDATED");
+          $titleSchool = getDegreeTitleAndSchool($degree_id);
+          $data = array();
+          $data['value'] = "{$degree_id}-{$username}";
+          $date_obtained = formatDate($date_obtained);
+          $data['text'] = "{$titleSchool['title']} - {$date_obtained} - {$titleSchool['school']}";
+          respondData(true, "UPDATED", $data);
         } else {
           die("Database error: {$conn->error}");
         }
+      } else {
+        respond(false, "Degree choice is a mandatory field");
       }
     }
 
@@ -420,6 +457,163 @@
             die("Database error: {$conn->error}");
           }
         }
+      }
+    }
+
+    /**
+      * Create a new organisation and return the ID
+      */
+    function createOrganisation() {
+      global $conn;
+
+      $organisation_name = (isset($_POST['organisation_name'])) ? $_POST['organisation_name']:null;
+      if ($organisation_name == null) {
+        respond(false, "Organisation name is a mandatory field");
+      }
+
+      $organisation_location = (isset($_POST['organisation_location'])) ? $_POST['organisation_location']:null;
+      if ($organisation_location == null) {
+        respond(false, "Organisation location is a mandatory field");
+      }
+
+      $sql = "INSERT INTO organisations (name, location) VALUES (?, ?);";
+
+      if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param("ss", $param_name, $param_location);
+        $param_name = $organisation_name;
+        $param_location = $organisation_location;
+
+        if (!$stmt->execute()) {
+          die("Database error: {$stmt->error}");
+        }
+
+        $id = $stmt->insert_id;
+        $stmt->close();
+
+        return $id;
+      } else {
+        die("Database error: {$conn->error}");
+      }
+    }
+
+    /**
+      * Retrieve the name of the organisation
+      */
+    function getOrganisationName($organisation_id) {
+      global $conn;
+
+      $sql = "SELECT name FROM organisations WHERE organisation_id = ?;";
+
+      if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param("i", $param_id);
+        $param_id = $organisation_id;
+
+        if ($stmt->execute()) {
+          $result = $stmt->get_result();
+
+          while ($row = $result->fetch_assoc()) {
+            return $row['name'];
+          }
+        } else {
+          die("Database error: {$stmt->error}");
+        }
+
+        $stmt->close();
+      } else {
+        die("Database error: {$conn->error}");
+      }
+    }
+
+    /**
+      * Processes the addition of a new employment history
+      */
+    function processAddEmploymentHistory() {
+      global $username;
+      global $conn;
+
+      if (isset($_POST['organisation_emp_choice'])) {
+        $value = $_POST['organisation_emp_choice'];
+
+        $organisation_id = 0;
+        $organisation_name = "";
+        if ($value == "Enter organisation details") {
+          $organisation_id = createOrganisation();
+          $organisation_name = $_POST['organisation_name'];
+        } else {
+          $organisation_id = $value;
+          $organisation_name = getOrganisationName($organisation_id);
+        }
+
+        $job_title = (isset($_POST['job_title'])) ? $_POST['job_title']:null;
+        if ($job_title == null) {
+          respond(false, "Job Title is a mandatory field");
+        }
+
+        $start_date = (isset($_POST['start_date'])) ? $_POST['start_date']:null;
+        if ($start_date == null) {
+          respond(false, "Start date is a mandatory field");
+        }
+
+        $end_date = (isset($_POST['end_date'])) ? $_POST['end_date']:null;
+        $end_date = (empty($end_date)) ? null:$end_date;
+
+        $sql = "INSERT INTO employment_history (username, organisation_id, dateFrom, dateTo, job_title) VALUES (?, ?, ?, ?, ?);";
+
+        if ($stmt = $conn->prepare($sql)) {
+          $stmt->bind_param("sisss", $param_username, $param_org, $param_from, $param_to, $param_title);
+          $param_username = $username;
+          $param_org = $organisation_id;
+          $param_from = $start_date;
+          $param_to = $end_date;
+          $param_title = $job_title;
+
+          if (!$stmt->execute()) {
+            die("Database error: {$stmt->error}");
+          }
+
+          $history_id = $stmt->insert_id;
+          $stmt->close();
+
+          $start_date = formatDate($start_date);
+          $end_date = ($end_date == null) ? "Present":formatDate($end_date);
+
+          $data = array();
+          $data['value'] = $history_id;
+          $data['text'] = "{$job_title} - {$organisation_name} - ({$start_date} - {$end_date})";
+          respondData(true, "UPDATED", $data);
+        } else {
+          die("Database error: {$conn->error}");
+        }
+      } else {
+        respond(false, "Organisation choice is a mandatory field");
+      }
+    }
+
+    /**
+      * Processes the removal of an employment history
+      */
+    function processRemoveEmploymentHistory() {
+      global $conn;
+
+      $id = (isset($_POST['chosen_employment_history'])) ? $_POST['chosen_employment_history']:null;
+      if ($id == null) {
+        respond(false, "Employment History is a mandatory field");
+      }
+
+      $sql = "DELETE FROM employment_history WHERE history_id = ?;";
+
+      if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param("i", $param_id);
+        $param_id = $id;
+
+        if (!$stmt->execute()) {
+          die("Database error: {$stmt->error}");
+        }
+
+        $stmt->close();
+        respond(true, "UPDATED");
+      } else {
+        die("Database error: {$conn->error}");
       }
     }
 
@@ -676,6 +870,10 @@
                                   break;
           case DELETE_EDUCATION: processDeleteEducationHistory();
                                   break;
+          case ADD_EMPLOYMENT_HISTORY: processAddEmploymentHistory();
+                                        break;
+          case REMOVE_EMPLOYMENT_HISTORY: processRemoveEmploymentHistory();
+                                            break;
           case ADD_SKILLS: processAddSkills();
                             break;
           case REMOVE_SKILL: processSkillRemoval();

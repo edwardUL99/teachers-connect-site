@@ -12,6 +12,7 @@
     <?php
       require "teacher_variables.php";
       require "navbar.php";
+      require "notifications_utils.php";
 
       $teacher = null;
       $current_organisation = null;
@@ -27,6 +28,9 @@
       $connection_sender = "";
       $connection_receiver = "";
       $connection_pending = "";
+
+      $banned = false;
+      $blaclisted = false;
 
       /**
        * Parses the URL for any GET parameters
@@ -91,7 +95,7 @@
         global $employment_history;
 
         $sql = "SELECT * FROM employment_history JOIN organisations ON employment_history.organisation_id = organisations.organisation_id
-          WHERE employment_history.username = ? AND dateTo = (SELECT MAX(dateTo) FROM employment_history WHERE username = ?);";
+          WHERE employment_history.username = ? AND (dateTo IS NULL OR dateTo = (SELECT MAX(dateTo) FROM employment_history WHERE username = ?));"; // NULL means present
 
           if ($stmt = $conn->prepare($sql)) {
             $stmt->bind_param("ss", $param_user, $param_user);
@@ -100,7 +104,7 @@
             if ($stmt->execute()) {
               $result = $stmt->get_result();
 
-              if ($result->num_rows == 1) {
+              if ($result->num_rows >= 1) {
                 while ($row = $result->fetch_assoc()) {
                   $organisation = new Organisation($row['organisation_id'],
                     $row['username'], $row['name'], $row['headline'],
@@ -196,6 +200,24 @@
       }
 
       /**
+        * Sends the profile viewed notification
+        */
+      function sendNotification() {
+        global $username;
+        global $own_profile;
+
+        if (!$own_profile) {
+          $sender = $_SESSION[USERNAME];
+          $user_type = $_SESSION[USER_TYPE];
+
+          $link = ($user_type == TEACHER) ? "teacher_profile.php?username={$sender}":"organisation_profile.php?username={$sender}";
+
+          $notification = new ViewNotification($sender, $username, false, $link, null);
+          addNotification($notification);
+        }
+      }
+
+      /**
         * If this profile is not the user's own profile, it checks if they have been blocked.
         * Returns true if they can be viewed, false if not
         */
@@ -229,17 +251,22 @@
                     doError("You have been blocked by {$row['blocker']}. You cannot view this profile");
                     $stmt->close();
                     return false;
-                  } else if ($blocked = $username && $blocker == $loggedin_username) {
+                  } else if ($blocked == $username && $blocker == $loggedin_username) {
                     global $blocked_user;
                     $blocked_user = true;
 
                     $stmt->close();
+
+                    sendNotification();
+
                     return true;
                   }
                 }
               }
 
               $stmt->close();
+
+              sendNotification();
 
               return true;
             } else {
@@ -256,8 +283,6 @@
           return true;
         }
       }
-
-      // TODO send notification of view
 
       /**
         * Get the button for the primary button on profile header
@@ -301,6 +326,14 @@
 
             if (empty($error_message)) {
               loadRecentEmploymentHistory();
+              if (empty($error_message)) {
+                checkBanned();
+                checkBlacklist();
+
+                if ($user_type != ADMIN && ($banned || $blacklisted)) {
+                  doError("You cannot view this profile as the user has been banned");
+                }
+              }
             }
           }
         }
@@ -314,9 +347,14 @@
 
         if (isset($employment_history)) {
           $from = strtotime($employment_history->dateFrom());
-          $to = strtotime($employment_history->dateTo());
+          $to = $employment_history->dateTo();
           $from = date("d/m/Y", $from);
-          $to = date("d/m/Y", $to);
+          if ($to != null) {
+            $to = strtotime($to);
+            $to = date("d/m/Y", $to);
+          } else {
+            $to = "Present";
+          }
 
           return "{$from} - {$to}";
         }
@@ -371,7 +409,7 @@
           <h4 class="underlined-header">Teacher</h4>
         </div>
         <div class="col-3">
-          <img class="img-fluid rounded-circle" src="<?php $photo = $teacher->profile_photo(); echo ($photo == null) ? "images/logo.png":$photo; ?>" alt="profile-picture">
+          <img class="img-fluid rounded-circle" src="<?php $photo = $teacher->profile_photo(); echo ($photo == null) ? DEFAULT_TEACHER_PROFILE_PIC:$photo; ?>" alt="profile-picture">
         </div>
         <div class="col-9">
           <h3><?php echo "{$teacher->firstName()} {$teacher->lastName()}"; ?></h3>
@@ -384,12 +422,16 @@
         ?>
         <div class="row text-align-center">
           <div class="col current-organisation d-flex align-items-center">
+            <?php if (!empty($current_organisation->username())): ?>
             <a href="organisation_profile.php?username=<?php echo $current_organisation->username(); ?>"><h5><?php echo $current_organisation->name(); ?></h5></a>
-            <img class="img-fluid rounded-circle current-organisation-photo" src="<?php $photo = ($current_organisation != null) ? $current_organisation->profile_photo():null; echo ($photo == null) ? "images/logo.png":$photo; ?>" alt="organisation-photo">
+            <?php else: ?>
+            <h5><?php echo $current_organisation->name(); ?></h5>
+            <?php endif; ?>
+            <img class="img-fluid rounded-circle current-organisation-photo" src="<?php $photo = ($current_organisation != null) ? $current_organisation->profile_photo():null; echo ($photo == null) ? DEFAULT_ORG_PROFILE_PIC:$photo; ?>" alt="organisation-photo">
           </div>
         </div>
         <?php endif; ?>
-        <?php if ($_SESSION[USER_TYPE] == TEACHER || $_SESSION[USER_TYPE] == ADMIN): ?>
+        <?php if ($user_type == TEACHER || $user_type == ADMIN): ?>
         <div class="row mt-2">
           <div class="btn-toolbar">
             <?php echo getPrimaryProfileButton(); ?>
@@ -399,9 +441,13 @@
                 More
               </button>
               <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <button class="btn btn-light w-100" id="block-button" onclick="handleBlock();"><?php echo ($blocked_user) ? "Unblock":"Block"; ?></a>
+                <button class="btn btn-light w-100" id="block-button" onclick="handleBlock();"><?php echo ($blocked_user) ? "Unblock":"Block"; ?></button>
               </div>
             </div>
+          <?php endif; ?>
+          <?php if ($user_type == ADMIN): ?>
+            <?php getBlockButton(); ?>
+            <?php getBlacklistButton(); ?>
           <?php endif; ?>
           </div>
         </div>
@@ -418,7 +464,7 @@
               <h4><?php echo $qualification->degree()->title(); ?></h4>
               <h6><?php echo $qualification->degree()->type(); ?></h6>
               <h6><?php echo $qualification->degree()->school(); ?></h6>
-              <h5 class="subtitle"><?php $timestamp = strtotime($qualification->date_obtained()); echo date("d/m/Y", $timestamp); ?></h5>
+              <h5 class="subtitle"><?php echo formatDate($qualification->date_obtained()); ?></h5>
             </div>
             <div class="col">
               <p><?php echo $qualification->degree()->description(); ?></p>
@@ -438,7 +484,7 @@
           <?php if (isset($employment_history)): ?>
           <div class="row align-items-center">
             <div class="col-4">
-              <img class="img-fluid rounded-circle" src="<?php $photo = $employment_history->organisation()->profile_photo(); echo ($photo == null) ? "images/logo.png":$photo; ?>" alt="org_photo">
+              <img class="img-fluid rounded-circle" src="<?php $photo = $employment_history->organisation()->profile_photo(); echo ($photo == null) ? DEFAULT_ORG_PROFILE_PIC:$photo; ?>" alt="org_photo">
             </div>
             <div class="col-8">
               <?php if ($employment_history->organisation()->username() != null): ?>
@@ -446,7 +492,7 @@
                   <h4><?php echo $employment_history->organisation()->name(); ?></h4>
                 </a>
               <?php else: ?>
-                <h4><?php echo $employment_history->organisation()->name(); ?></h4>
+                <h4><?php $organisation = $employment_history->organisation(); echo "{$organisation->name()}, {$organisation->location()}"; ?></h4> <!-- TODO consider how location is displayed here -->
               <?php endif; ?>
               <h5><?php echo $employment_history->job_title()?></h5>
               <h5 class="subtitle"><?php echo getEmploymentDates(); ?></h5>
@@ -472,9 +518,13 @@
         </div>
       </div>
 
+      <?php require "ban_modal.php"; ?>
+      <?php require "blacklist_modal.php"; ?>
+
       <?php endif; ?>
     </div>
 
+    <script type="text/javascript" src="forms.js"></script>
     <script type="text/javascript" src="ajax.js"></script>
     <script>
       const username = <?php echo json_encode($username); ?>;
@@ -496,6 +546,9 @@
       if (blocked_user) {
         connectButton.style.display = "none";
       }
+
+      var banned = <?php echo json_encode($banned); ?>;
+      var blacklisted = <?php echo json_encode($blacklisted); ?>;
 
       /**
         * Updates the ajax_progress message
@@ -721,6 +774,85 @@
         */
       function handleEdit() {
         window.location.href = window.location.href = `edit_teacher.php?username=${username}`;
+      }
+
+      /**
+        * Add return url to the form
+        */
+      function addReturnURL(form) {
+        var returnURL = document.createElement('input');
+        returnURL.type = "hidden";
+        returnURL.id = "return_url";
+        returnURL.name = "return_url";
+        returnURL.value = "teacher_profile.php?username=" + username;
+        form.appendChild(returnURL);
+      }
+
+      /**
+        * Ban the user
+        */
+      function ban() {
+        var form = document.forms['ban_user_form'];
+        form.action = "ban_user.php";
+        form.method = "post";
+        addReturnURL(form);
+
+        var valid = true;
+        if (!banned)
+          valid = validateForm('ban_user_form');
+
+        if (valid) {
+          var action = document.createElement("input");
+          action.type = "hidden";
+          action.id = "action";
+          action.name = "action";
+          action.value = banned ? "unban":"ban";
+          form.appendChild(action);
+
+          var usernameField = document.getElementById('username');
+          var adminField = document.getElementById('admin');
+          if (banned) {
+            usernameField.value = username;
+            adminField.value = loggedin_username;
+          }
+
+          form.submit();
+        }
+      }
+
+      /**
+        * Blacklist the user
+        */
+      function blacklist() {
+        var form = document.createElement('form');
+        form.action = "ban_user.php";
+        form.method = "post";
+        addReturnURL(form);
+
+        var usernameField = document.createElement('input');
+        usernameField.id = "username";
+        usernameField.name = "username";
+        usernameField.value = username;
+        usernameField.type = "hidden";
+        form.appendChild(usernameField);
+
+        var admin = document.createElement('input');
+        admin.id = "admin";
+        admin.name = "admin";
+        admin.value = loggedin_username;
+        admin.type = "hidden";
+        form.appendChild(admin);
+
+        var action = document.createElement("input");
+        action.type = "hidden";
+        action.id = "action";
+        action.name = "action";
+        action.value = blacklisted ? "unblacklist":"blacklist";
+        form.appendChild(action);
+
+
+        document.body.appendChild(form);
+        form.submit();
       }
 
     </script>

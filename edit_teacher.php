@@ -22,6 +22,7 @@
       $available_degrees = array();
       $user_qualifications = array();
       $skills_options = array();
+      $employment_histories = array();
 
       /**
        * Parses the URL for any GET parameters
@@ -47,7 +48,7 @@
         global $available_organisations;
         global $conn;
 
-        $sql = "SELECT organisation_id, name FROM organisations WHERE username IS NOT NULL;";
+        $sql = "SELECT organisation_id, name FROM organisations;";
 
         if ($stmt = $conn->prepare($sql)) {
           if ($stmt->execute()) {
@@ -71,17 +72,25 @@
       /**
         * Gets list of organisations for the user to join
         */
-      function getOrganisationOptions() {
+      function getOrganisationOptions($join_organisation) {
         global $available_organisations;
         global $current_organisation;
 
-        $curr_org_id = ($current_organisation != null) ? $current_organisation->organisation_id():-1;
-        $selected = ($current_organisation == null) ? "selected":"";
-        echo "<option {$selected}>Choose an organisation</option>";
-        echo "<option value=\"-1\">No Organisation</option>";
-        foreach ($available_organisations as $key => $value) {
-          $selected = ($key == $curr_org_id) ? "selected":"";
-          echo "<option value=\"{$key}\" {$selected}>{$value}</option>";
+        if ($join_organisation) {
+          $curr_org_id = ($current_organisation != null) ? $current_organisation->organisation_id():-1;
+          $selected = ($current_organisation == null) ? "selected":"";
+          echo "<option {$selected}>Choose an organisation</option>";
+          echo "<option value=\"-1\">No Organisation</option>";
+          foreach ($available_organisations as $key => $value) {
+            $selected = ($key == $curr_org_id) ? "selected":"";
+            echo "<option value=\"{$key}\" {$selected}>{$value}</option>";
+          }
+        } else {
+          echo "<option selected>Choose an organisation</option>";
+          foreach ($available_organisations as $key => $value) {
+            echo "<option value=\"{$key}\">{$value}</option>";
+          }
+          echo "<option>Enter organisation details</option>";
         }
       }
 
@@ -152,8 +161,7 @@
 
             if ($results->num_rows > 0) {
               while ($row = $results->fetch_assoc()) {
-                $timestamp = strtotime($row['date_obtained']);
-                $timestamp = date('d/m/Y', $timestamp);
+                $timestamp = formatDate($row['date_obtained']);
                 $user_qualifications[] = new Qualification($teacher, $available_degrees[$row['degree_id']], $timestamp);
               }
             }
@@ -226,6 +234,61 @@
         }
       }
 
+      /**
+        * Loads employment history options
+        */
+      function loadEmploymentHistory() {
+        global $teacher;
+        global $conn;
+        global $employment_histories;
+
+        $sql = "SELECT * FROM employment_history JOIN organisations ON employment_history.organisation_id = organisations.organisation_id  WHERE employment_history.username = ?;";
+
+        if ($stmt = $conn->prepare($sql)) {
+          $stmt->bind_param("s", $param_username);
+          $param_username = $teacher->username();
+
+          if ($stmt->execute()) {
+            $results = $stmt->get_result();
+
+            if ($results->num_rows > 0) {
+              while ($row = $results->fetch_assoc()) {
+                $organisation = new Organisation($row['organisation_id'], $row['username'], $row['name'],
+                $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
+
+                $history_id = $row['history_id'];
+                $dateFrom = formatDate($row['dateFrom']);
+                $dateTo = $row['dateTo'];
+                $dateTo = ($dateTo == null) ? 'Present':formatDate($dateTo);
+                $job_title = $row['job_title'];
+
+                $employment_histories[$history_id] = new EmploymentHistory($history_id, $teacher, $organisation, $dateFrom, $dateTo, $job_title);
+              }
+            }
+          } else {
+            doSQLError($stmt->error);
+          }
+
+          $stmt->close();
+        } else {
+          doSQLError($conn->error);
+        }
+      }
+
+      /**
+        * Retrieve the employment history options to remove
+        */
+      function getEmploymentHistoryOptions() {
+        global $employment_histories;
+
+        echo "<option selected>Choose an employment history</option>";
+        foreach ($employment_histories as $key => $value) {
+          $id = $value->history_id();
+          $text = "{$value->job_title()} - {$value->organisation()->name()} - ({$value->dateFrom()} - {$value->dateTo()})";
+          echo "<option value=\"{$id}\">{$text}</option>";
+        }
+      }
+
       parseURL();
 
       $loggedin_username = $_SESSION[USERNAME];
@@ -249,6 +312,9 @@
               loadUserQualifications();
               if (empty($error_message)) {
                 loadSkillsOptions();
+                if (empty($error_message)) {
+                  loadEmploymentHistory();
+                }
               }
             }
           }
@@ -353,7 +419,7 @@
           <form id="join_organisation_form">
             <div class="form-group">
               <select class="form-select" id="organisation_choice" onchange="onOrganisationChosen();" name="current_organisation">
-                <?php getOrganisationOptions(); ?>
+                <?php getOrganisationOptions(true); ?>
               </select>
               <div class="form-text">
                 Choose an existing organisation to join. Choose "No Organisation" to remove your current one if any
@@ -366,101 +432,188 @@
             </div>
           </form>
         </div>
-        <div class="row mt-5 shadow card padding-1pcent" id="education_history">
-          <h4>Add Education History</h4>
-          <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" id="new_education_form">
-            <div class="row">
-              <div class="col">
-                <div class="form-group">
-                  <label>Degree</label>
-                  <select class="form-select" id="degree_choice" onchange="onDegreeChosen();" name="education_choice">
-                    <?php getDegreeOptions(); ?>
-                  </select>
-                  <div class="form-text">
-                    Select the degree obtained. If you can't find it, choose New degree
-                  </div>
-                </div>
-              </div>
-              <div class="col">
-                <div class="form-group">
-                  <label>Date Obtained</label>
-                  <input type="date" class="form-control" name="date_obtained" id="date_obtained" required>
-                  <div class="form-text">
-                    Enter the date at which you got your degree
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div id="new_degree">
+        <div class="row mt-5 shadow card padding-1pcent">
+          <div class="col padding-1pcent" id="education_history">
+            <h4>Add Education History</h4>
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" id="new_education_form">
               <div class="row">
                 <div class="col">
                   <div class="form-group">
-                    <label>Title</label>
-                    <input type="text" class="form-control" name="degree_title" id="degree_title" required>
+                    <label>Degree</label>
+                    <select class="form-select" id="degree_choice" onchange="onDegreeChosen();" name="education_choice">
+                      <?php getDegreeOptions(); ?>
+                    </select>
                     <div class="form-text">
-                      Enter the title of the degree
+                      Select the degree obtained. If you can't find it, choose New degree
                     </div>
                   </div>
                 </div>
                 <div class="col">
                   <div class="form-group">
-                    <label>Type</label>
-                    <input type="text" class="form-control" name="degree_type" id="degree_type" required>
+                    <label>Date Obtained</label>
+                    <input type="date" class="form-control" name="date_obtained" id="date_obtained" required>
                     <div class="form-text">
-                      Enter the type of your degree (e.g. Bsc or Bachelors of Science etc.)
+                      Enter the date at which you got your degree
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="row">
-                <div class="col">
-                  <div class="form-group">
-                    <label>School</label>
-                    <input type="text" class="form-control" name="school" id="school" required>
-                    <div class="form-text">
-                      Enter the school you got your degree from
+              <div id="new_degree">
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      <label>Title</label>
+                      <input type="text" class="form-control" name="degree_title" id="degree_title" required>
+                      <div class="form-text">
+                        Enter the title of the degree
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="form-group">
+                      <label>Type</label>
+                      <input type="text" class="form-control" name="degree_type" id="degree_type" required>
+                      <div class="form-text">
+                        Enter the type of your degree (e.g. Bsc or Bachelors of Science etc.)
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div class="col">
-                  <div class="form-group">
-                    <label>Level</label>
-                    <input type="text" class="form-control" name="level" id="level" required>
-                    <div class="form-text">
-                      Enter the level of this degree (e.g. High School, University etc.)
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      <label>School</label>
+                      <input type="text" class="form-control" name="school" id="school" required>
+                      <div class="form-text">
+                        Enter the school you got your degree from
+                      </div>
                     </div>
+                  </div>
+                  <div class="col">
+                    <div class="form-group">
+                      <label>Level</label>
+                      <input type="text" class="form-control" name="level" id="level" required>
+                      <div class="form-text">
+                        Enter the level of this degree (e.g. High School, University etc.)
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Description</label>
+                  <textarea name="description" id="description" maxlength="255" rows="3" class="form-control"></textarea>
+                  <div class="form-text">
+                    Enter a description of the degree (topics covered etc.) in max 255 characters
                   </div>
                 </div>
               </div>
+              <div class="row text-end">
+                <div class="col">
+                  <button type="button" onclick="handleNewEducationHistory();" class="btn btn-primary" id="degree_button">Save</button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="col padding-1pcent" id="delete_education">
+            <h4>Remove Education History</h4>
+            <form id="delete_education_form">
+              <select class="form-select" id="remove_qualification_choice" onchange="onQualificationChosen();" name="chosen_qualification">
+                <?php getQualificationsOptions(); ?>
+              </select>
+              <div class="row text-end mt-2">
+                <div class="col">
+                  <button type="button" onclick="handleRemoveQualification();" id="remove_button" class="btn btn-primary">Remove</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="row shadow card padding-1pcent mt-5">
+          <div class="col padding-1pcent" id="add_employment_history">
+            <h4>Add Employment History</h4>
+            <form id="add_employment_history_form">
               <div class="form-group">
-                <label>Description</label>
-                <textarea name="description" id="description" maxlength="255" rows="3" class="form-control"></textarea>
+                <label>Organisation</label>
+                <select class="form-select" id="organisation_emp_choice" name="organisation_emp_choice" onchange="onOrganisationEmployerChosen();">
+                  <?php getOrganisationOptions(false); ?>
+                </select>
                 <div class="form-text">
-                  Enter a description of the degree (topics covered etc.) in max 255 characters
+                  Choose the organisation that gave you your employment. If you can't find it, choose Enter organisation details
                 </div>
               </div>
-            </div>
-            <div class="row text-end">
-              <div class="col">
-                <button type="button" onclick="handleNewEducationHistory();" class="btn btn-primary" id="degree_button">Save</button>
+              <div class="row">
+                <div class="col">
+                  <div class="form-group">
+                    <label>Job Title</label>
+                    <input type="text" id="job_title" name="job_title" maxlength="32" class="form-control" required>
+                    <div class="form-text">
+                      Enter the job title (maximum 32 characters)
+                    </div>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-group">
+                    <label>Started</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control" required>
+                    <div class="form-text">
+                      Enter the date the employment started
+                    </div>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-group">
+                    <label>Ended</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control">
+                    <div class="form-text">
+                      Enter the date the employment ended. Leave empty to set as present
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </form>
-        </div>
-        <div class="row mt-5 shadow card padding-1pcent" id="delete_education">
-          <h4>Remove Education History</h4>
-          <form id="delete_education_form">
-            <select class="form-select" id="remove_qualification_choice" onchange="onQualificationChosen();" name="chosen_qualification">
-              <?php getQualificationsOptions(); ?>
-            </select>
-            <div class="row text-end mt-2">
-              <div class="col">
-                <button type="button" onclick="handleRemoveQualification();" id="remove_button" class="btn btn-primary">Remove</button>
+              <div id="new_organisation">
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      <label>Organisation Name</label>
+                      <input type="text" id="organisation_name" name="organisation_name" maxlength="32" class="form-control" required>
+                      <div class="form-text">
+                        Enter the name of the organisation (max. 32 characters)
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="form-group">
+                      <label>Location</label>
+                      <input type="text" id="organisation_location" name="organisation_location" maxlength="32" class="form-control" required>
+                      <div class="form-text">
+                        Enter the location of the organisation (max. 32 characters)
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </form>
+              <div class="row text-end">
+                <div class="col">
+                  <button type="button" onclick="handleNewEmploymentHistory();" class="btn btn-primary" id="employment_button">Save</button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="col padding-1pcent" id="remove_employment_history">
+            <h4>Remove Employment History</h4>
+            <form id="remove_employment_history_form">
+              <select class="form-select" id="chosen_employment_history" onchange="onEmploymentHistoryChosen();" name="chosen_employment_history">
+                <?php getEmploymentHistoryOptions(); ?>
+              </select>
+              <div class="row text-end mt-2">
+                <div class="col">
+                  <button type="button" onclick="handleRemoveEmploymentHistory();" id="remove_emp_button" class="btn btn-primary">Remove</button>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
-        <div class="row shadow card padding-1pcent mt-5"> <!-- TODO need to figure out col spacing -->
+        <div class="row shadow card padding-1pcent mt-5">
           <div class="col padding-1pcent" id="add_skills">
             <h4>Add Skills</h4>
             <form id="add_skills_form">
@@ -528,6 +681,8 @@
       const degree_choose_message = "Choose a degree";
       const new_degree_message = "New degree";
       const remove_degree_message = "Choose a qualification";
+      const new_org_message = "Enter organisation details";
+      const remove_emp_message = "Choose an employment history";
       const choose_skill_message = "Choose skills";
 
       const join_button = document.getElementById('join_button');
@@ -560,6 +715,19 @@
       const remove_skill_button = document.getElementById('remove_skill_button');
       const skills_choice = document.getElementById('skills_choice');
       remove_skill_button.disabled = true;
+
+      const organisation_emp_choice = document.getElementById('organisation_emp_choice');
+      const employment_button = document.getElementById('employment_button');
+      employment_button.disabled = organisation_emp_choice.value == org_choose_message;
+
+      var newOrgVisible;
+
+      const new_organisation = document.getElementById('new_organisation');
+      handleNewOrganisationDisplay();
+
+      const remove_emp_button = document.getElementById('remove_emp_button');
+      const chosen_employment_history = document.getElementById('chosen_employment_history');
+      remove_emp_button.disabled = true;
 
       /**
         * Handles the update of the profile
@@ -788,6 +956,9 @@
 
                   if (success && message == "UPDATED") {
                     alert("Profile has been updated");
+
+                    var data = responseBody.data;
+                    addToSelect('remove_qualification_choice', data['value'], data['text']);
                   } else {
                     alert(message);
                   }
@@ -836,6 +1007,135 @@
 
                   if (success && message == "UPDATED") {
                     alert("Profile has been updated");
+                    removeFromSelectByValue('remove_qualification_choice', data['remove_qualification_choice']);
+                  } else {
+                    alert(message);
+                  }
+                } catch (e) {
+                  alert(response);
+                }
+              }
+            }
+
+            ajax.open("POST", "edit-profile-ajax.php", true);
+            ajax.send(JSON.stringify(data));
+          }
+        }
+
+        return false;
+      }
+
+      /**
+        * Handle the display/hiding of the new organisation form
+        */
+      function handleNewOrganisationDisplay() {
+        newOrgVisible = organisation_emp_choice.value == new_org_message ? "block":"none";
+        new_organisation.style.display = newOrgVisible;
+
+        var required;
+        if (newOrgVisible == "block") {
+          new_organisation.classList.remove("hidden-form");
+          required = true;
+        } else {
+          new_organisation.classList.add("hidden-form");
+          required = false;
+        }
+
+        var inputs = new_organisation.querySelectorAll('input');
+        for (var item of inputs) {
+          item.required = required;
+        }
+      }
+
+      /**
+        * Handles when an organisation is chosen
+        */
+      function onOrganisationEmployerChosen() {
+        employment_button.disabled = organisation_emp_choice.value == org_choose_message;
+        handleNewOrganisationDisplay();
+      }
+
+      /**
+        * Handles when new employment history is clicked
+        */
+      function handleNewEmploymentHistory() {
+        var valid = validateForm('add_employment_history_form');
+        if (valid) {
+          var data = serializeForm('add_employment_history', 'input,select');
+          data['username'] = username;
+          data['edit_type'] = "teacher";
+          data['edit_form'] = "add_employment_history";
+
+          if (newOrgVisible == "none") {
+            delete data.organisation_name;
+            delete data.organisation_location;
+          }
+
+          var ajax = getAJAX();
+          if (ajax != null) {
+            ajax.onreadystatechange = function() {
+              if (ajax.readyState == 4) {
+                var response = ajax.response;
+
+                try {
+                  var responseBody = JSON.parse(response);
+                  var success = responseBody.success;
+                  var message = responseBody.message;
+
+                  if (success && message == "UPDATED") {
+                    alert("Profile has been updated");
+
+                    var data = responseBody.data;
+                    addToSelect('chosen_employment_history', data['value'], data['text']);
+                  } else {
+                    alert(message);
+                  }
+                } catch (e) {
+                  alert(response);
+                }
+              }
+            }
+
+            ajax.open("POST", "edit-profile-ajax.php", true);
+            ajax.send(JSON.stringify(data));
+          }
+        }
+
+        return false;
+      }
+
+      /**
+        * Handles when an employment history is chosen
+        */
+      function onEmploymentHistoryChosen() {
+        remove_emp_button.disabled = chosen_employment_history.value == remove_emp_message;
+      }
+
+      /**
+        * Handles the removal of employment history
+        */
+      function handleRemoveEmploymentHistory() {
+        var valid = validateForm('remove_employment_history_form');
+        if (valid) {
+          var data = serializeForm('remove_employment_history', 'select');
+          data['username'] = username;
+          data['edit_type'] = "teacher";
+          data['edit_form'] = "remove_employment_history";
+
+          var ajax = getAJAX();
+          if (ajax != null) {
+            ajax.onreadystatechange = function() {
+              if (ajax.readyState == 4) {
+                var response = ajax.response;
+
+                try {
+                  var responseBody = JSON.parse(response);
+                  var success = responseBody.success;
+                  var message = responseBody.message;
+
+                  if (success && message == "UPDATED") {
+                    alert("Profile has been updated");
+                    removeFromSelectByValue('chosen_employment_history', data['chosen_employment_history']);
                   } else {
                     alert(message);
                   }

@@ -1,5 +1,7 @@
 <?php
   require "constants.php";
+  require "database.php";
+  require "admin_profile_utils.php";
 
   session_start();
 
@@ -9,6 +11,7 @@
   define("NOTIFICATIONS", "notifications", true);
   define("SEARCH", "search", true);
   define("PROFILE", "profile", true);
+  define("ADMINISTRATION", "administration", true);
   define("ACTIVE", "class=\"nav-link active\" aria-current=\"page\" ", true);
   define ("INACTIVE", "class=\"nav-link\" ", true);
 
@@ -29,6 +32,8 @@
      exit;
    }
 
+   // TODO maybe check is user has been banned or blacklisted and goToLogin if so by going to logout.php
+
    if (isset($_SESSION[LOGGED_IN]) && $_SESSION[LOGGED_IN] == true) {
      if (!isset($_SESSION[USERNAME]) || !isset($_SESSION[USER_TYPE])) {
         goToLogin();
@@ -40,9 +45,15 @@
       if (isset($_COOKIE[USERNAME]) && isset($_COOKIE[USER_TYPE])) {
         $username = $_SESSION[USERNAME] = $_COOKIE[USERNAME];
         $user_type = $_SESSION[USER_TYPE] = $_COOKIE[USER_TYPE];
-        $_SESSION[LOGGED_IN] = true; 
+        $_SESSION[LOGGED_IN] = true;
       } else {
         goToLogin();
+      }
+    }
+
+    if ($user_type != ADMIN) {
+      if (checkBanned() || checkBlacklist()) {
+        header("Location: logout.php");
       }
     }
 
@@ -51,7 +62,7 @@
       */
     function checkPageName($page) {
       if (empty($page) || ($page != HOME && $page != CONNECTIONS && $page != VACANCIES
-        && $page != NOTIFICATIONS && $page != PROFILE && $page != SEARCH)) {
+        && $page != NOTIFICATIONS && $page != PROFILE && $page != SEARCH && $page != ADMINISTRATION)) {
           die("Invalid page option given to navbar.php. Value: {$page}");
       }
     }
@@ -127,6 +138,10 @@
 
       echo "<a class=\"nav-link\" href=\"logout.php\">Logout</a>";
 
+      if ($user_type == ADMIN) {
+        $class_name = ($page == ADMINISTRATION) ? ACTIVE:INACTIVE;
+        echo "<a {$class_name} href=\"administration.php\">Administration</a>";
+      }
 
       echo "</div>
           </div>

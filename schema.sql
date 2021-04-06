@@ -21,7 +21,7 @@
 */
 CREATE TABLE IF NOT EXISTS accounts (
   username VARCHAR(32) NOT NULL,
-  email VARCHAR(32),
+  email VARCHAR(255),
   password VARCHAR(255) NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   type ENUM('admin' , 'teacher' , 'organisation'),
@@ -350,10 +350,15 @@ This table
 CREATE TABLE IF NOT EXISTS notifications (
   id INTEGER AUTO_INCREMENT,
   username VARCHAR (32),
-  type ENUM('view' , 'request' , 'org_member'),
+  sender VARCHAR (32),
+  type ENUM('view' , 'request' , 'like'),
   target_link VARCHAR (255),
+  viewed BOOLEAN DEFAULT false,
   PRIMARY KEY (id),
   FOREIGN KEY (username) REFERENCES accounts(username)
+    ON DELETE CASCADE
+    ON UPDATE RESTRICT,
+  FOREIGN KEY (sender) REFERENCES accounts(username)
     ON DELETE CASCADE
     ON UPDATE RESTRICT
 );
@@ -368,7 +373,7 @@ CREATE TABLE IF NOT EXISTS banned_users (
   username VARCHAR(32),
   banned_by VARCHAR(32),
   reason VARCHAR(64),
-  date_from DATETIME,
+  date_from DATETIME DEFAULT CURRENT_TIMESTAMP,
   date_to DATETIME,
   PRIMARY KEY (username),
   FOREIGN KEY (username) REFERENCES accounts(username)

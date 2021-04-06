@@ -47,6 +47,7 @@
   require "database.php";
   require "constants.php";
   require "ajax.php";
+  require "notifications_utils.php";
 
   $sender = "";
   $destination = "";
@@ -204,8 +205,11 @@
         }
 
         $stmt->close();
+
+        $notification = new ConnectionNotification($sender, $destination, false, "#", null); // TODO link to connection requests page here
+        addNotification($notification);
+
         respond(true, "PENDING");
-        exit;
       } else {
         die("Database error: {$conn->error}");
       }
@@ -325,6 +329,41 @@
   }
 
   /**
+    * Gets the teacher that followed the organisation
+    */
+  function getTeacherFollowing($teacher_username) {
+    global $conn;
+
+    $sql = "SELECT username, first_name, last_name, headline, profile_photo FROM teachers WHERE username = ?;";
+
+    if ($stmt = $conn->prepare($sql)) {
+      $stmt->bind_param("s", $param_username);
+      $param_username = $teacher_username;
+
+      $data = array();
+
+      if ($stmt->execute()) {
+        $result = $stmt->get_result();
+
+        while ($row = $result->fetch_assoc()) {
+          $data['username'] = $row['username'];
+          $data['first_name'] = $row['first_name'];
+          $data['last_name'] = $row['last_name'];
+          $data['headline'] = $row['headline'];
+          $data['profile_photo'] = $row['profile_photo'];
+        }
+      } else {
+        die("Database error: {$stmt->error}");
+      }
+
+      $stmt->close();
+      return $data;
+    } else {
+      die("Database error: {$conn->error}");
+    }
+  }
+
+  /**
     * Adds a new follow
     */
   function addFollow() {
@@ -344,7 +383,8 @@
       }
 
       $stmt->close();
-      respond(true, "FOLLOWED");
+      $data = getTeacherFollowing($sender);
+      respondData(true, "FOLLOWED", $data);
     } else {
       die("Database error: {$conn->error}");
     }

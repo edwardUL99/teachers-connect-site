@@ -129,3 +129,14 @@ html, body {
 .margin-auto {
   margin: auto;
 }
+
+/**
+  * A card to display their profile picture, name, headline and an action button
+  */
+.person-card {
+  width: 18rem;
+}
+
+.person-card-banned {
+  width: 20rem;
+}
