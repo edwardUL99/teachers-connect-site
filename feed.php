@@ -26,7 +26,7 @@
 			<div class="row">
 				<div class="col-3">
 					<div class="card" style="margin-top:20px;">
-						<img class="side-bar-profile-pic" src="images/Face.jpg" alt="Profile Pic">
+                        <img class="side-bar-profile-pic" src="images/Face.jpg" alt="Profile Pic">
 						<div class="card-body text-center">
 							<h4 class="card-title">
 							    <?php
