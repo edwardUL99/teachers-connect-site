@@ -351,7 +351,7 @@ CREATE TABLE IF NOT EXISTS notifications (
   id INTEGER AUTO_INCREMENT,
   username VARCHAR (32),
   sender VARCHAR (32),
-  type ENUM('view' , 'request' , 'like'),
+  type ENUM('view' , 'request' , 'like' , 'admin'),
   target_link VARCHAR (255),
   viewed BOOLEAN DEFAULT false,
   PRIMARY KEY (id),
@@ -362,6 +362,8 @@ CREATE TABLE IF NOT EXISTS notifications (
     ON DELETE CASCADE
     ON UPDATE RESTRICT
 );
+
+INSERT INTO `accounts` (`username`, `email`, `password`, `created_at`, `type`) VALUES ('Teachers Connect Bot', 'support@teachersconnect.ie', 'pass123', CURRENT_TIMESTAMP, 'admin');
 
 /*Table 21 banned_users
 

@@ -9,6 +9,7 @@
   </head>
   <body>
     <?php
+      require "notifications_utils.php";
       require "database.php";
       require "error.php";
 
@@ -188,6 +189,22 @@
       }
 
       /**
+        * Sends the new user a welcome notification
+        */
+          function sendWelcomNotificaton($user_name) {
+            
+            $username = $user_name;
+            $sender = 'Teachers Connect Bot';
+            $link = "teacher_profile.php?username={$username}";
+            
+            $notification = new AdminNotification($sender, $username, false, $link, null);
+            
+            AddAdminNotification($notification);
+
+          }
+
+
+      /**
        * After successful processing, this method should save the user to the database
        */
       function saveUser() {
@@ -240,10 +257,12 @@
       if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (process()) {
             saveUser();
+            sendWelcomNotificaton($username);
         } else {
           doError("A field isn't valid. Please correct the error and try again");
         }
       }
+
      ?>
 
     <div class="container-fluid main-background overflow-auto flex-fill">
