@@ -6,6 +6,7 @@
 		<Title>Home</Title>
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
         <link type="text/css" rel="stylesheet" href="css/feed.css">
+				<link type="text/css" rel="stylesheet" href="css/styles.css">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
@@ -24,7 +25,7 @@
 
         <div class="container">
 			<div class="row">
-				<div class="col-3">
+				<div class="col-3" id="profile-home-panel">
 					<div class="card" style="margin-top:20px;">
                         <img class="side-bar-profile-pic" src="images/Face.jpg" alt="Profile Pic">
 						<div class="card-body text-center">
@@ -48,7 +49,7 @@
 					</div>
                 </div>
 
-                <div class="col-9">
+                <div class="col-9" id="home-feed">
 					<div class="card" style="margin-top:20px;">
 						<div class="form-group">
 						    <form name="form" action="" method="post">

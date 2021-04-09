@@ -143,13 +143,12 @@
         function AddAdminNotification(Notification $notification){
           global $conn;
 
-          $sql = "INSERT INTO notifications (username, sender, type, target_link) VALUES (?, ?, ?, ?);";
+          $sql = "INSERT INTO notifications (username, sender, type, target_link) VALUES (?, ?, 'admin', ?);";
 
           if ($stmt = $conn->prepare($sql)) {
-            $stmt->bind_param("ssss", $param_username, $param_sender, $param_type, $param_target);
+            $stmt->bind_param("sss", $param_username, $param_sender, $param_target);
             $param_username = $notification->getReceiver();
             $param_sender = "Teachers Connect Bot";
-            $param_type = "admin";
             $param_target = $notification->getTarget_link();
 
             if (!$stmt->execute()) {

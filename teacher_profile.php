@@ -106,11 +106,16 @@
 
               if ($result->num_rows >= 1) {
                 while ($row = $result->fetch_assoc()) {
+                  $date_to = $row['dateTo'];
                   $organisation = new Organisation($row['organisation_id'],
                     $row['username'], $row['name'], $row['headline'],
                     $row['about'], $row['location'], $row['profile_photo']);
                   $employment_history = new EmploymentHistory($row['history_id'],
-                    $teacher, $organisation, $row['dateFrom'], $row['dateTo'], $row['job_title']);
+                    $teacher, $organisation, $row['dateFrom'], $date_to, $row['job_title']);
+
+                    if ($date_to == null) {
+                      break;
+                    }
                 }
               }
 
@@ -256,18 +261,12 @@
                     $blocked_user = true;
 
                     $stmt->close();
-
-                    sendNotification();
-
                     return true;
                   }
                 }
               }
 
               $stmt->close();
-
-              sendNotification();
-
               return true;
             } else {
               doSQLError($stmt->error);
@@ -327,11 +326,13 @@
             if (empty($error_message)) {
               loadRecentEmploymentHistory();
               if (empty($error_message)) {
-                checkBanned();
-                checkBlacklist();
+                checkBanned($username);
+                checkBlacklist($username);
 
                 if ($user_type != ADMIN && ($banned || $blacklisted)) {
                   doError("You cannot view this profile as the user has been banned");
+                } else {
+                  sendNotification();
                 }
               }
             }

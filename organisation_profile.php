@@ -169,19 +169,19 @@
 
       $own_profile = $user_type == ADMIN || $loggedin_username == $username; // if user is admin treat as own profile. If not, it's our own profile is username matches logged in one
 
-      sendNotification();
-
       loadOrganisation($username);
       if (empty($error_message)) {
         checkFollow();
         if (empty($error_message)) {
           loadFollowers();
           if (empty($error_message)) {
-            checkBanned();
-            checkBlacklist();
+            checkBanned($username);
+            checkBlacklist($username);
 
             if ($user_type != ADMIN && ($banned || $blacklisted)) {
               doError("You cannot view this profile as the user has been banned");
+            } else {
+              sendNotification();
             }
           }
         }

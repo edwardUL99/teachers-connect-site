@@ -11,6 +11,21 @@ html, body {
   height: 100%;
 }
 
+#profile-home-panel {
+  display: block;
+}
+
+@media screen and (max-width: 414px) {
+  #profile-home-panel {
+    display: none;
+  }
+
+  #home-feed {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
 /**
  * The following classes are used to style the login/registration screens
  */
@@ -20,6 +35,25 @@ html, body {
   margin-left: 35%;
   margin-right: 35%;
   height: 100%;
+}
+
+@media screen and (max-width: 768px) {
+  .login-container {
+    background-color: #86FFC2;
+    margin-left: 25%;
+    margin-right: 25%;
+    height: 100%;
+  }
+}
+
+
+@media screen and (max-width: 414px) {
+  .login-container {
+    background-color: #86FFC2;
+    margin-left: 15%;
+    margin-right: 15%;
+    height: 100%;
+  }
 }
 
 .login-container-content {
@@ -109,7 +143,7 @@ html, body {
 }
 
 .about-me-text {
-  font-size: 12px;
+  font-size: 15px;
 }
 
 .underlined-header {

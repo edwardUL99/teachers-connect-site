@@ -64,7 +64,7 @@
             $username = $_POST["username"];
             $password = $_POST["password"];
 
-            if (checkBanned() || checkBlacklist()) {
+            if (checkBanned($username) || checkBlacklist($username)) {
               $date_to = getBannedTo();
               $message = ($date_to == null) ? "":" until: {$date_to}";
               $username_error = "You have been banned from the site{$message}";
@@ -92,7 +92,7 @@
 
                   $row = mysqli_fetch_array($result);
                   if (isset($row)) {
-                    if((password_verify($password, $row["password"]) || $row["password"] == $password)) {
+                    if (password_verify($password, $row["password"])) {
                       $user_type = $row["type"];
                       if (isset($_POST["stay_signed_in"])) {
                         setcookie(USERNAME, $username, time() + (86400 * 30));

@@ -32,8 +32,6 @@
      exit;
    }
 
-   // TODO maybe check is user has been banned or blacklisted and goToLogin if so by going to logout.php
-
    if (isset($_SESSION[LOGGED_IN]) && $_SESSION[LOGGED_IN] == true) {
      if (!isset($_SESSION[USERNAME]) || !isset($_SESSION[USER_TYPE])) {
         goToLogin();
@@ -52,7 +50,7 @@
     }
 
     if ($user_type != ADMIN) {
-      if (checkBanned() || checkBlacklist()) {
+      if (checkBanned($username) || checkBlacklist($username)) {
         header("Location: logout.php");
       }
     }
@@ -110,7 +108,7 @@
 
       $class_name = ($page == NOTIFICATIONS) ? ACTIVE:INACTIVE;
       echo "<li class=\"nav-item\">
-      <a {$class_name} href=\"#\">Notifications</a>
+      <a {$class_name} href=\"notifications.php\">Notifications</a>
       </li>";
 
       if ($user_type != ADMIN) {
