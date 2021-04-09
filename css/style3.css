@@ -1,0 +1,328 @@
+body{
+    background: #38F094;
+    overflow-y: scroll; 
+    overflow-x:hidden;
+}
+
+#form{
+    width: 537px;
+    height: 1080px;
+    margin: auto;
+    background:#86FFC2; 
+    padding: 153px;
+}
+
+
+#submit{
+    color:white;
+    background: #007BFF;
+    padding: 5px;
+    margin-left: 45%;
+}
+
+.imgcontainter{
+    margin: auto;
+    width: 350px;
+    height: 153px;
+    margin-top: 176px;
+}
+
+#logo{
+    margin: auto;
+    width: 350px;
+    height: 153px;
+}
+
+#username-lable{
+    margin-left: 93px;
+
+}
+#username{
+    margin-left: 93px;
+    width: 350px;
+    height: 29px;
+}
+
+#password-lable{
+    margin-left: 93px;
+}
+
+#password{
+    margin-left: 93px;
+    width: 350px;
+    height: 29px;
+}
+
+#checkbox{
+    display: inline-block;
+    white-space: nowrap;
+    margin-left: 120px;
+    padding-top: 11px;
+}
+
+#link{
+    margin-left: 60%;
+    display: inline-block;
+    padding-right: 80px;
+    white-space: nowrap;
+}
+
+#bottomText{
+    width: 179px;
+    height: auto;
+    margin: 0 auto;
+    padding: 10px;
+    position: relative;
+    text-align: center;
+}
+#or{
+    color: grey;
+}
+
+.notificationPage{
+    background-color: #38F094;
+}
+
+#heading{
+    color: black;
+    font-size: 36px;
+    margin-left: 14%;
+    padding: 10px;
+    position: relative; 
+  }
+
+  #heading-2{
+    color: black;
+    font-size: 36px;
+    position: relative;
+  }
+
+  .clear-all{
+      padding-bottom: 10px;
+      float: right;
+  }
+
+.notification-container {
+    background-color:white;
+    width: 920px;
+    height: auto;
+    max-height: 685px;
+    margin: 0 auto;
+    padding: 10px;
+    position: relative;
+  }
+
+
+#notification{
+    background-color:rgb(163, 161, 161);
+    width: 889px;
+    height: 94px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+
+
+#notiName{
+    font-size: 26px;
+    float: left;
+}
+
+#connName{
+    font-size: 26px;
+    text-align: center;
+}
+
+#userimg{
+    float: right;
+    width:69.3px; 
+    height:66px; 
+    margin-right: 30%; padding: 0px;
+}
+
+/* #goto{
+    color:white;
+    background: #007BFF;
+    padding: 5px;
+    font-family: Arial, Helvetica, sans-serif;
+    position: absolute;
+    right: 10%;
+    bottom: 30%;
+}
+
+#delete{
+    font-size: 20px;
+    padding-right: 5px;
+    font-family: Arial, Helvetica, sans-serif;
+    position: absolute;
+    right: 0%;
+    bottom: 50%;
+    right: 20px;
+}
+
+#time{
+    font-size: 20px;
+    padding-right: 5px;
+    font-family: Arial, Helvetica, sans-serif;
+    position: absolute;
+    right: 0%;
+    bottom: 20%;
+    right: 20px;
+} */
+
+
+.button-class {
+    color:white;
+    background: #007BFF;
+    margin: 0;
+    position: relative;
+    font-family: Arial, Helvetica, sans-serif;
+    right: 0%;
+    bottom: 50%;
+    padding-right: 5px;
+  }
+
+.deleteButton{
+    margin: 0;
+    position: relative;
+    float: right;
+    font-size: 20px;
+    padding-right: 5px;
+    padding-bottom: 10px;
+    right: 0%;
+}
+
+.time{
+    margin: 0;
+    position: relative;
+    float: right;
+    font-size: 20px;
+
+}
+
+.wrapper {
+  width: 520px;
+  margin: 50px auto;
+}
+
+  
+.notifications__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 105px;
+  margin-bottom: 20px;
+  padding: 0 20px;
+
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0px 15px 20px 0px rgb( 0, 0, 0, .2 );
+
+  transition: all .3s ease-in;
+  cursor: pointer;
+}
+
+.notifications__item__avatar {
+  width: 75px;
+  height: 75px;
+  overflow: hidden;
+  margin-right: 20px;
+
+  border-radius: 50%;
+}
+
+.notifications__item__avatar img {
+  width: 100%;
+  height: 100%;
+}
+
+.notifications__item__content { width: calc( 100% - 105px ); }
+.notifications__item__title,
+.notifications__item__message { display: block; }
+
+.notifications__item__title {
+  letter-spacing: 2px;
+  font-family: 'atvice', sans-serif;
+  font-size: 17px;
+}
+
+.notifications__item__message {
+  font-family: Roboto, sans-serif;
+  font-size: 14px;
+  color: #929292;
+}
+
+.notifications__item__option {
+  width: 20px;
+  height: 20px;
+  margin: 8px 0;
+
+  border-radius: 50%;
+  color: white;
+  opacity: 0;
+
+  font-size: 10px;
+  text-align: center;
+  line-height: 20px;
+
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.notifications__item__option.archive { background-color: #3dc98c; }
+
+.notifications__item__option.delete { 
+    font-family: Arial, Helvetica, sans-serif;
+    color: black;
+    font-size: 20px;
+    background-color: #c93d4d; 
+    position: relative;
+    padding: 20px;
+}
+
+.notifications__item:hover {
+  background-color: #f7f7f7;
+  transform: scale( 0.95 );
+  box-shadow: 0px 5px 10px 0px rgb( 0, 0, 0, .2 );
+}
+
+.notifications__item:hover .notifications__item__option { opacity: 1; }
+
+.notifications__item.archive .notifications__item__title,
+.notifications__item.delete .notifications__item__title {
+  color: white;
+}
+
+.notifications__item.archive .notifications__item__message,
+.notifications__item.delete .notifications__item__message {
+  color: #f3f3f3;
+}
+
+.notifications__item.archive {
+  background-color: #3dc98c;
+  animation: archiveAnimation 1.5s cubic-bezier(0, 0, 0, 1.12) forwards;
+  animation-delay: .6s;
+}
+
+.notifications__item.delete {
+  background-color: #c93d4d;
+  animation: deleteAnimation 1.5s cubic-bezier(0, 0, 0, 1.12) forwards;
+  animation-delay: .6s;
+}
+
+
+@keyframes archiveAnimation{
+  to {
+    transform: translateX( 100px );
+    opacity: 0;
+  }
+}
+
+@keyframes deleteAnimation{
+  to {
+    transform: translateX( -100px );
+    opacity: 0;
+  }
+}

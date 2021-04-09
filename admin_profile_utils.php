@@ -3,16 +3,49 @@
     * This script provides blocking/blacklisting utilities for admins.
     * It is intended to be 'required' into the profile scripts to access variables such as user_type etc
     */
+    require_once "database.php";
 
     $banned = false;
     $blacklisted = false;
 
     /**
+      * Get the type of the user
+      */
+    function getUserType($username) {
+      global $conn;
+
+      $sql = "SELECT type FROM accounts WHERE username = ?;";
+
+      if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param("s", $param_username);
+        $param_username = $username;
+
+        $type = null;
+
+        if ($stmt->execute()) {
+          $result = $stmt->get_result();
+
+          if ($result->num_rows == 1) {
+            while ($row = $result->fetch_assoc()) {
+              $type = $row['type'];
+            }
+          }
+        } else {
+          doSQLError($stmt->error);
+        }
+
+        $stmt->close();
+        return $type;
+      } else {
+        doSQLError($conn->error);
+      }
+    }
+
+    /**
       * Remove the ban if it expired
       */
-    function removeBan() {
+    function removeBan($username) {
       global $conn;
-      global $username;
 
       $sql = "DELETE FROM banned_users WHERE username = ?;";
 
@@ -33,9 +66,8 @@
     /**
       * Check if the user is banned or not
       */
-    function checkBanned() {
+    function checkBanned($username) {
       global $conn;
-      global $username;
       global $banned;
 
       $sql = "SELECT * FROM banned_users WHERE username = ?;";
@@ -56,7 +88,7 @@
               $banned = $cur_time < $date_to;
 
               if (!$banned) {
-                removeBan();
+                removeBan($username);
               }
             }
           }
@@ -75,9 +107,8 @@
     /**
       * Check if the user is blacklisted or not
       */
-    function checkBlacklist() {
+    function checkBlacklist($username) {
       global $conn;
-      global $username;
       global $blacklisted;
 
       $sql = "SELECT email FROM email_blacklist NATURAL JOIN accounts WHERE username = ?;";

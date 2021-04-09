@@ -74,6 +74,9 @@
 
       $ban_error_message = "";
       $blacklist_error_message = "";
+      $entered_username = "";
+      $reason = "";
+      $email = "";
 
       /**
         * Retrieve a BannedUser object
@@ -143,39 +146,6 @@
       }
 
       /**
-        * Get the type of the user
-        */
-      function getUserType($username) {
-        global $conn;
-
-        $sql = "SELECT type FROM accounts WHERE username = ?;";
-
-        if ($stmt = $conn->prepare($sql)) {
-          $stmt->bind_param("s", $param_username);
-          $param_username = $username;
-
-          $type = null;
-
-          if ($stmt->execute()) {
-            $result = $stmt->get_result();
-
-            if ($result->num_rows == 1) {
-              while ($row = $result->fetch_assoc()) {
-                $type = $row['type'];
-              }
-            }
-          } else {
-            doSQLError($stmt->error);
-          }
-
-          $stmt->close();
-          return $type;
-        } else {
-          doSQLError($conn->error);
-        }
-      }
-
-      /**
         * Load the banned users
         */
       function loadBannedUsers() {
@@ -216,6 +186,8 @@
                     $banned_user->banned_by = $row['banned_by'];
                     $banned_user->reason = $row['reason'];
                     $banned_users[$username] = $banned_user;
+                  } else {
+                    removeBan($username);
                   }
                 }
               }
@@ -317,15 +289,35 @@
       }
 
       /**
+        * Checks if the date time is in the future
+        */
+      function checkValidDateTime($datetime) {
+        global $ban_error_message;
+
+        $datetime = new DateTime($datetime);
+        $now = new DateTime();
+
+        if ($datetime <= $now) {
+          $ban_error_message = "You need to use a date and time in the future";
+
+          return false;
+        }
+
+        return true;
+      }
+
+      /**
         * Ban a user entered in the form
         */
       function banUser() {
+        global $entered_username;
+        global $reason;
         global $banned_users;
         global $ban_error_message;
 
-        $username = (isset($_POST['username'])) ? $_POST['username']:null;
+        $entered_username = (isset($_POST['username'])) ? $_POST['username']:null;
 
-        if ($username == null) {
+        if ($entered_username == null) {
           die("You need to provide a username to ban");
         }
 
@@ -348,12 +340,17 @@
 
         $time_to = (isset($_POST['time_to'])) ? $_POST['time_to']:null;
 
-        if ($reason == null) {
+        if ($time_to == null) {
           die("You need to provide a time until which the user will be banned on the provided date");
         }
 
+        $datetime = "{$date_to} {$time_to}";
+        if (!checkValidDateTime($datetime)) {
+          return;
+        }
+
         $loggedin_username = $_SESSION[USERNAME];
-        $data = array('action' => 'ban', 'username' => $username,
+        $data = array('action' => 'ban', 'username' => $entered_username,
         'admin' => $loggedin_username, 'reason' => $reason, 'date_to' => $date_to, 'time_to' => $time_to, 'return_url' => "administration.php");
 
         $url = "ban_user.php?".http_build_query($data, '', '&amp;');
@@ -365,6 +362,7 @@
         * Blacklist a user enteered in the form
         */
       function blacklistUser() {
+        global $email;
         global $blacklisted_emails;
         global $blacklist_error_message;
 
@@ -410,8 +408,6 @@
       }
      ?>
 
-     <!-- TODO need to find a way to return an error message from ban_user.php. Maybe a session variable -->
-
      <?php
         generateNavBar(ADMINISTRATION);
         $error_occurred = displayError();
@@ -432,7 +428,7 @@
                     <label>Username</label>
                   </div>
                   <div class="col-auto">
-                    <input type="text" class="form-control" name="username" required>
+                    <input type="text" class="form-control" name="username" value="<?php echo $entered_username; ?>" required>
                     <?php if (empty($ban_error_message)): ?>
                     <div class="form-text">
                       Enter the username of the user to ban
@@ -445,7 +441,7 @@
                     <label>Reason</label>
                   </div>
                   <div class="col-auto">
-                    <input type="text" maxlength="64" class="form-control" name="reason" required>
+                    <input type="text" maxlength="64" class="form-control" name="reason" value="<?php echo $reason; ?>" required>
                     <div class="form-text">
                       Max. 64 characters
                     </div>
@@ -481,7 +477,7 @@
                     <label>Email</label>
                   </div>
                   <div class="col-auto">
-                    <input type="email" class="form-control" name="email" required>
+                    <input type="email" class="form-control" name="email" value="<?php echo $email; ?>" required>
                     <?php if (empty($blacklist_error_message)): ?>
                     <div class="form-text">
                       Enter the e-mail of the user to ban

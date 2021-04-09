@@ -12,10 +12,7 @@
     <?php
       require "navbar.php";
       require "teacher_variables.php";
-
-      $first_name = $first_name_error = $last_name = $last_name_error = $headline
-      = $about = $location = $current_org_error = $password = $password_error =
-      $confirm_password = $confirm_password_error = ""; // TODO add variables for education history here
+      require "profile_picture_upload.php";
 
       $current_organisation = null;
       $available_organisations = array();
@@ -320,6 +317,12 @@
           }
         }
       }
+
+      if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if (isset($_POST["profile_type"])) {
+          uploadProfilePicture($_POST["profile_type"], $username);
+        }
+      }
      ?>
 
      <?php
@@ -334,17 +337,15 @@
           <form id="update_profile_form">
             <div class="row">
               <div class="col">
-                <div class="form-group <?php echo (!empty($first_name_error)) ? 'has-error' : ''; ?>">
+                <div class="form-group">
                   <label>First Name</label>
                   <input type="text" pattern="[A-Za-z\-]*" name="first_name" id="first_name" title="Please enter alphabetical characters only" class="form-control" placeholder="John" value="<?php echo $first_name; ?>" required>
-                  <span class="help-block login-error-message"><?php echo $first_name_error; ?></span>
                 </div>
               </div>
               <div class="col">
-                <div class="form-group <?php echo (!empty($last_name_error)) ? 'has-error' : ''; ?>">
+                <div class="form-group">
                   <label>Last Name</label>
                   <input type="text" pattern="[A-Za-z\-]*" name="last_name" id="last_name" title="Please enter alphabetical characters only" class="form-control" placeholder="Doe" value="<?php echo $last_name; ?>" required>
-                  <span class="help-block login-error-message"><?php echo $last_name_error; ?></span>
                 </div>
               </div>
             </div>
@@ -382,25 +383,26 @@
             </div>
           </form>
         </div>
+        <?php
+          getProfilePictureForm(true);
+        ?>
         <div class="row mt-5 shadow card padding-1pcent" id="update_password">
           <h4>Update Password</h4>
           <form id="update_password_form">
             <div class="row">
               <div class="col">
-                <div class="form-group <?php echo (!empty($password_error)) ? 'has-error' : ''; ?>">
+                <div class="form-group">
                   <label>Password</label>
                   <input type="password" name="password" id="password" oninput="onPasswordInput();" minlength="8" class="form-control" required>
-                  <span class="help-block login-error-message"><?php echo $password_error; ?></span>
                   <div class="form-text">
                     Enter your new password
                   </div>
                 </div>
               </div>
               <div class="col">
-                <div class="form-group <?php echo (!empty($confirm_password_error)) ? 'has-error' : ''; ?>">
+                <div class="form-group">
                   <label>Confirm Password</label>
                   <input type="password" name="confirm_password" id="confirm_password" oninput="onConfirmPasswordInput();" minlength="8" class="form-control" required>
-                  <span class="help-block login-error-message"><?php echo $confirm_password_error; ?></span>
                   <div class="form-text">
                     Confirm your new password
                   </div>

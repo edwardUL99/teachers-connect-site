@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS teachers (
   headline VARCHAR(64),
   about TEXT,
   location VARCHAR(32),
-  profile_photo VARCHAR(32),
+  profile_photo VARCHAR(255),
   PRIMARY KEY (username),
   FOREIGN KEY (username) REFERENCES accounts(username)
     ON DELETE CASCADE
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS organisations (
   headline VARCHAR(64),
   about TEXT,
   location VARCHAR(32),
-  profile_photo VARCHAR(32),
+  profile_photo VARCHAR(255),
   PRIMARY KEY (organisation_id),
   FOREIGN KEY (username) REFERENCES accounts(username)
     ON DELETE CASCADE
@@ -354,6 +354,7 @@ CREATE TABLE IF NOT EXISTS notifications (
   type ENUM('view' , 'request' , 'like'),
   target_link VARCHAR (255),
   viewed BOOLEAN DEFAULT false,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   FOREIGN KEY (username) REFERENCES accounts(username)
     ON DELETE CASCADE
