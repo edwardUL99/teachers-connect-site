@@ -11,7 +11,7 @@
     </head>
     <body class="notificationPage">
 
-       <?php   
+       <?php
         require "navbar.php";
         require "notifications_utils.php";
         require "database.php";
@@ -153,6 +153,7 @@
                           }
 
                           $profile_photo = getSenderProfilePhoto($sender);
+                          $profile_photo = ($profile_photo == null || empty($profile_photo)) ? "images/logo.png":$profile_photo;
 
                           echo "
                               <div class=\"notifications__item\">

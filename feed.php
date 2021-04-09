@@ -17,6 +17,77 @@
             require "database.php";
             require "error.php";
             require "navbar.php";
+						require "teacher.php";
+						require "organisation.php";
+
+						$teacher = null;
+						$organisation = null;
+						$profile_photo = null;
+
+						if ($user_type == TEACHER) {
+							$sql = "SELECT * FROM teachers WHERE username = ?;";
+
+							if ($stmt = $conn->prepare($sql)) {
+								$stmt->bind_param("s", $param_user);
+								$param_user = $username;
+
+								if ($stmt->execute()) {
+									$result = $stmt->get_result();
+									$row = $result->fetch_assoc();
+
+									$teacher = new Teacher($username, $row['first_name'], $row['last_name'], $row['headline'],
+									$row['about'], $row['location'], $row['profile_photo']);
+								} else {
+									die("Database Error: {$stmt->error}");
+								}
+
+								$stmt->close();
+							} else {
+								die("Database Error: {$conn->error}");
+							}
+						} else if ($user_type == ORGANISATION) {
+							$sql = "SELECT * FROM organisations WHERE username = ?;";
+
+							if ($stmt = $conn->prepare($sql)) {
+								$stmt->bind_param("s", $param_user);
+								$param_user = $username;
+
+								if ($stmt->execute()) {
+									$result = $stmt->get_result();
+									$row = $result->fetch_assoc();
+
+									$organisation = new Organisation($row['organisation_id'], $username,
+									$row['name'], $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
+								} else {
+									die("Database Error: {$stmt->error}");
+								}
+
+								$stmt->close();
+							} else {
+								die("Database Error: {$conn->error}");
+							}
+						}
+
+						$default = null;
+						if ($teacher != null) {
+							$profile_photo = $teacher->profile_photo();
+							$default = DEFAULT_TEACHER_PROFILE_PIC;
+						} else if ($organisation != null) {
+							$profile_photo = $organisation->profile_photo();
+							$default = DEFAULT_ORG_PROFILE_PIC;
+						} else {
+							$default = "images/logo.png";
+						}
+
+						$profile_photo = ($profile_photo == null) ? $default:$profile_photo;
+
+						$name = null;
+
+						if ($teacher != null) {
+							$name = $teacher->firstName() . " " . $teacher->lastName();
+						} else if ($organisation != null) {
+							$name = $organisation->name();
+						}
         ?>
 
         <?php
@@ -25,20 +96,14 @@
 
         <div class="container">
 			<div class="row">
-				<div class="col-3" id="profile-home-panel">
+				<div class="<?php echo ($user_type != ADMIN) ? 'col-3':'d-none'; ?>" id="profile-home-panel">
 					<div class="card" style="margin-top:20px;">
-                        <img class="side-bar-profile-pic" src="images/Face.jpg" alt="Profile Pic">
+                        <img class="side-bar-profile-pic rounded-circle m-auto" src="<?php echo $profile_photo; ?>" alt="Profile Pic">
 						<div class="card-body text-center">
 							<h4 class="card-title">
 							    <?php
-							    $username = $_SESSION['username'];
-
-                                $sql = "select * from teachers where username = '$username';";
-                                $result = $conn->query($sql);
-                                while($row = $result->fetch_assoc()) {
-                                    echo "" . $row["first_name"] . " " . $row["last_name"] . " ";
-                                }
-                                ?>
+							   		echo $name;
+                    ?>
 							</h4>
 
 							<p class="card-text">Some example text some example text. John Doe is an architect and engineer</p>
@@ -49,7 +114,7 @@
 					</div>
                 </div>
 
-                <div class="col-9" id="home-feed">
+                <div class="<?php echo ($user_type != ADMIN) ? 'col-9':'col'; ?>" id="home-feed">
 					<div class="card" style="margin-top:20px;">
 						<div class="form-group">
 						    <form name="form" action="" method="post">
@@ -91,12 +156,14 @@
                                 $sql = "select * from teachers where username = '$username';";
                                 $result = $conn->query($sql);
                                 while($row = $result->fetch_assoc()) {
+																	$profile_photo = $row['profile_photo'];
+																	$profile_photo = ($profile_photo == null || empty($profile_photo)) ? DEFAULT_TEACHER_PROFILE_PIC:$profile_photo;
 
                             echo '<div class="card" style="margin-top:5%; margin-bottom:5%;">
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-4">
-                                        <img class="card-img-top" src="images/Face.jpg" alt="Profile image" style="width:100%">
+                                        <img class="card-img-top rounded-circle" style="height: 100px; width: 100px;" src="'. $profile_photo . '" alt="Profile image" style="width:100%">
                                     </div>
                                     <div class="col-8">
                                         <h4 class="card-title">'. $row["first_name"] .' '. $row["last_name"] .'</h4>

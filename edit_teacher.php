@@ -291,6 +291,12 @@
       $loggedin_username = $_SESSION[USERNAME];
       $user_type = $_SESSION[USER_TYPE];
 
+      if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if (isset($_POST["profile_type"])) {
+          uploadProfilePicture($_POST["profile_type"], $username);
+        }
+      }
+
       if ($user_type != ADMIN && $loggedin_username != $username) {
         doError("You can only edit a profile that is your own");
       } else {
@@ -315,12 +321,6 @@
               }
             }
           }
-        }
-      }
-
-      if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        if (isset($_POST["profile_type"])) {
-          uploadProfilePicture($_POST["profile_type"], $username);
         }
       }
      ?>

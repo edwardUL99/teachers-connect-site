@@ -191,14 +191,14 @@
       /**
         * Sends the new user a welcome notification
         */
-          function sendWelcomNotificaton($user_name) {
-            
+          function sendWelcomeNotification($user_name) {
+
             $username = $user_name;
             $sender = 'Teachers Connect Bot';
             $link = "teacher_profile.php?username={$username}";
-            
+
             $notification = new AdminNotification($sender, $username, false, $link, null);
-            
+
             AddAdminNotification($notification);
 
           }
@@ -257,7 +257,7 @@
       if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (process()) {
             saveUser();
-            sendWelcomNotificaton($username);
+            sendWelcomeNotification($username);
         } else {
           doError("A field isn't valid. Please correct the error and try again");
         }

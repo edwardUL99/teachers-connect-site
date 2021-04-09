@@ -110,7 +110,7 @@
         global $followers;
 
         foreach ($followers as $key => $value) {
-          $img_src = ($value->profile_photo() == null) ? DEFAULT_TEACHER_PROFILE_PIC:"\"{$value->profile_photo()}\"";
+          $img_src = ($value->profile_photo() == null) ? DEFAULT_TEACHER_PROFILE_PIC:"{$value->profile_photo()}";
           $name = "{$value->firstName()} {$value->lastName()}";
           $headline = "{$value->headline()}";
           $link = "teacher_profile.php?username={$value->username()}";

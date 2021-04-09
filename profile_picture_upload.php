@@ -11,25 +11,33 @@
       * Print the form for the profile photo
       * Pass in true for teacher, false for organisation
       */
-    function getProfilePictureForm($teacher) {
+    function getProfilePictureForm($isTeacher) {
+      global $teacher;
       global $profile_picture_error;
 
-      if ($teacher === true || $teacher === false) {
-        $type = ($teacher) ? TEACHER:ORGANISATION;
+      if ($isTeacher === true || $isTeacher === false) {
+        $type = ($isTeacher) ? TEACHER:ORGANISATION;
         $action = htmlspecialchars($_SERVER["PHP_SELF"]);
         echo "<div class=\"row mt-5 shadow card padding-1pcent\">";
         echo "<h4>Update Profile Picture</h4>";
+        echo "<div class=\"row\">";
+        echo "<div class=\"col-4\">";
+        $profile_photo = $teacher->profile_photo();
+        $profile_photo = ($profile_photo == null || empty($profile_photo)) ? DEFAULT_TEACHER_PROFILE_PIC:$profile_photo;
+        echo "<img class=\"img-fluid rounded-circle\" src=\"{$profile_photo}\"></div>";
+        echo "<div class=\"col-8\">";
         echo "<form enctype=\"multipart/form-data\" action=\"{$action}\" method=\"post\">";
         echo "<div class=\"form-group\">";
         echo "<label>Choose profile picture</label>";
-        echo "<input type=\"file\" class=\"form-control-file\" name=\"profile_photo\" required>";
+        echo "<input type=\"file\" class=\"form-control\" name=\"profile_photo\" required>";
         echo "<input type=\"hidden\" name=\"profile_type\" value=\"{$type}\">";
         echo "<span class=\"help-block login-error-message\">{$profile_picture_error}</span>";
-        echo "</div>";
         echo "<div class=\"row text-end\">";
         echo "<div class=\"col\">";
         echo "<button class=\"btn btn-primary\">Save</button>";
-        echo "</div></div></form></div>";
+        echo "</div></div>";
+        echo "</div>";
+        echo "</form></div></div></div>";
       } else {
         die("Unknown value for teacher passed into getProfilePicture. Expected a boolean");
       }

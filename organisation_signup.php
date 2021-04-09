@@ -11,6 +11,7 @@
     <?php
       require "database.php";
       require "error.php";
+      require "notifications_utils.php";
 
       session_start();
 
@@ -167,6 +168,21 @@
       }
 
       /**
+        * Sends the new user a welcome notification
+        */
+          function sendWelcomeNotification($user_name) {
+
+            $username = $user_name;
+            $sender = 'Teachers Connect Bot';
+            $link = "teacher_profile.php?username={$username}";
+
+            $notification = new AdminNotification($sender, $username, false, $link, null);
+
+            AddAdminNotification($notification);
+
+          }
+
+      /**
        * After successful processing, this method should save the user to the database
        */
       function saveUser() {
@@ -217,6 +233,7 @@
       if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (process()) {
             saveUser();
+            sendWelcomeNotification($username);
         } else {
           doError("A field isn't valid. Please correct the error and try again");
         }
