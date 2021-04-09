@@ -1,0 +1,590 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;500;700&display=swap');
+
+html {
+    scroll-behavior: smooth;
+}
+
+body{
+    background: #38F094;
+    overflow-y: scroll; 
+    overflow-x:hidden;
+}
+
+#form{
+    width: 537px;
+    height: 1080px;
+    margin: auto;
+    background:#86FFC2; 
+    padding: 153px;
+}
+
+
+#submit{
+    color:white;
+    background: #007BFF;
+    padding: 5px;
+    margin-left: 45%;
+}
+
+.imgcontainter{
+    margin: auto;
+    width: 350px;
+    height: 153px;
+    margin-top: 176px;
+}
+
+#logo{
+    margin: auto;
+    width: 350px;
+    height: 153px;
+}
+
+#username-lable{
+    margin-left: 93px;
+
+}
+#username{
+    margin-left: 93px;
+    width: 350px;
+    height: 29px;
+}
+
+#password-lable{
+    margin-left: 93px;
+}
+
+#password{
+    margin-left: 93px;
+    width: 350px;
+    height: 29px;
+}
+
+#checkbox{
+    display: inline-block;
+    white-space: nowrap;
+    margin-left: 120px;
+    padding-top: 11px;
+}
+
+#link{
+    margin-left: 60%;
+    display: inline-block;
+    padding-right: 80px;
+    white-space: nowrap;
+}
+
+#bottomText{
+    width: 179px;
+    height: auto;
+    margin: 0 auto;
+    padding: 10px;
+    position: relative;
+    text-align: center;
+}
+#or{
+    color: grey;
+}
+
+.notificationPage{
+    background-color: #38F094;
+}
+
+#heading{
+    color: black;
+    font-size: 36px;
+    margin-left: 14%;
+    padding: 10px;
+    position: relative; 
+  }
+
+  #heading-2{
+    color: black;
+    font-size: 36px;
+    position: relative;
+  }
+
+  .clear-all{
+      padding-bottom: 10px;
+      float: right;
+  }
+
+.notification-container {
+    background-color:white;
+    width: 920px;
+    height: auto;
+    max-height: 685px;
+    margin: 0 auto;
+    padding: 10px;
+    position: relative;
+  }
+
+
+#notification{
+    background-color:rgb(163, 161, 161);
+    width: 889px;
+    height: 94px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+
+
+#notiName{
+    font-size: 26px;
+    float: left;
+}
+
+#connName{
+    font-size: 26px;
+    text-align: center;
+}
+
+#userimg{
+    float: right;
+    width:69.3px; 
+    height:66px; 
+    margin-right: 30%; padding: 0px;
+}
+
+/* #goto{
+    color:white;
+    background: #007BFF;
+    padding: 5px;
+    font-family: Arial, Helvetica, sans-serif;
+    position: absolute;
+    right: 10%;
+    bottom: 30%;
+}
+
+#delete{
+    font-size: 20px;
+    padding-right: 5px;
+    font-family: Arial, Helvetica, sans-serif;
+    position: absolute;
+    right: 0%;
+    bottom: 50%;
+    right: 20px;
+}
+
+#time{
+    font-size: 20px;
+    padding-right: 5px;
+    font-family: Arial, Helvetica, sans-serif;
+    position: absolute;
+    right: 0%;
+    bottom: 20%;
+    right: 20px;
+} */
+
+
+.button-class {
+    color:white;
+    background: #007BFF;
+    margin: 0;
+    position: relative;
+    font-family: Arial, Helvetica, sans-serif;
+    right: 0%;
+    bottom: 50%;
+    padding-right: 5px;
+  }
+
+.deleteButton{
+    margin: 0;
+    position: relative;
+    float: right;
+    font-size: 20px;
+    padding-right: 5px;
+    padding-bottom: 10px;
+    right: 0%;
+}
+
+.time{
+    margin: 0;
+    position: relative;
+    float: right;
+    font-size: 20px;
+
+}
+
+.wrapper {
+  width: 520px;
+  margin: 50px auto;
+}
+
+  
+.notifications__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 105px;
+  margin-bottom: 20px;
+  padding: 0 20px;
+
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0px 15px 20px 0px rgb( 0, 0, 0, .2 );
+
+  transition: all .3s ease-in;
+  cursor: pointer;
+}
+
+.notifications__item__avatar {
+  width: 75px;
+  height: 75px;
+  overflow: hidden;
+  margin-right: 20px;
+
+  border-radius: 50%;
+}
+
+.notifications__item__avatar img {
+  width: 100%;
+  height: 100%;
+}
+
+.notifications__item__content { width: calc( 100% - 105px ); }
+.notifications__item__title,
+.notifications__item__message { display: block; }
+
+.notifications__item__title {
+  letter-spacing: 2px;
+  font-family: 'atvice', sans-serif;
+  font-size: 17px;
+}
+
+.notifications__item__message {
+  font-family: Roboto, sans-serif;
+  font-size: 14px;
+  color: #929292;
+}
+
+.notifications__item__option {
+  width: 20px;
+  height: 20px;
+  margin: 8px 0;
+
+  border-radius: 50%;
+  color: white;
+  opacity: 0;
+
+  font-size: 10px;
+  text-align: center;
+  line-height: 20px;
+
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.notifications__item__option.archive { background-color: #3dc98c; }
+
+.notifications__item__option.delete { 
+    font-family: Arial, Helvetica, sans-serif;
+    color: black;
+    font-size: 20px;
+    background-color: #c93d4d; 
+    position: relative;
+    padding: 20px;
+}
+
+.notifications__item:hover {
+  background-color: #f7f7f7;
+  transform: scale( 0.95 );
+  box-shadow: 0px 5px 10px 0px rgb( 0, 0, 0, .2 );
+}
+
+.notifications__item:hover .notifications__item__option { opacity: 1; }
+
+.notifications__item.archive .notifications__item__title,
+.notifications__item.delete .notifications__item__title {
+  color: white;
+}
+
+.notifications__item.archive .notifications__item__message,
+.notifications__item.delete .notifications__item__message {
+  color: #f3f3f3;
+}
+
+.notifications__item.archive {
+  background-color: #3dc98c;
+  animation: archiveAnimation 1.5s cubic-bezier(0, 0, 0, 1.12) forwards;
+  animation-delay: .6s;
+}
+
+.notifications__item.delete {
+  background-color: #c93d4d;
+  animation: deleteAnimation 1.5s cubic-bezier(0, 0, 0, 1.12) forwards;
+  animation-delay: .6s;
+}
+
+
+@keyframes archiveAnimation{
+  to {
+    transform: translateX( 100px );
+    opacity: 0;
+  }
+}
+
+@keyframes deleteAnimation{
+  to {
+    transform: translateX( -100px );
+    opacity: 0;
+  }
+}
+
+/* Landing Page CSS */
+
+.landing-page{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Nato Sans JP", sans-serif;
+    background: white;
+
+}
+
+section{
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: block;
+    flex-direction: column;
+    justify-content: flex-start;
+    /* background: url('../images/LandingPage.jpg'); */
+    background: white;
+    background-size: cover;
+    background-position: top;
+    /* background-position: center; */
+}
+
+.landing-navbar-header{
+    position: relative;
+    top: 0;
+    width: 100%;
+    padding: 30px 100px;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.landing-logo{
+    position: relative;
+    color: green;
+}
+
+.landing-navbar a{
+    color: green;
+    text-decoration: none;
+    font-weight: 500;
+    letter-spacing: 1px;
+    padding: 2px 15px;
+    border-radius: 20px;
+    transition: 0.3s;
+}
+
+.landing-navbar a:hover{
+    background-color: orange;
+    color: white;
+    padding: 20px 15px;
+    font-size: 20px;
+}
+
+.landing-buttons{
+    color: green;
+    background-color: white;
+    padding: 10px 15px;
+    border-radius: 20px;
+    transition: 0.3s;
+}
+
+.landing-buttons:hover{
+    background-color: rgb(128, 221, 128);
+    padding: 18px 15px;
+}
+
+.landing-btn1{
+    position: relative;
+    background-color:lightgreen; 
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 20px;
+    transition: 0.3s;
+}
+.landing-btn2{
+    background-color:orange;
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 20px;
+}
+
+.landing-btn1:hover{
+    background-color:white; 
+    border: none;
+    color: lightgreen;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 20px;
+    border-radius: 20px;
+    transition: 0.3s;
+}
+.landing-btn2:hover{
+    background-color:white;
+    border: none;
+    color: orange;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 20px;
+    border-radius: 20px;
+}
+
+.landing-content{
+    max-width: 850px;
+    margin: 60px 100px;
+}
+
+.landing-info{
+    display: flex;
+}
+
+.landing-content .landing-info h2{
+    color: green;
+    font-size: 55px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    line-height: 60px;
+    margin-bottom: 30px;
+}
+
+.landing-btn3{
+    background-color:green; 
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 20px;
+    border-radius: 15px;
+    margin-bottom: 200px;
+}
+
+.landing-btn3:hover{
+    background-color:orange; 
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 25px;
+    border-radius: 20px;
+    transition: 0.3s;
+}
+
+.landing-image{
+    position: relative;
+    padding-left: 50%;
+    padding-right: 0px;
+    max-width: 600px;
+    max-height: 400px;
+    display: inline;
+}
+
+#landing-about{
+    max-width: 1000px;
+    margin: 60px 100px;
+    color: green;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0px;
+    line-height: 40px;
+    margin-bottom: 200px;
+
+}
+
+#landing-contact{
+    display: flex;
+    position: relative;
+    max-width: 1000px;
+    margin: 60px 100px;
+    color: green;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: 0px;
+    line-height: 40px;
+}
+
+.landing-form-control{
+    position: relative;
+    color: black;
+    opacity:  1;
+    font-size: 20px;
+    padding: 10px 50px;
+    font-weight: normal;
+    border-radius: 20px;
+    transition: 0.4s;
+
+}
+
+.landing-form-control:hover{
+    border-color: green;
+    border-radius: 10px;
+    border-width: 10px;
+}
+
+.landing-btn4{
+    background-color:green; 
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 20px;
+    border-radius: 15px;
+    margin-bottom: 200px;
+}
+
+.landing-btn4:hover{
+    background-color:orange; 
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 25px;
+    border-radius: 20px;
+    transition: 0.3s;
+}
+
+.landing-image-mail{
+    position: relative;
+    max-width: 600px;
+}
+
+textarea {
+
+    width: 600px;
+    height: 300px;
+}
+
+.landing-logo{
+    max-height: 30%;
+    max-width: 60%;
+}

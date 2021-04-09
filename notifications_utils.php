@@ -65,7 +65,7 @@
                 return $this->type;
             }
 
-            function getViewed() : boolean{
+            function getViewed() : bool{
                 return $this->viewed;
             }
 
@@ -108,6 +108,16 @@
             }
         }
 
+        class AdminNotification extends Notification{
+          function __construct($sender, $receiver, $viewed, $target_link, $created_at) {
+            parent::__construct($sender, $receiver, 'admin', $viewed, $target_link, $created_at);
+          }
+
+          public function messageForNotification(Notification $notification) : string{
+              return "Welcome to Teachers Connect!";
+          }
+      }
+
         function addNotification(Notification $notification){
           global $conn;
 
@@ -118,6 +128,27 @@
             $param_username = $notification->getReceiver();
             $param_sender = $notification->getSender();
             $param_type = $notification->getType();
+            $param_target = $notification->getTarget_link();
+
+            if (!$stmt->execute()) {
+              die("Database error: {$stmt->error}");
+            }
+
+            $stmt->close();
+          } else {
+            die("Database error: {$conn->error}");
+          }
+        }
+
+        function AddAdminNotification(Notification $notification){
+          global $conn;
+
+          $sql = "INSERT INTO notifications (username, sender, type, target_link) VALUES (?, ?, 'admin', ?);";
+
+          if ($stmt = $conn->prepare($sql)) {
+            $stmt->bind_param("sss", $param_username, $param_sender, $param_target);
+            $param_username = $notification->getReceiver();
+            $param_sender = "Teachers Connect Bot";
             $param_target = $notification->getTarget_link();
 
             if (!$stmt->execute()) {
