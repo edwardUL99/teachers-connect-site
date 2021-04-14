@@ -19,10 +19,10 @@
                     <a href="#landing-contact">Contact Us</a>
                 </div>
                 <div class="landing-buttons">
-                    <button class="landing-btn1"  onclick="window.location.href='/teachers-connect-site-main/login.php'">Sign In</button>
-                    <button class="landing-btn2" onclick="window.location.href='/teachers-connect-site-main/teacher_signup.php'">Sign Up</button>
+                    <button class="landing-btn1"  onclick="window.location.href='login.php'">Sign In</button>
+                    <button class="landing-btn2" onclick="window.location.href='teacher_signup.php'">Sign Up</button>
                 </div>
-                
+
             </header>
 
             <div class="landing-content">

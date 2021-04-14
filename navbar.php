@@ -128,7 +128,7 @@
          if(isset($_GET['q'])) {
           $q = $_GET['q'];
 
-          header('Location: '. 'search2.php?q=' . $q);
+          header('Location: '. 'search.php?q=' . $q);
         }
       } else {
         echo "</ul>";

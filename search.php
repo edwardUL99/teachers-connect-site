@@ -1,49 +1,85 @@
+
+
 <!DOCTYPE html>
-
 <html>
+   <head>
+      <title>Search</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+      <link type="text/css" href="css/styles.css" rel="stylesheet">
+      <link type="text/css" href="css/feed.css" rel="stylesheet">
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <script type = "text/javascript">
+         function active(){
+             var searchBar = document.getElementById('searchBar');
+             if(searchBar.value == 'Search...'){
+                 searchBar.value = ''
+                 searchBar.placeholder = 'Search...'
+             }
+         }
+
+         function inactive(){
+             var searchBar = document.getElementById('searchBar');
+             if(searchBar.value == ''){
+                 searchBar.value = ''
+                 searchBar.placeholder = 'Search...'
+             }
+
+         }
+      </script>
+   </head>
+   <body>
+      <?php
+         require "database.php";
+         require "error.php";
+         require "navbar.php";
+
+         ?>
+      <?php
+         generateNavBar(SEARCH);
+         ?>
+      <div class="container main-background">
+         <form class="d-flex" action= "search.php" method = "GET" style ="margin-top: 20px">
+            <input class="form-control me-2"
+               type="search"  name ="q" placeholder="Search"
+               aria-label="Search">
+            <button class="btn btn" style="background-color:white"
+               type="submit">Search</button>
+         </form>
+         <?php
+            if(isset($_GET['q'])){
+
+                $q =$_GET['q'];
 
 
+            $query = mysqli_query($conn, "select * from teachers where first_name like '%$q%' or concat(first_name, \" \", last_name) like '%$q%'");
+            while($row = mysqli_fetch_array($query)){
+                $first_name = $row['first_name'];
+                $last_name = $row['last_name'];
+                $username = $row['username'];
+                $headline = $row['headline'];
+                $profile_photo = $row['profile_photo'];
+                $profile_photo = ($profile_photo == null) ? DEFAULT_TEACHER_PROFILE_PIC:$profile_photo;
 
-<head>
+                 echo '<div class="card" style ="margin-top: 20px; margin-bottom: 20px">
+                                 <div class="card-body">
+                                     <div class="row">
+                                         <div class="col-4">
+                                             <img class="card-img-top rounded-circle" src='."\"{$profile_photo}\"".' alt="Card image">
+                                         </div>
+                                         <div class="col-8">
+                                             <a href="teacher_profile.php?username='.$username.'">' . $first_name . ' '. $last_name . '</a><br />
 
-   <title>Friends Search</title>
+                                             <h5 class="card-title">'. $headline .'</h5>
 
-   <!-- Including jQuery is required. -->
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>';
 
-   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-
-   <!-- Including our scripting file. -->
-
-   <script type="text/javascript" src="scripts.js"></script>
-
-   <!-- Including CSS file. -->
-
-   <link rel="stylesheet" type="text/css" href="css/styles2.css">
-
-</head>
-
-
-
-<body>
-
-<!-- Search box. -->
-
-   <input type="text" id="search" placeholder="Search" />
-
-   <br>
-
-   <b>Ex: </b><i>Sean, Mikey, Eddy</i>
-
-   <br />
-
-   <!-- Suggestions will be displayed in below div. -->
-
-   <div id="display"></div>
-
-
-
-</body>
-
-
-
+            }}
+            ?>
+      </div>
+      </script>
+   </body>
 </html>
