@@ -4,7 +4,7 @@
   require "constants.php";
 
   function goToLogin() {
-    header("Location: login.php");
+    header("Location: landingpage.php");
     exit;
   }
 

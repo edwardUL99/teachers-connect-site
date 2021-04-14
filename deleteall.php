@@ -1,9 +1,10 @@
-<?php 
+<?php
+    session_start();
     include "database.php";
 
-    $username = $_GET['username'];
+    $username = $_SESSION['username'];
 
-    $deleteallquery = "DELETE * FROM `notifications` WHERE username = $username";
+    $deleteallquery = "DELETE FROM `notifications` WHERE username = '{$username}'";
 
     $query = mysqli_query($conn, $deleteallquery);
 
