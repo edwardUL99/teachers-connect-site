@@ -29,10 +29,8 @@
                   /**
                     * Retrieve the profile photo for the user
                     */
-                  function getSenderProfilePhoto($sender) {
+                  function getSenderProfilePhoto($sender, $user_type) {
                     global $conn;
-
-                    $user_type = getUserType($sender);
 
                     $table = null;
                     if ($user_type == TEACHER) {
@@ -97,7 +95,7 @@
                           $button_text = "";
 
                           if($type == 'view'){
-                            $notificationType = "Is viewing your profile";
+                            $notificationType = "Viewed your profile";
                             $button_text = "Go to profile";
                           } else if($type == 'request'){
                             $notificationType = "Wants to connect with you";
@@ -114,8 +112,11 @@
                             $button_text = "Go to invite";
                           }
 
-                          $profile_photo = getSenderProfilePhoto($sender);
+                          $type = getUserType($sender);
+                          $profile_photo = getSenderProfilePhoto($sender, $type);
                           $profile_photo = ($profile_photo == null || empty($profile_photo)) ? "images/logo.png":$profile_photo;
+                          $sender_name = getSenderName($sender, $type);
+                          $sender = ($sender_name == null || empty($sender_name)) ? $sender:$sender_name;
 
                           echo "
                               <div class=\"notifications__item\">

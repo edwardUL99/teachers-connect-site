@@ -80,10 +80,6 @@
 
         if ($invitation_id != -1) {
           loadSpecifiedInvitation();
-
-          if ($specified_invitation == null) {
-            $invitation_id = -1;
-          }
         }
 
         $sql = "SELECT * FROM notifications WHERE type = 'org_invite' AND username = ?  AND id != ? ORDER BY created_at DESC;";
@@ -153,21 +149,29 @@
         global $specified_invitation;
         global $invitation_id;
 
-        $value = $specified_invitation;
-        $sender = $value->getSender();
-        $profile_photo = getSenderProfilePhoto($sender);
-        $name = getSenderName($sender, ORGANISATION);
-        echo "<div class=\"row align-items-center bg-light m-auto\" id=\"invite-{$invitation_id}\">";
-        echo "<div class=\"col\">";
-        echo "<img class=\"img-fluid rounded-circle\" src=\"{$profile_photo}\"></div>";
-        echo "<div class=\"col\">";
-        echo "<h4>{$name}</h4></div>";
-        echo "<div class=\"col text-end\">";
-        echo '<button class="btn btn-primary" type="button" onclick="handleInviteAccept(' . $invitation_id . ', \'' . $value->getReceiver() . '\', \'' . $sender . '\');">Accept</button>';
-        echo '<button class="btn btn-secondary" style="margin-left: 5%;" type="button" onclick="handleInviteRejection(' . $invitation_id . ');">Reject</button></div>';
-        echo "<div class=\"col text-end\">";
-        echo "<h6 class=\"subtitle\">" . format_time($value->getCreated_at()) . "</h6></div>";
-        echo "</div>";
+        if ($invitation_id != -1) {
+          if ($specified_invitation != null) {
+            $value = $specified_invitation;
+            $sender = $value->getSender();
+            $profile_photo = getSenderProfilePhoto($sender);
+            $name = getSenderName($sender, ORGANISATION);
+            echo "<div class=\"row align-items-center bg-light m-auto\" id=\"invite-{$invitation_id}\">";
+            echo "<div class=\"col\">";
+            echo "<img class=\"img-fluid rounded-circle\" src=\"{$profile_photo}\"></div>";
+            echo "<div class=\"col\">";
+            echo "<h4>{$name}</h4></div>";
+            echo "<div class=\"col text-end\">";
+            echo '<button class="btn btn-primary" type="button" onclick="handleInviteAccept(' . $invitation_id . ', \'' . $value->getReceiver() . '\', \'' . $sender . '\');">Accept</button>';
+            echo '<button class="btn btn-secondary" style="margin-left: 5%;" type="button" onclick="handleInviteRejection(' . $invitation_id . ');">Reject</button></div>';
+            echo "<div class=\"col text-end\">";
+            echo "<h6 class=\"subtitle\">" . format_time($value->getCreated_at()) . "</h6></div>";
+            echo "</div>";
+          } else {
+            echo "<div class=\"row text-center bg-light m-auto\">";
+            echo "The selected invitation no longer exists";
+            echo "</div>";
+          }
+        }
       }
 
       /**
@@ -225,13 +229,13 @@
       <div class="row">
         <div class="alert alert-info" id="ajax-progress"></div>
       </div>
-      <?php if ($specified_invitation != null): ?>
-        <div class="row card" id="invites_box">
-          <h5 class="underlined-header">Selected Invitation</h5>
-          <?php displaySelectedInvitation(); ?>
-        </div>
-      <?php endif;?>
-      <div class="row card" id="<?php echo ($specified_invitation == null) ? 'invites_box':'secondary_invites_box'; ?>">
+      <?php if ($invitation_id != -1): ?>
+      <div class="row card" id="invites_box">
+        <h5 class="underlined-header">Selected Invitation</h5>
+        <?php displaySelectedInvitation(); ?>
+      </div>
+      <?php endif; ?>
+      <div class="row card" id="<?php echo ($invitation_id == -1) ? 'invites_box':'secondary_invites_box'; ?>">
         <?php displayInvites(); ?>
       </div>
       <div class="row card text-center" id="no_invites">
