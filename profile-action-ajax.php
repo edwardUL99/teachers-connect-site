@@ -391,7 +391,7 @@
   }
 
   /**
-    * Proces the following of an organisation
+    * Process the following of an organisation
     */
   function processFollow() {
     global $action_param;
@@ -399,6 +399,204 @@
       removeFollow();
     } else if ($action_param == ADD || empty($action_param)) {
       addFollow();
+    } else {
+      die("Unsupported action_param provided: {$action_param}");
+    }
+  }
+
+  /**
+    * After insert, we update the target url
+    */
+  function updateInviteTargetURL($invitation_id) {
+    global $conn;
+
+    $sql = "UPDATE notifications SET target_link = ? WHERE id = ?;";
+
+    if ($stmt = $conn->prepare($sql)) {
+      $stmt->bind_param("si", $param_link, $param_id);
+      $data = array('invitation_id' => $invitation_id);
+      $param_link = "organisation_invites.php?" . http_build_query($data);
+      $param_id = $invitation_id;
+
+      $stmt->execute();
+      $stmt->close();
+    }
+  }
+
+  /**
+    * Process the addition of the invite to the database
+    */
+  function processAddOrganisationInvite() {
+    global $sender;
+    global $destination;
+    global $conn;
+
+    $notification = new OrgInviteNotification($sender, $destination, false, "organisation_invites.php", null); // TODO maybe put ID as a query parameter here to filter in the invites page
+
+    $sql = "INSERT INTO notifications (username, sender, type, target_link) VALUES (?, ?, ?, ?);";
+
+    if ($stmt = $conn->prepare($sql)) {
+      $stmt->bind_param("ssss", $param_username, $param_sender, $param_type, $param_target);
+      $param_username = $notification->getReceiver();
+      $param_sender = $notification->getSender();
+      $param_type = $notification->getType();
+      $param_target = $notification->getTarget_link();
+
+      if (!$stmt->execute()) {
+        die("Database error: {$stmt->error}");
+      }
+
+      $id = $stmt->insert_id;
+
+      updateInviteTargetURL($id);
+
+      $stmt->close();
+    } else {
+      die("Database error: {$conn->error}");
+    }
+    respond(true, "INVITED");
+  }
+
+  /**
+    * Remove the invite from the database
+    */
+  function removeInvite() {
+    global $conn;
+
+    if (isset($_POST[INVITATION_ID])) {
+      $invitation_id = $_POST[INVITATION_ID];
+
+      $sql = "DELETE FROM notifications WHERE id = ?;";
+
+      if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param("i", $param_id);
+        $param_id = $invitation_id;
+
+        if (!$stmt->execute()) {
+          die("Database error: {$stmt->error}");
+        }
+      } else {
+        die("Database error: {$conn->error}");
+      }
+
+      $stmt->close();
+    } else {
+      die("When accepting/rejecting organisation invites, an INVITATION_ID needs to be provided");
+    }
+  }
+
+  /**
+    * Get the id of the organisation sender
+    */
+  function getOrganisationId($sender) {
+    global $conn;
+
+    $sql = "SELECT organisation_id FROM organisations WHERE username = ?;";
+
+    if ($stmt = $conn->prepare($sql)) {
+      $stmt->bind_param("s", $param_username);
+      $param_username = $sender;
+
+      $organisation_id = -1;
+      if ($stmt->execute()) {
+        $result = $stmt->get_result();
+
+        if ($row = $result->fetch_assoc()) {
+          $organisation_id = $row['organisation_id'];
+        }
+      } else {
+        die("Database error: {$stmt->error}");
+      }
+
+      $stmt->close();
+      return $organisation_id;
+    } else {
+      die("Database error: {$conn->error}");
+    }
+  }
+
+  /**
+    * If the user already has a current organisation, it is deleted
+    */
+  function deleteExistingOrganisation() {
+    global $conn;
+    global $destination;
+
+    $sql = "DELETE FROM organisation_members WHERE teacher_username = ?;";
+
+    if ($stmt = $conn->prepare($sql)) {
+      $stmt->bind_param("s", $param_username);
+      $param_username = $destination;
+
+      if (!$stmt->execute()) {
+        die("Database error: {$stmt->error}");
+      }
+
+      $stmt->close();
+    } else {
+        die("Database error: {$conn->error}");
+    }
+  }
+
+  /**
+    * Process the acceptance of an organisation invite
+    */
+  function processAcceptOrganisationInvite() {
+    global $sender;
+    global $destination;
+    global $conn;
+
+    $organisation_id = getOrganisationId($sender);
+
+    if ($organisation_id != -1) {
+      deleteExistingOrganisation();
+
+      $sql = "INSERT INTO organisation_members (teacher_username, organisation_id) VALUES (?, ?);";
+
+      if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param("si", $param_username, $param_id);
+        $param_username = $destination;
+        $param_id = $organisation_id;
+
+        if (!$stmt->execute()) {
+          die("Database error: {$stmt->error}");
+        }
+
+        $stmt->close();
+        removeInvite();
+        respond(true, "ACCEPTED");
+      } else {
+        die("Database error: {$conn->error}");
+      }
+    } else {
+      respond(false, "Organisation with username {$sender} does not exist");
+    }
+  }
+
+  function processRejectOrganisationInvite() {
+    removeInvite();
+    respond(true, "REMOVED");
+  }
+
+  /**
+    * This AJAX script has been modified to allow use with organisation invites to teachers.
+    * While not strictly an action related to the profile, the invitation process starts at the teacher's
+    * profile page. The result of the invitation is also displayed on the profile so, as well as the create
+    * invitation functionality, the accepting and rejection of them have been added here too
+    */
+
+  /**
+    * Send an organisation invite to the destination user
+    */
+  function processOrganisationInvite() {
+    global $action_param;
+
+    if ($action_param == ADD) {
+      processAddOrganisationInvite();
+    } else if ($action_param == ACCEPT) {
+      processAcceptOrganisationInvite();
+    } else if ($action_param == REMOVE) {
+      processRejectOrganisationInvite();
     } else {
       die("Unsupported action_param provided: {$action_param}");
     }
@@ -416,6 +614,8 @@
       processBlock();
     } else if ($action == FOLLOW) {
       processFollow();
+    } else if ($action == ORGANISATION_INVITE) {
+      processOrganisationInvite();
     } else {
       die("Unsupported action provided: {$action}");
     }
