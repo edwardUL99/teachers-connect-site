@@ -30,7 +30,9 @@
       $connection_pending = "";
 
       $banned = false;
-      $blaclisted = false;
+      $blacklisted = false;
+
+      $organisation_viewer = false; // true if the user viewing the teacher is an organisation
 
       /**
        * Parses the URL for any GET parameters
@@ -284,6 +286,60 @@
       }
 
       /**
+        * Retrieves the organisation that is viewing this user
+        */
+      function getViewingOrganisation() {
+        global $organisation_viewer;
+        global $conn;
+
+        if ($organisation_viewer) {
+          $loggedin_username = $_SESSION[USERNAME];
+          $sql = "SELECT * FROM organisations WHERE username = ?;";
+
+          if ($stmt = $conn->prepare($sql)) {
+            $stmt->bind_param("s", $param_username);
+            $param_username = $loggedin_username;
+
+            $organisation = null;
+            if ($stmt->execute()) {
+              $result = $stmt->get_result();
+
+              if ($row = $result->fetch_assoc()) {
+                $organisation = new Organisation($row['organisation_id'], $loggedin_username,
+                $row['name'], $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
+              }
+            } else {
+              doSQLError($stmt->error);
+            }
+
+            $stmt->close();
+            return $organisation;
+          } else {
+            doSQLError($conn->error);
+          }
+        }
+
+        return null;
+      }
+
+      /**
+        * Get the button that invites the user to join the organisation if the viewer is an organisation
+        * and the user's current organisation isn't already this one's
+        */
+      function getInviteButton() {
+        global $organisation_viewer;
+        global $current_organisation;
+
+        if ($organisation_viewer) {
+          $organisation = getViewingOrganisation();
+
+          if ($organisation != null && $organisation != $current_organisation) {
+            echo "<button class=\"btn btn-primary\" onclick=\"handleOrganisationInvite();\">Invite to Organisation</button>";
+          }
+        }
+      }
+
+      /**
         * Get the button for the primary button on profile header
         */
       function getPrimaryProfileButton() {
@@ -318,6 +374,9 @@
 
       if (canView()) {
         loadTeacher($username);
+
+        $organisation_viewer = $user_type == ORGANISATION;
+
         if (empty($error_message)) {
           loadCurrentOrganisation($username);
           if (empty($error_message)) {
@@ -432,9 +491,9 @@
           </div>
         </div>
         <?php endif; ?>
-        <?php if ($user_type == TEACHER || $user_type == ADMIN): ?>
         <div class="row mt-2">
           <div class="btn-toolbar">
+            <?php if ($user_type == TEACHER || $user_type == ADMIN): ?>
             <?php echo getPrimaryProfileButton(); ?>
             <?php if (!$own_profile): ?>
             <div class="dropdown">
@@ -450,9 +509,10 @@
             <?php getBlockButton(); ?>
             <?php getBlacklistButton(); ?>
           <?php endif; ?>
+          <?php endif; ?>
+          <?php getInviteButton(); ?>
           </div>
         </div>
-        <?php endif; ?>
       </div>
       <div class="row">
         <div class="col shadow profile-card right-margin-1pcent">
@@ -531,6 +591,7 @@
       const username = <?php echo json_encode($username); ?>;
       const loggedin_username = <?php echo json_encode($_SESSION[USERNAME]); ?>;
       var own_profile = <?php echo json_encode($own_profile); ?>;
+      var organisation_viewer = <?php echo json_encode($organisation_viewer); ?>;
       var blocked_user = <?php echo json_encode($blocked_user); ?>;
       var connected = <?php echo json_encode(checkConnection()); ?>;
       var connection_pending = <?php echo json_encode($connection_pending); ?>;
@@ -844,7 +905,7 @@
         admin.type = "hidden";
         form.appendChild(admin);
 
-        var action = document.createElement("input");
+        var action = document.createElement('input');
         action.type = "hidden";
         action.id = "action";
         action.name = "action";
@@ -854,6 +915,41 @@
 
         document.body.appendChild(form);
         form.submit();
+      }
+
+      /**
+        * Handles the organisation invite using AJAX
+        */
+      function handleOrganisationInvite() {
+        if (organisation_viewer) {
+          var ajaxRequest = getAJAX();
+
+          if (ajaxRequest != null) {
+            ajaxRequest.onreadystatechange = function() {
+              if (ajaxRequest.readyState == 4) {
+                var response = ajaxRequest.response;
+                try {
+                  update_progress("Teacher invited", true);
+                  update_progress("", false);
+                } catch (e) {
+                  alert(e);
+                }
+              }
+            }
+
+            var url = "profile-action-ajax.php";
+            var data = {};
+            data['action'] = "organisation_invite";
+            data['sender'] = loggedin_username;
+            data['destination'] = username;
+            data['action_param'] = "add";
+
+            update_progress("Sending invite to user", true);
+            ajaxRequest.open("POST", url, true);
+            var json = JSON.stringify(data);
+            ajaxRequest.send(json);
+          }
+        }
       }
 
     </script>

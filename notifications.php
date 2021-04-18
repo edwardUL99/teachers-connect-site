@@ -29,10 +29,8 @@
                   /**
                     * Retrieve the profile photo for the user
                     */
-                  function getSenderProfilePhoto($sender) {
+                  function getSenderProfilePhoto($sender, $user_type) {
                     global $conn;
-
-                    $user_type = getUserType($sender);
 
                     $table = null;
                     if ($user_type == TEACHER) {
@@ -71,92 +69,8 @@
                     }
                   }
 
-                    function format_time($timestamp)  
-                    {  
-                         $time_ago = strtotime($timestamp);  
-                         $current_time = time();  
-                         $time_difference = $current_time - $time_ago;  
-                         $seconds = $time_difference;  
-                         $minutes = round($seconds / 60 );
-                         $hours   = round($seconds / 3600);
-                         $days    = round($seconds / 86400); 
-                         $weeks   = round($seconds / 604800);
-                         $months  = round($seconds / 2629440);  
-                         $years   = round($seconds / 31553280);
-                         if($seconds <= 60)  
-                         {  
-                        return "Just Now";  
-                      }  
-                         else if($minutes <=60)  
-                         {  
-                        if($minutes==1)  
-                              {  
-                          return "one minute ago";  
-                        }  
-                        else  
-                              {  
-                          return "$minutes minutes ago";  
-                        }  
-                      }  
-                         else if($hours <=24)  
-                         {  
-                        if($hours==1)  
-                              {  
-                          return "an hour ago";  
-                        }  
-                              else  
-                              {  
-                          return "$hours hrs ago";  
-                        }  
-                      }  
-                         else if($days <= 7)  
-                         {  
-                        if($days==1)  
-                              {  
-                          return "yesterday";  
-                        }  
-                              else  
-                              {  
-                          return "$days days ago";  
-                        }  
-                      }  
-                         else if($weeks <= 4.3)
-                         {  
-                        if($weeks==1)  
-                              {  
-                          return "a week ago";  
-                        }  
-                              else  
-                              {  
-                          return "$weeks weeks ago";  
-                        }  
-                      }  
-                          else if($months <=12)  
-                         {  
-                        if($months==1)  
-                              {  
-                          return "a month ago";  
-                        }  
-                              else  
-                              {  
-                          return "$months months ago";  
-                        }  
-                      }  
-                         else  
-                         {  
-                        if($years==1)  
-                              {  
-                          return "one year ago";  
-                        }  
-                              else  
-                              {  
-                          return "$years years ago";  
-                        }  
-                      }  
-                    } 
-                  
-                  $sql = "SELECT * FROM notifications WHERE username = ?;";
-                  
+                  $sql = "SELECT * FROM notifications WHERE username = ? ORDER BY created_at DESC;";
+
 
                   if ($stmt = $conn->prepare($sql)) {
                     $stmt->bind_param("s", $param_username);
@@ -181,7 +95,7 @@
                           $button_text = "";
 
                           if($type == 'view'){
-                            $notificationType = "Is viewing your profile";
+                            $notificationType = "Viewed your profile";
                             $button_text = "Go to profile";
                           } else if($type == 'request'){
                             $notificationType = "Wants to connect with you";
@@ -193,10 +107,16 @@
                             $notificationType = "Welcome to Teachers Connect!";
                             $button_text = "Contact Us";
                             $link = "./landingpage.php#landing-contact";
+                          } else if ($type == 'org_invite') {
+                            $notificationType = "Wants you to join their organisation";
+                            $button_text = "Go to invite";
                           }
 
-                          $profile_photo = getSenderProfilePhoto($sender);
+                          $type = getUserType($sender);
+                          $profile_photo = getSenderProfilePhoto($sender, $type);
                           $profile_photo = ($profile_photo == null || empty($profile_photo)) ? "images/logo.png":$profile_photo;
+                          $sender_name = getSenderName($sender, $type);
+                          $sender = ($sender_name == null || empty($sender_name)) ? $sender:$sender_name;
 
                           echo "
                               <div class=\"notifications__item\">

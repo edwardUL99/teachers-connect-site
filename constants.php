@@ -12,6 +12,8 @@
   define('CONNECT', 'connect');
   define('FOLLOW', 'follow');
   define('BLOCK', 'block');
+  define('ORGANISATION_INVITE', 'organisation_invite');
+  define('INVITATION_ID', 'invitation_id');
   define('ACTION_PARAM', 'action_param');
   define('REMOVE', 'remove');
   define('ADD', 'add');
