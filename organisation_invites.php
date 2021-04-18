@@ -206,8 +206,6 @@
 
             $i++;
           }
-        } else {
-          echo "<div class=\"row text-center\">No organisation invites</div>";
         }
       }
 
@@ -235,11 +233,13 @@
         <?php displaySelectedInvitation(); ?>
       </div>
       <?php endif; ?>
+      <?php if (count($invites) > 0): ?>
       <div class="row card" id="<?php echo ($invitation_id == -1) ? 'invites_box':'secondary_invites_box'; ?>">
         <?php displayInvites(); ?>
       </div>
+      <?php endif; ?>
       <div class="row card text-center" id="no_invites">
-        No organisation invites available
+        <?php echo ($specified_invitation != null) ? "No other organisation invites available":"No organisation invites available"; ?>
       </div>
     </div>
     <?php endif; ?>
@@ -256,10 +256,10 @@
 
       var number_invites = <?php echo json_encode(count($invites)); ?>;
 
-      updateNoInvitesMessage();
-
       var invitation_id = <?php echo json_encode($invitation_id); ?>;
       var secondary_invites_box = document.getElementById('secondary_invites_box');
+
+      updateNoInvitesMessage();
 
       /**
         * Reset invite boxes after the selected one has been removed
@@ -277,12 +277,14 @@
         * Updates the display value for the no invites message
         */
       function updateNoInvitesMessage() {
-        if (number_invites > 0) {
-          invites_box.style.display = "block";
-          no_invites.style.display = "none";
-        } else {
-          invites_box.style.display = "none";
-          no_invites.style.display = "block";
+        if (invitation_id == -1) {
+          if (number_invites > 0) {
+            invites_box.style.display = "block";
+            no_invites.style.display = "none";
+          } else {
+            invites_box.style.display = "none";
+            no_invites.style.display = "block";
+          }
         }
       }
 
@@ -314,11 +316,12 @@
         if (element != null) {
           element.remove();
           number_invites--;
-          updateNoInvitesMessage();
 
           if (inviteId == invitation_id) {
             resetInviteBoxes();
+            invitation_id = -1;
           }
+          updateNoInvitesMessage();
         }
       }
 
