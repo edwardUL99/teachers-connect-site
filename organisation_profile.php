@@ -223,7 +223,6 @@
         </div>
         <?php endif; ?>
         </div>
-        <?php if ((!$own_profile || $user_type == ADMIN) && $user_type != ORGANISATION): ?>
         <div class="row shadow profile-card">
           <div class="row">
             <div class="col-1">
@@ -244,7 +243,6 @@
             <?php displayFollowers(); ?>
           </div>
         </div>
-        <?php endif; ?>
         <div class="row shadow profile-card">
           <div class="row">
             <h4 class="underlined-header">Vacancies</h4>

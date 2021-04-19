@@ -14,8 +14,6 @@
       require "navbar.php";
       require "notifications_utils.php";
 
-      $teacher = null;
-      $current_organisation = null;
       $own_profile = false;
       $connected = null;
       $blocked_user = false; // true if we have blocked the viewed user
@@ -33,6 +31,8 @@
       $blacklisted = false;
 
       $organisation_viewer = false; // true if the user viewing the teacher is an organisation
+
+      $posts = array();
 
       /**
        * Parses the URL for any GET parameters
@@ -207,6 +207,65 @@
       }
 
       /**
+        * Load all posts created by this teacher
+        */
+      function loadPosts() {
+        global $posts;
+        global $username;
+        global $conn;
+        global $teacher;
+
+        $profile_photo = $teacher->profile_photo();
+        $profile_photo = ($profile_photo == null || empty($profile_photo)) ? DEFAULT_TEACHER_PROFILE_PIC:$profile_photo;
+
+        $sql = "SELECT * FROM posts WHERE username = ? ORDER BY created_at DESC;";
+
+        if ($stmt = $conn->prepare($sql)) {
+          $stmt->bind_param("s", $param_username);
+          $param_username = $username;
+
+          if ($stmt->execute()) {
+            $result = $stmt->get_result();
+
+            while ($row = $result->fetch_assoc()) {
+              $content = $row['content'];
+              $name = getSenderName($username, TEACHER);
+              $posts[] = '<div class="card">
+              <div class="card-body">
+                  <div class="row">
+                      <div class="col-2">
+                          <img class="card-img-top rounded-circle" style="height: 100px; width: 100px;" src="'. $profile_photo . '" alt="Profile image" style="width:100%">
+                      </div>
+                      <div class="col-10">
+                          <h4 class="card-title">'. $name .'</h4>
+                          <p class="card-text">'. $content .'</p>
+                      </div>
+                  </div>
+              </div>
+          </div>';
+            }
+          } else {
+            doSQLError($stmt->error);
+          }
+
+          $stmt->close();
+        } else {
+          doSQLError($conn->error);
+        }
+      }
+
+      /**
+        * Display this user's posts
+        */
+      function displayPosts() {
+        global $posts;
+
+        foreach ($posts as $value) {
+          echo $value;
+        }
+      }
+
+      /**
         * Sends the profile viewed notification
         */
       function sendNotification() {
@@ -364,6 +423,15 @@
         }
       }
 
+      /**
+        * Get the button to reject the connection
+        */
+      function getRejectConnectionButton() {
+        if (displayAcceptConnection()) {
+          echo "<button class=\"btn btn-danger\" onclick=\"handleRejectConnection();\" style=\"margin-right: 1vw;\" id=\"reject-button\">Reject Connection</button>";
+        }
+      }
+
       $loggedin_username = $_SESSION[USERNAME];
       $user_type = $_SESSION[USER_TYPE];
 
@@ -392,6 +460,10 @@
                   doError("You cannot view this profile as the user has been banned");
                 } else {
                   sendNotification();
+                }
+
+                if (empty($error_message)) {
+                  loadPosts();
                 }
               }
             }
@@ -495,6 +567,7 @@
           <div class="btn-toolbar">
             <?php if ($user_type == TEACHER || $user_type == ADMIN): ?>
             <?php echo getPrimaryProfileButton(); ?>
+            <?php getRejectConnectionButton(); ?>
             <?php if (!$own_profile): ?>
             <div class="dropdown">
               <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -533,7 +606,13 @@
           </div>
           <div class="row justify-content-center text-center">
             <div class="col">
-              <a href="#">See more</a>
+              <?php
+                $data = array('username' => $username);
+                $query = http_build_query($data);
+                $url = "teacher_education_history.php?" . $query;
+
+                echo "<a href=\"{$url}\">See more</a>";
+               ?>
             </div>
           </div>
         <?php endif; ?>
@@ -561,7 +640,13 @@
           </div>
           <div class="row justify-content-center text-center">
             <div class="col">
-              <a href="#">See more</a>
+              <?php
+                $data = array('username' => $username);
+                $query = http_build_query($data);
+                $url = "teacher_employment_history.php?" . $query;
+
+                echo "<a href=\"{$url}\">See more</a>";
+               ?>
             </div>
           </div>
           <?php endif; ?>
@@ -577,6 +662,7 @@
         <div class="row">
           <h4 class="underlined-header">Posts</h4>
         </div>
+        <?php displayPosts(); ?>
       </div>
 
       <?php require "ban_modal.php"; ?>
@@ -611,6 +697,8 @@
 
       var banned = <?php echo json_encode($banned); ?>;
       var blacklisted = <?php echo json_encode($blacklisted); ?>;
+
+      var reject_button = document.getElementById('reject-button');
 
       /**
         * Updates the ajax_progress message
@@ -659,6 +747,8 @@
           } else if (message == "ACCEPTED") {
             if (button != null)
               button.innerHTML = "Connected";
+
+            reject_button.remove();
             connected = true;
             connection_pending = false;
             request_sent = false;
@@ -729,6 +819,56 @@
           ajaxRequest.open("POST", url, true);
           var json = JSON.stringify(data);
           ajaxRequest.send(json);
+        }
+      }
+
+      /**
+        * Handles rejecting the connection
+        */
+      function handleRejectConnection() {
+        var ajaxRequest = getAJAX();
+
+        if (ajaxRequest != null) {
+          ajaxRequest.onreadystatechange = function() {
+            if (ajaxRequest.readyState == 4) {
+              var response = ajaxRequest.response;
+              try {
+                var responseBody = JSON.parse(response);
+                var success = responseBody.success;
+                var message = responseBody.message;
+
+                if (success) {
+                  if (message == "REMOVED") {
+                    reject_button.remove();
+
+                    var connect_button = document.getElementById('connect-button');
+                    connect_button.innerHTML = "Connect";
+
+                    connection_pending = false;
+                    connected = false;
+                  }
+
+                  update_progress("", false);
+                } else {
+                  alert(message);
+                }
+              } catch (e) {
+                alert(e);
+              }
+            }
+          }
+
+          var url = "profile-action-ajax.php";
+          var data = {};
+          data['action'] = "connect";
+          data['sender'] = connection_sender;
+          data['destination'] = connection_receiver;
+          data['action_param'] = "remove";
+
+          ajaxRequest.open("POST", url, true);
+          var json = JSON.stringify(data);
+          ajaxRequest.send(json);
+          update_progress("Rejecting connection request", true);
         }
       }
 

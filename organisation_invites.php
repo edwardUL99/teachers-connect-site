@@ -220,7 +220,7 @@
        if (!$error_occurred): // only display the profile if an error didn't occur
      ?>
     <div class="container main-background">
-      <div class="row">
+      <div class="row mt-2">
         <h4 class="underlined-header">Organisation Invites</h4>
         <p>Any invites from organisations who wish for you to join them will appear here</p>
       </div>

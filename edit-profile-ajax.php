@@ -259,8 +259,6 @@
       }
     }
 
-    // TODO education history functions etc. here
-
     /**
       * Creates a new academic degree in the database and returns the id
       */

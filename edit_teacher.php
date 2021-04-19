@@ -21,11 +21,14 @@
       $skills_options = array();
       $employment_histories = array();
 
+      $scroll_to_id = null;
+
       /**
        * Parses the URL for any GET parameters
        */
       function parseURL() {
         global $username;
+        global $scroll_to_id;
 
         if ($_SERVER["REQUEST_METHOD"] == "GET") {
           $parsed_url = parse_url($_SERVER["REQUEST_URI"], PHP_URL_QUERY);
@@ -34,6 +37,10 @@
 
           if (isset($params['username'])) {
             $username = $params['username'];
+          }
+
+          if (isset($params['scroll_to_id'])) {
+            $scroll_to_id = $params['scroll_to_id'];
           }
         }
       }
@@ -434,7 +441,7 @@
             </div>
           </form>
         </div>
-        <div class="row mt-5 shadow card padding-1pcent">
+        <div class="row mt-5 shadow card padding-1pcent" id="edit_education_history">
           <div class="col padding-1pcent" id="education_history">
             <h4>Add Education History</h4>
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" id="new_education_form">
@@ -530,7 +537,7 @@
             </form>
           </div>
         </div>
-        <div class="row shadow card padding-1pcent mt-5">
+        <div class="row shadow card padding-1pcent mt-5" id="edit_employment_history">
           <div class="col padding-1pcent" id="add_employment_history">
             <h4>Add Employment History</h4>
             <form id="add_employment_history_form">
@@ -730,6 +737,16 @@
       const remove_emp_button = document.getElementById('remove_emp_button');
       const chosen_employment_history = document.getElementById('chosen_employment_history');
       remove_emp_button.disabled = true;
+
+      var scroll_to_id = <?php echo json_encode($scroll_to_id); ?>;
+
+      if (scroll_to_id != null) {
+        var element = document.getElementById(scroll_to_id);
+
+        if (element != null) {
+          element.scrollIntoView();
+        }
+      }
 
       /**
         * Handles the update of the profile
