@@ -285,6 +285,14 @@
             invites_box.style.display = "none";
             no_invites.style.display = "block";
           }
+        } else {
+          if (number_invites > 0) {
+            secondary_invites_box.style.display = "block";
+            no_invites.style.display = "none";
+          } else {
+            secondary_invites_box.style.display = "none";
+            no_invites.style.display = "block";
+          }
         }
       }
 
