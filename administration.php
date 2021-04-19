@@ -218,7 +218,7 @@
 
         foreach ($banned_users as $key => $value) {
           $type = $value->type;
-          $img_src = ($value->profile_photo == null) ? (($type == TEACHER) ? DEFAULT_TEACHER_PROFILE_PIC:DEFAULT_ORG_PROFILE_PIC):"\"{$value->profile_photo}\"";
+          $img_src = ($value->profile_photo == null) ? (($type == TEACHER) ? DEFAULT_TEACHER_PROFILE_PIC:DEFAULT_ORG_PROFILE_PIC):"{$value->profile_photo}";
           $name = $value->name;
           $reason = $value->reason;
           $link = "ban_user.php?".http_build_query(getUnbanQuery($value->username), '', '&amp;');
