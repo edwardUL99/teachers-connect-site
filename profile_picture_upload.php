@@ -13,6 +13,7 @@
       */
     function getProfilePictureForm($isTeacher) {
       global $teacher;
+      global $organisation;
       global $profile_picture_error;
 
       if ($isTeacher === true || $isTeacher === false) {
@@ -22,8 +23,8 @@
         echo "<h4>Update Profile Picture</h4>";
         echo "<div class=\"row\">";
         echo "<div class=\"col-4\">";
-        $profile_photo = $teacher->profile_photo();
-        $profile_photo = ($profile_photo == null || empty($profile_photo)) ? DEFAULT_TEACHER_PROFILE_PIC:$profile_photo;
+        $profile_photo = ($isTeacher) ? $teacher->profile_photo():$organisation->profile_photo();
+        $profile_photo = ($profile_photo == null || empty($profile_photo)) ? (($isTeacher) ? DEFAULT_TEACHER_PROFILE_PIC:DEFAULT_ORG_PROFILE_PIC):$profile_photo;
         echo "<img class=\"img-fluid rounded-circle\" src=\"{$profile_photo}\"></div>";
         echo "<div class=\"col-8\">";
         echo "<form enctype=\"multipart/form-data\" action=\"{$action}\" method=\"post\">";

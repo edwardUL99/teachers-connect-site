@@ -33,6 +33,12 @@
 
       parseURL();
 
+      if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if (isset($_POST["profile_type"])) {
+          uploadProfilePicture($_POST["profile_type"], $username);
+        }
+      }
+
       $user_type = $_SESSION[USER_TYPE];
       $loggedin_username = $_SESSION[USERNAME];
 
@@ -45,12 +51,6 @@
           $headline = $organisation->headline();
           $about = $organisation->about();
           $location = $organisation->location();
-        }
-      }
-
-      if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        if (isset($_POST["profile_type"])) {
-          uploadProfilePicture($_POST["profile_type"], $username);
         }
       }
      ?>

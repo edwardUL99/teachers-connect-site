@@ -206,7 +206,9 @@
 
         $stmt->close();
 
-        $notification = new ConnectionNotification($sender, $destination, false, "#", null); // TODO link to connection requests page here
+        $data = array('username' => $sender);
+        $url = "teacher_profile.php?" . http_build_query($data);
+        $notification = new ConnectionNotification($sender, $destination, false, $url, null);
         addNotification($notification);
 
         respond(true, "PENDING");
@@ -431,7 +433,7 @@
     global $destination;
     global $conn;
 
-    $notification = new OrgInviteNotification($sender, $destination, false, "organisation_invites.php", null); // TODO maybe put ID as a query parameter here to filter in the invites page
+    $notification = new OrgInviteNotification($sender, $destination, false, "organisation_invites.php", null);
 
     $sql = "INSERT INTO notifications (username, sender, type, target_link) VALUES (?, ?, ?, ?);";
 

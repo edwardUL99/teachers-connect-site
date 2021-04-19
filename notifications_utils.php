@@ -226,7 +226,7 @@
              {
             if($minutes==1)
                   {
-              return "one minute ago";
+              return "1 minute ago";
             }
             else
                   {
@@ -237,7 +237,7 @@
              {
             if($hours==1)
                   {
-              return "an hour ago";
+              return "1 hour ago";
             }
                   else
                   {
@@ -248,7 +248,7 @@
              {
             if($days==1)
                   {
-              return "yesterday";
+              return "Yesterday";
             }
                   else
                   {
@@ -259,7 +259,7 @@
              {
             if($weeks==1)
                   {
-              return "a week ago";
+              return "1 week ago";
             }
                   else
                   {
@@ -270,7 +270,7 @@
              {
             if($months==1)
                   {
-              return "a month ago";
+              return "1 month ago";
             }
                   else
                   {
@@ -281,7 +281,7 @@
              {
             if($years==1)
                   {
-              return "one year ago";
+              return "1 year ago";
             }
                   else
                   {
