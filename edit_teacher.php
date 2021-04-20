@@ -771,9 +771,9 @@
                   var message = responseBody.message;
 
                   if (success && message == "UPDATED") {
-                    alert("Profile has been updated");
+                    addAlertMessage(true, "Profile has been updated successfully", "update_profile");
                   } else {
-                    alert(message);
+                    addAlertMessage(false, "An error occurred updating your profile: " + message, "update_profile");
                   }
                 } catch (e) {
                   alert(response);
@@ -812,9 +812,9 @@
                   var message = responseBody.message;
 
                   if (success && message == "UPDATED") {
-                    alert("Profile has been updated");
+                    addAlertMessage(true, "Your password has been updated successfully", "update_password");
                   } else {
-                    alert(message);
+                    addAlertMessage(false, "An error occurred updating your password: " + message, "update_password");
                   }
                 } catch (e) {
                   alert(response);
@@ -888,9 +888,9 @@
                   var message = responseBody.message;
 
                   if (success && message == "UPDATED") {
-                    alert("Profile has been updated");
+                    addAlertMessage(true, "You have successfully joined the organisation", "join_organisation");
                   } else {
-                    alert(message);
+                    addAlertMessage(false, "An error has occurred joining organisation: " + message, "join_organisation");
                   }
                 } catch (e) {
                   alert(response);
@@ -974,12 +974,11 @@
                   var message = responseBody.message;
 
                   if (success && message == "UPDATED") {
-                    alert("Profile has been updated");
-
                     var data = responseBody.data;
                     addToSelect('remove_qualification_choice', data['value'], data['text']);
+                    addAlertMessage(true, "The qualification has been added to your profile successfully", "education_history");
                   } else {
-                    alert(message);
+                    addAlertMessage(false, "An error occurred adding the qualification: " + message, "education_history");
                   }
                 } catch (e) {
                   alert(response);
@@ -1025,10 +1024,10 @@
                   var message = responseBody.message;
 
                   if (success && message == "UPDATED") {
-                    alert("Profile has been updated");
                     removeFromSelectByValue('remove_qualification_choice', data['remove_qualification_choice']);
+                    addAlertMessage(true, "The qualification has been successfully removed from your profile", "delete_education");
                   } else {
-                    alert(message);
+                    addAlertMessage(false, "An error occurred removing the qualification: ", "delete_education");
                   }
                 } catch (e) {
                   alert(response);
@@ -1102,12 +1101,11 @@
                   var message = responseBody.message;
 
                   if (success && message == "UPDATED") {
-                    alert("Profile has been updated");
-
                     var data = responseBody.data;
                     addToSelect('chosen_employment_history', data['value'], data['text']);
+                    addAlertMessage(true, "Employment History successfully added to profile", "add_employment_history");
                   } else {
-                    alert(message);
+                    addAlertMessage(false, "An error has occurred adding employment history to your profile: " + message, "add_employment_history");
                   }
                 } catch (e) {
                   alert(response);
@@ -1153,10 +1151,10 @@
                   var message = responseBody.message;
 
                   if (success && message == "UPDATED") {
-                    alert("Profile has been updated");
                     removeFromSelectByValue('chosen_employment_history', data['chosen_employment_history']);
+                    addAlertMessage(true, "Employment History successfully removed from your profile", "remove_employment_history");
                   } else {
-                    alert(message);
+                    addAlertMessage(false, "An error occurred removing employment history from your profile: " + message, "remove_employment_history");
                   }
                 } catch (e) {
                   alert(response);
@@ -1202,14 +1200,14 @@
                   var message = responseBody.message;
 
                   if (success && message == "UPDATED") {
-                    alert("Profile has been updated");
                     var data = responseBody.data;
 
                     for (var property in data) {
                       addToSelect('skills_choice', property, data[property]);
                     }
+                    addAlertMessage(true, "Skills successfully added to your profile", "add_skills");
                   } else {
-                    alert(message);
+                    addAlertMessage(false, "An error occurred adding skills to your profile: " + message, "add_skills");
                   }
                 } catch (e) {
                   alert(response);
@@ -1269,15 +1267,15 @@
                   var message = responseBody.message;
 
                   if (success && message == "UPDATED") {
-                    alert("Profile has been updated");
-
                     var data = responseBody.data;
 
                     for (var property in data) {
                       removeFromSelectByValue('skills_choice', data[property]);
                     }
+
+                    addAlertMessage(true, "Skills removed from your profile successfully", "remove_skill");
                   } else {
-                    alert(message);
+                    addAlertMessage(false, "An error occurred removing skills from your profile: " + message, "remove_skill");
                   }
                 } catch (e) {
                   alert(response);
@@ -1316,10 +1314,9 @@
                   var message = responseBody.message;
 
                   if (success && message == "DELETED") {
-                    alert("Account has been deleted");
                     window.location.href = "logout.php";
                   } else {
-                    alert(message);
+                    addAlertMessage(false, "An error occurred deleting your account: " + message, "delete_account");
                   }
                 } catch (e) {
                   alert(response);

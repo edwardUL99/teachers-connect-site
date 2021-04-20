@@ -6,6 +6,20 @@
     require_once "database.php";
 
     $profile_picture_error = "";
+    $profile_picture_success_message = "";
+
+    /**
+      * Displays a success alert if the profile picture uploaded successfully
+      */
+    function displayProfilePictureSuccessAlert() {
+      global $profile_picture_success_message;
+
+      if (!empty($profile_picture_success_message)) {
+        echo "<div class=\"row alert m-auto mt-2 alert-success alert-dismissable fade show\" role=\"alert\">{$profile_picture_success_message}";
+        echo "<div class=\"col text-end\">";
+        echo "<button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button></div></div>";
+      }
+    }
 
     /**
       * Print the form for the profile photo
@@ -38,7 +52,9 @@
         echo "<button class=\"btn btn-primary\">Save</button>";
         echo "</div></div>";
         echo "</div>";
-        echo "</form></div></div></div>";
+        echo "</form></div></div>";
+        displayProfilePictureSuccessAlert();
+        echo "</div>";
       } else {
         die("Unknown value for teacher passed into getProfilePicture. Expected a boolean");
       }
@@ -74,6 +90,7 @@
       */
     function uploadProfilePicture($type, $username) {
       global $profile_picture_error;
+      global $profile_picture_success_message;
 
       if ($type != TEACHER && $type != ORGANISATION) {
         die("Invalid type given to the function uploadProfilePicture");
@@ -100,6 +117,7 @@
 
         if (move_uploaded_file($_FILES["profile_photo"]["tmp_name"], $target_file)) {
           updateSQLProfilePath($target_file, $type, $username);
+          $profile_picture_success_message = "Profile Picture updated successfully";
           return true;
         } else {
           $profile_picture_error = "There was an error updating your profile picture";

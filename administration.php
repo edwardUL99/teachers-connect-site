@@ -429,6 +429,38 @@
         }
       }
 
+      $success = (isset($_SESSION['SUCCESS'])) ? $_SESSION['SUCCESS']:null;
+      $success_message = (isset($_SESSION['SUCCESS_MESSAGE'])) ? $_SESSION['SUCCESS_MESSAGE']:null;
+
+      if ($success != null) {
+        unset($_SESSION['SUCCESS']);
+      }
+
+      if ($success_message != null) {
+        unset($_SESSION['SUCCESS_MESSAGE']);
+      }
+
+      /**
+        * Displays a returned message (success/error) if any
+        */
+      function displayReturnedMessage() {
+        global $success;
+        global $success_message;
+
+        if ($success != null && $success_message != null) {
+          $class = "";
+          if ($success) {
+            $class = "row mt-5 alert alert-primary alert-dismissable fade show";
+          } else {
+            $class = "row mt-5 alert alert-danger alert-dismissable fade show";
+          }
+
+          echo "<div class=\"{$class}\" role=\"alert\">{$success_message}";
+          echo "<div class=\"col text-end\">";
+          echo "<button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button></div></div>";
+        }
+      }
+
       if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (isset($_POST['form_id'])) {
           $form_id = $_POST['form_id'];
@@ -451,6 +483,7 @@
         if (!$error_occurred):
       ?>
       <div class="container main-background">
+        <?php displayReturnedMessage(); ?>
         <div class="row mt-5 shadow card padding-1pcent">
           <h4>Banned Users</h4>
           <div class="row">

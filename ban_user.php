@@ -1,6 +1,8 @@
 <?php
   require "database.php";
 
+  session_start();
+
   /**
     * This script contains utilities for banning/blacklisting users
     */
@@ -22,8 +24,11 @@
     /**
       * Return to the Return URL
       */
-    function returnToURL() {
+    function returnToURL($success_message, bool $success) {
       global $return_url;
+
+      $_SESSION['SUCCESS_MESSAGE'] = $success_message;
+      $_SESSION['SUCCESS'] = $success;
       header("Location: ".$return_url);
     }
 
@@ -48,13 +53,13 @@
         $param_date = "".$date_to." ".$time_to;
 
         if (!$stmt->execute()) {
-          die("Database Error: {$stmt->error}");
+          returnToURL("Database Error: {$stmt->error}", false);
         }
 
         $stmt->close();
-        returnToURL();
+        returnToURL("User {$username} successfully banned", true);
       } else {
-        die("Database Error: {$conn->error}");
+        returnToURL("Database Error: {$conn->error}", false);
       }
     }
 
@@ -72,13 +77,13 @@
         $param_user = $username;
 
         if (!$stmt->execute()) {
-          die("Database Error: {$stmt->error}");
+          returnToURL("Database Error: {$stmt->error}", false);
         }
 
         $stmt->close();
-        returnToURL();
+        returnToURL("User {$username} successfully unbanned", true);
       } else {
-        die("Database Error: {$conn->error}");
+        returnToURL("Database Error: {$conn->error}", false);
       }
     }
 
@@ -106,12 +111,12 @@
             return null;
           }
         } else {
-          die("Database Error: {$stmt->error}");
+          returnToURL("Database Error: {$stmt->error}", false);
         }
 
         $stmt->close();
       } else {
-        die("Database Error: {$conn->error}");
+        returnToURL("Database Error: {$conn->error}", false);
       }
     }
 
@@ -133,16 +138,16 @@
           $param_email = $email;
 
           if (!$stmt->execute()) {
-            die("Database Error: {$stmt->error}");
+            returnToURL("Database Error: {$stmt->error}", false);
           }
 
           $stmt->close();
-          returnToURL();
+          returnToURL("E-mail {$email} blacklisted successfully", true);
         } else {
-          die("Database Error: {$conn->error}");
+          returnToURL("Database Error: {$conn->error}", false);
         }
       } else {
-        returnToURL();
+        returnToURL("E-mail {$email} not registered", false);
       }
     }
 
@@ -164,16 +169,16 @@
           $param_email = $email;
 
           if (!$stmt->execute()) {
-            die("Database Error: {$stmt->error}");
+            returnToURL("Database Error: {$stmt->error}", false);
           }
 
           $stmt->close();
-          returnToURL();
+          returnToURL("E-mail {$email} unblacklisted successfully", true);
         } else {
-          die("Database Error: {$conn->error}");
+          returnToURL("Database Error: {$conn->error}", false);
         }
       } else {
-        returnToURL();
+        returnToURL("E-mail {$email} not registered", false);
       }
     }
 
@@ -191,13 +196,13 @@
         $param_username = $username;
 
         if (!$stmt->execute()) {
-          die("Database Error: {$stmt->error}");
+          returnToURL("Database Error: {$stmt->error}", false);
         }
 
         $stmt->close();
-        returnToURL();
+        returnToURL("User {$username} deleted successfully", true);
       } else {
-        die("Database Error: {$conn->error}");
+        returnToURL("Database Error: {$conn->error}", false);
       }
     }
 

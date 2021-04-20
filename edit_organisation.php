@@ -67,7 +67,7 @@
           <form id="update_profile_form">
             <div class="form-group">
               <label>Name</label>
-              <input type="text" pattern="[A-Za-z\- ]*" name="name" id="name" title="Please enter alphabetical characters only" class="form-control" placeholder="Organisation Name" required>
+              <input type="text" pattern="[A-Za-z\- ]*" name="name" id="name" title="Please enter alphabetical characters only" class="form-control" placeholder="Organisation Name" value="<?php echo $name; ?>" required>
             </div>
             <div class="row">
               <div class="col-9">
@@ -191,9 +191,9 @@
                   var message = responseBody.message;
 
                   if (success && message == "UPDATED") {
-                    alert("Profile has been updated");
+                    addAlertMessage(true, "Profile has been updated successfully", "update_profile");
                   } else {
-                    alert(message);
+                    addAlertMessage(false, "An error occurred updating your profile: " + message, "update_profile");
                   }
                 } catch (e) {
                   alert(response);
@@ -232,9 +232,9 @@
                   var message = responseBody.message;
 
                   if (success && message == "UPDATED") {
-                    alert("Profile has been updated");
+                    addAlertMessage(true, "Your password has been updated successfully", "update_password");
                   } else {
-                    alert(message);
+                    addAlertMessage(false, "An error occurred updating your password: " + message, "update_password");
                   }
                 } catch (e) {
                   alert(response);
@@ -308,10 +308,9 @@
                   var message = responseBody.message;
 
                   if (success && message == "DELETED") {
-                    alert("Account has been deleted");
                     window.location.href = "logout.php";
                   } else {
-                    alert(message);
+                    addAlertMessage(false, "An error occurred deleting your account: " + message, "delete_account");
                   }
                 } catch (e) {
                   alert(response);

@@ -84,3 +84,48 @@ function addToSelect(selectId, value, text) {
     select.add(option);
   }
 }
+
+const alerts = {};
+
+/**
+  * Create and return the alert element
+  */
+function createAlertElement(success, success_message, form_id) {
+  if (alerts[form_id] != null) {
+    alerts[form_id].remove();
+  }
+
+  var alertContainer = document.createElement("div");
+
+  var alertType = success ? 'alert-success':'alert-danger';
+  alertContainer.classList.add('row', 'm-auto', 'mt-2', 'alert', alertType, 'alert-dismissable', 'fade', 'show');
+  alertContainer.setAttribute('role', 'alert');
+
+  var text = document.createTextNode(success_message);
+  alertContainer.appendChild(text);
+
+  var buttonContainer = document.createElement("div");
+  buttonContainer.classList.add('col', 'text-end');
+  var button = document.createElement("button");
+  button.type = "button";
+  button.classList.add('btn-close');
+  button.setAttribute('data-bs-dismiss', 'alert');
+  button.setAttribute('aria-label', 'Close');
+  buttonContainer.appendChild(button);
+
+  alertContainer.appendChild(buttonContainer);
+
+  alerts[form_id] = alertContainer;
+  return alertContainer;
+}
+
+/**
+  * Adds an alert message to the specified form
+  */
+function addAlertMessage(success, success_message, form_id) {
+  var form = document.getElementById(form_id);
+
+  if (form != null) {
+    form.appendChild(createAlertElement(success, success_message, form_id));
+  }
+}
