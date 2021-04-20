@@ -8,6 +8,7 @@
     define('UNBAN', 'unban');
     define('BLACKLIST', 'blacklist');
     define('UNBLACKLIST', 'unblacklist');
+    define('DELETE_USER', 'delete_user');
 
     $action = "";
     $username = "";
@@ -176,6 +177,30 @@
       }
     }
 
+    /**
+      * Deletes the user from the database
+      */
+    function deleteUser() {
+      global $username;
+      global $conn;
+
+      $sql = "DELETE FROM accounts WHERE username = ? AND type != 'admin';"; // Don't allow an admin account to be deleted;
+
+      if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param("s", $param_username);
+        $param_username = $username;
+
+        if (!$stmt->execute()) {
+          die("Database Error: {$stmt->error}");
+        }
+
+        $stmt->close();
+        returnToURL();
+      } else {
+        die("Database Error: {$conn->error}");
+      }
+    }
+
     if ($_SERVER["REQUEST_METHOD"] == "GET") {
       $url = $_SERVER["REQUEST_URI"];
       $parsed_url = parse_url($url, PHP_URL_QUERY);
@@ -240,6 +265,8 @@
       blacklistUser();
     } else if ($action == UNBLACKLIST) {
       unBlacklistUser();
+    } else if ($action == DELETE_USER) {
+      deleteUser();
     } else {
       die("Unknown action provided: {$action}");
     }

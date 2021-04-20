@@ -15,6 +15,7 @@
 
       define("BAN", 1);
       define("BLACKLIST", 2);
+      define("DELETE_USER", 3);
 
       /**
         * This class represents a banned user containing a profile photo,
@@ -74,7 +75,9 @@
 
       $ban_error_message = "";
       $blacklist_error_message = "";
+      $delete_error_message = "";
       $entered_username = "";
+      $entered_delete_username = "";
       $reason = "";
       $email = "";
 
@@ -318,7 +321,8 @@
         $entered_username = (isset($_POST['username'])) ? $_POST['username']:null;
 
         if ($entered_username == null) {
-          die("You need to provide a username to ban");
+          $ban_error_message = "You need to provide a username to ban";
+          return;
         }
 
         if (isset($banned_users[$username])) {
@@ -329,19 +333,22 @@
         $reason = (isset($_POST['reason'])) ? $_POST['reason']:null;
 
         if ($reason == null) {
-          die("You need to provide a reason to ban");
+          $ban_error_message = "You need to provide a reason to ban";
+          return;
         }
 
         $date_to = (isset($_POST['date_to'])) ? $_POST['date_to']:null;
 
         if ($date_to == null) {
-          die("You need to provide a date until which the user will be banned");
+          $ban_error_message = "You need to provide a date until which the user will be banned";
+          return;
         }
 
         $time_to = (isset($_POST['time_to'])) ? $_POST['time_to']:null;
 
         if ($time_to == null) {
-          die("You need to provide a time until which the user will be banned on the provided date");
+          $ban_error_message = "You need to provide a time until which the user will be banned on the provided date";
+          return;
         }
 
         $datetime = "{$date_to} {$time_to}";
@@ -359,7 +366,7 @@
       }
 
       /**
-        * Blacklist a user enteered in the form
+        * Blacklist a user entered in the form
         */
       function blacklistUser() {
         global $email;
@@ -369,7 +376,8 @@
         $email = (isset($_POST['email'])) ? $_POST['email']:null;
 
         if ($email == null) {
-          die("You need to provide an email address to blacklist");
+          $blacklist_error_message = "You need to provide an email address to blacklist";
+          return;
         }
 
         if (in_array($email, $blacklisted_emails)) {
@@ -379,6 +387,32 @@
 
         $loggedin_username = $_SESSION[USERNAME];
         $data = array('action' => 'blacklist', 'email' => $email, 'admin' => $loggedin_username, 'return_url' => "administration.php");
+
+        $url = "ban_user.php?".http_build_query($data, '', '&amp;');
+        echo $url;
+        header("Location: {$url}");
+        exit;
+      }
+
+      /**
+        * Deletes the user entered in the form
+        */
+      function deleteUser() {
+        global $entered_delete_username;
+        global $delete_error_message;
+
+        $username = (isset($_POST['username'])) ? $_POST['username']:null;
+
+        if ($username == null) {
+          $delete_error_message = "You need to specify a username of the user to delete";
+          $entered_delete_username = "";
+          return;
+        } else {
+          $entered_delete_username = $username;
+        }
+
+        $loggedin_username = $_SESSION[USERNAME];
+        $data = array('action' => 'delete_user', 'username' => $username, 'admin' => $loggedin_username, 'return_url' => "administration.php");
 
         $url = "ban_user.php?".http_build_query($data, '', '&amp;');
         echo $url;
@@ -403,6 +437,8 @@
             banUser();
           } else if ($form_id == BLACKLIST) {
             blacklistUser();
+          } else if ($form_id == DELETE_USER) {
+            deleteUser();
           }
         }
       }
@@ -495,7 +531,28 @@
             </form>
           </div>
         </div>
-
+        <div class="row mt-5 shadow card padding-1pcent">
+          <h4>Delete User</h4>
+          <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+            <div class="form-group <?php echo (!empty($delete_error_message)) ? 'has-error' : ''; ?>">
+              <label>Username</label>
+              <input type="text" pattern="[A-Za-z0-9_\-]*" title="Please enter alphanumeric characters only" name="username" class="form-control" placeholder="jdoe" value="<?php echo $entered_delete_username; ?>" required>
+              <?php if (empty($delete_error_message)): ?>
+                <div class="form-text">
+                  Enter the username of the user to delete. This action is irreversible
+                </div>
+              <?php else: ?>
+                <span class="help-block login-error-message"><?php echo $delete_error_message; ?></span>
+              <?php endif; ?>
+            </div>
+            <div class="row text-end">
+              <div class="col">
+                <input type="hidden" name="form_id" value="<?php echo DELETE_USER; ?>">
+                <button type="submit" class="btn btn-danger">Delete</button>
+              </div>
+            </div>
+          </form>
+        </div>
       <?php endif; ?>
       </div>
   </body>
