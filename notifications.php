@@ -69,6 +69,28 @@
                     }
                   }
 
+                  /**
+                    * Sets the viewed value to true of the given notification
+                    */
+                  function updateViewedValue($notification_id) {
+                    global $conn;
+
+                    $sql = "UPDATE notifications SET viewed = 1 WHERE id = ?;";
+
+                    if ($stmt = $conn->prepare($sql)) {
+                      $stmt->bind_param("i", $param_id);
+                      $param_id = $notification_id;
+
+                      if (!$stmt->execute()) {
+                        die("Database Error: {$stmt->error}");
+                      }
+
+                      $stmt->close();
+                    } else {
+                      die("Database Error: {$conn->error}");
+                    }
+                  }
+
                   $sql = "SELECT * FROM notifications WHERE username = ? ORDER BY created_at DESC;";
 
 
@@ -117,6 +139,8 @@
                           $profile_photo = ($profile_photo == null || empty($profile_photo)) ? "images/logo.png":$profile_photo;
                           $sender_name = getSenderName($sender, $type);
                           $sender = ($sender_name == null || empty($sender_name)) ? $sender:$sender_name;
+
+                          updateViewedValue($id);
 
                           echo "
                               <div class=\"notifications__item\">
