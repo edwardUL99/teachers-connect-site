@@ -118,6 +118,16 @@
             }
         }
 
+        class FollowNotification extends Notification {
+          function __construct($sender, $receiver, $viewed, $target_link, $created_at) {
+            parent::__construct($sender, $receiver, 'follow', $viewed, $target_link, $created_at);
+          }
+
+            public function messageForNotification(Notification $notification) : string{
+                return $this->sender->getSender() . 'has followed you';
+            }
+        }
+
         class AdminNotification extends Notification{
           function __construct($sender, $receiver, $viewed, $target_link, $created_at) {
             parent::__construct($sender, $receiver, 'admin', $viewed, $target_link, $created_at);

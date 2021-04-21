@@ -351,7 +351,7 @@ CREATE TABLE IF NOT EXISTS notifications (
   id INTEGER AUTO_INCREMENT,
   username VARCHAR (32),
   sender VARCHAR (32),
-  type ENUM('view' , 'request' , 'accepted', 'like' , 'admin', 'org_invite'),
+  type ENUM('view' , 'request' , 'accepted', 'like' , 'follow', 'admin', 'org_invite'),
   target_link VARCHAR (255),
   viewed BOOLEAN DEFAULT false,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

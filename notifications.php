@@ -135,6 +135,9 @@
                           } else if ($type == 'accepted') {
                             $notificationType = "Has accepted your connection request";
                             $button_text = "Go to profile";
+                          } else if ($type == 'follow') {
+                            $notificationType = "Has followed your organisation";
+                            $button_text = "Go to profile";
                           }
 
                           $type = getUserType($sender);
