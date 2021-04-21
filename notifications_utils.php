@@ -98,6 +98,16 @@
             }
         }
 
+        class ConnectionAcceptedNotification extends Notification {
+          function __construct($sender, $receiver, $viewed, $target_link, $created_at) {
+            parent::__construct($sender, $receiver, 'accepted', $viewed, $target_link, $created_at);
+          }
+
+            public function messageForNotification(Notification $notification) : string{
+                return $this->sender->getSender() . 'has accepted your connection request';
+            }
+        }
+
         class ViewNotification extends Notification{
           function __construct($sender, $receiver, $viewed, $target_link, $created_at) {
             parent::__construct($sender, $receiver, 'view', $viewed, $target_link, $created_at);

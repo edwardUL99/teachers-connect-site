@@ -132,6 +132,9 @@
                           } else if ($type == 'org_invite') {
                             $notificationType = "Wants you to join their organisation";
                             $button_text = "Go to invite";
+                          } else if ($type == 'accepted') {
+                            $notificationType = "Has accepted your connection request";
+                            $button_text = "Go to profile";
                           }
 
                           $type = getUserType($sender);

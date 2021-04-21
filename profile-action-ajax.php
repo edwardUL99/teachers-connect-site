@@ -173,6 +173,9 @@
           die("Database error: {$stmt->error}");
         }
 
+        $notification = new ConnectionAcceptedNotification($destination, $sender, false, "teacher_profile.php?username={$destination}", null);
+        addNotification($notification);
+
         $stmt->close();
         respond(true, "ACCEPTED");
         exit;
