@@ -30,44 +30,51 @@ html, body {
  * The following classes are used to style the login/registration screens
  */
 
-.login-container {
-  background-color: #86FFC2;
-  margin-left: 35%;
-  margin-right: 35%;
-  height: 100%;
+.registration-card {
+  width: 50%;
+  margin: auto;
 }
 
 @media screen and (max-width: 768px) {
-  .login-container {
-    background-color: #86FFC2;
-    margin-left: 25%;
-    margin-right: 25%;
-    height: 100%;
+  .registration-card {
+    width: 65%;
+    margin: auto;
   }
 }
-
 
 @media screen and (max-width: 414px) {
-  .login-container {
-    background-color: #86FFC2;
-    margin-left: 15%;
-    margin-right: 15%;
-    height: 100%;
+  .registration-card {
+    width: 75%;
+    margin-top: 2%;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
-.login-container-content {
-  margin-top: 15%;
-  margin-left: 20%;
-  margin-right: 20%;
-  height: 100%;
+/**
+ * The following classes are used to style the login/registration screens
+ */
+
+.registration-card {
+  width: 50%;
 }
 
+@media screen and (max-width: 768px) {
+  .registration-card {
+    width: 65%;
+    margin-top: 5%;
+  }
+}
+
+@media screen and (max-width: 414px) {
+  .registration-card {
+    width: 75%;
+    margin-top: 2%;
+  }
+}
 .login-input {
   margin-left: auto;
   margin-right: auto;
-  margin-top: 5%;
-  margin-bottom: 5%;
 }
 
 .login-error-message {

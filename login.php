@@ -123,49 +123,52 @@
               }
             }
       ?>
-      <div class="container-fluid main-background overflow-auto flex-fill">
-        <div class="row">
-          <div class="col shadow login-container min-vh-100">
-            <div class="col d-flex flex-column login-container-content">
-              <img class="img-fluid" src="images/logo.png" alt="Teacher's Connect logo">
+
+      <style>
+        .form-group {
+          margin-bottom: 2%;
+        }
+      </style>
+
+      <div class="container-fluid main-background overflow-auto flex-fill d-flex align-items-center justify-content-center">
+        <div class="registration-card">
+          <div class="row card mt-5 mb-5">
+            <img class="img-fluid w-50 h-50 m-auto" src="images/logo.png" alt="Teacher's Connect logo">
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method ="POST">
+              <div class="form-group login-input <?php echo (!empty($username_error)) ? 'has-error' : ''; ?>">
+                <label>Username</label>
+                <input type="text"  name = "username" pattern="[A-Za-z0-9_\-]*" title="Please enter alphanumeric characters only" class="form-control" value="<?php echo $username; ?>" required>
+                <span class="help-block login-error-message"><?php echo $username_error; ?></span>
+              </div>
+              <div class="form-group login-input <?php echo (!empty($password_error)) ? 'has-error' : ''; ?>">
+                <label>Password</label>
+                <input type="password" name = "password" title="Enter your password" class="form-control" required>
+                <span class="help-block login-error-message"><?php echo $password_error; ?></span>
+              </div>
+              <div class="form-group checkbox login-input">
+                <div class="row">
+                  <div class="col">
+                    <label><input type="checkbox" name="stay_signed_in">Stay signed in</label>
+                  </div>
+                  <div class="col align-self-end text-end">
+                    <a href="url">Forgot password?</a>
+                  </div>
+                </div>
+              </div>
+              <div class="row login-button">
+                <button class="btn btn-primary login-button m-auto w-50" type="submit">Login</button>
+              </div>
               <div class="row">
-                <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method ="POST">
-                  <div class="form-group login-input <?php echo (!empty($username_error)) ? 'has-error' : ''; ?>">
-                    <label>Username</label>
-                    <input type="text"  name = "username" pattern="[A-Za-z0-9_\-]*" title="Please enter alphanumeric characters only" class="form-control" value="<?php echo $username; ?>" required>
-                    <span class="help-block login-error-message"><?php echo $username_error; ?></span>
-                  </div>
-                  <div class="form-group login-input <?php echo (!empty($password_error)) ? 'has-error' : ''; ?>">
-                    <label>Password</label>
-                    <input type="password" name = "password" title="Enter your password" class="form-control" required>
-                    <span class="help-block login-error-message"><?php echo $password_error; ?></span>
-                  </div>
-                  <div class="form-group checkbox login-input">
-                    <div class="row">
-                      <div class="col">
-                        <label><input type="checkbox" name="stay_signed_in">Stay signed in</label>
-                      </div>
-                      <div class="col align-self-end text-end">
-                        <a href="url">Forgot password?</a>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row login-button">
-                    <button class="btn btn-primary login-button col" type="submit">Login</button>
-                  </div>
-                  <div class="row">
-                    <div class="col align-self-center text-center">
-                      <H3>Need an account?</H3>
-                      <a href = "teacher_signup.php">Sign up</a>
-                      <div class="align-self-center separator">or</div>
-                      <a href = "organisation_signup.php">Create an Organisation</a>
-                    </div>
-                  </div>
-              </form>
-            </div>
+                <div class="col align-self-center text-center">
+                  <H3>Need an account?</H3>
+                  <a href = "teacher_signup.php">Sign up</a>
+                  <div class="align-self-center separator">or</div>
+                  <a href = "organisation_signup.php">Create an Organisation</a>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
       </div>
-    </div>
-    </Body>
-</HTML>
+    </body>
+</html>
