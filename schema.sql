@@ -397,3 +397,12 @@ CREATE TABLE IF NOT EXISTS email_blacklist (
   email VARCHAR (255),
   PRIMARY KEY (email)
 );
+
+CREATE TABLE IF NOT EXISTS password_reset_keys (
+  username VARCHAR(32),
+  reset_key VARCHAR(255) NOT NULL,
+  expiry TIMESTAMP NOT NULL,
+  FOREIGN KEY (username) REFERENCES accounts(username)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);

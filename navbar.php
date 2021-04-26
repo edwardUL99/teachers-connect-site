@@ -5,15 +5,15 @@
 
   session_start();
 
-  define("HOME", "home", true);
-  define("CONNECTIONS", "connections", true);
-  define("VACANCIES", "vacancies", true);
-  define("NOTIFICATIONS", "notifications", true);
-  define("SEARCH", "search", true);
-  define("PROFILE", "profile", true);
-  define("ADMINISTRATION", "administration", true);
-  define("ACTIVE", "class=\"nav-link active\" aria-current=\"page\" ", true);
-  define ("INACTIVE", "class=\"nav-link\" ", true);
+  define("HOME", "home");
+  define("CONNECTIONS", "connections");
+  define("VACANCIES", "vacancies");
+  define("NOTIFICATIONS", "notifications");
+  define("SEARCH", "search");
+  define("PROFILE", "profile");
+  define("ADMINISTRATION", "administration");
+  define("ACTIVE", "class=\"nav-link active\" aria-current=\"page\" ");
+  define ("INACTIVE", "class=\"nav-link\" ");
 
    /**
     * The user name that has been set by the session check in this navigation php file
@@ -29,6 +29,11 @@
     */
    function goToLogin() {
      header("Location: login.php");
+     exit;
+   }
+
+   if (empty($_SERVER["HTTPS"])) {
+     header("Location: https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"], true, 301);
      exit;
    }
 

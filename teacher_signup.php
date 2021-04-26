@@ -273,7 +273,7 @@
 
     <div class="container-fluid main-background overflow-auto flex-fill d-flex align-items-center justify-content-center">
       <div class="registration-card">
-        <div class="row card mt-5 mb-5">
+        <div class="row card mt-5 mb-5 shadow">
           <img class="img-fluid w-50 h-50 m-auto" src="images/logo.png" alt="Teacher's Connect logo">
           <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
             <div class="row">

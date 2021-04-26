@@ -15,6 +15,8 @@
 
           session_start();
 
+          $success_message = "";
+
           $username = $username_error = "";
           $password = $password_error = "";
 
@@ -58,6 +60,11 @@
                 die("An error occurred: {$conn->error}");
               }
             }
+          }
+
+          if (isset($_SESSION['SUCCESS_MESSAGE'])) {
+            $success_message = $_SESSION['SUCCESS_MESSAGE'];
+            unset($_SESSION['SUCCESS_MESSAGE']);
           }
 
           if($_SERVER['REQUEST_METHOD'] == "POST") {
@@ -132,7 +139,14 @@
 
       <div class="container-fluid main-background overflow-auto flex-fill d-flex align-items-center justify-content-center">
         <div class="registration-card">
-          <div class="row card mt-5 mb-5">
+          <div class="row card mt-5 mb-5 shadow">
+            <?php
+              if (!empty($success_message)) {
+                echo "<div class=\"row alert m-auto w-50 mt-5 mb-5 alert-success alert-dismissable fade show\" role=\"alert\">{$success_message}";
+                echo "<div class=\"col text-end\">";
+                echo "<button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button></div></div>";
+              }
+            ?>
             <img class="img-fluid w-50 h-50 m-auto" src="images/logo.png" alt="Teacher's Connect logo">
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method ="POST">
               <div class="form-group login-input <?php echo (!empty($username_error)) ? 'has-error' : ''; ?>">
@@ -151,7 +165,7 @@
                     <label><input type="checkbox" name="stay_signed_in">Stay signed in</label>
                   </div>
                   <div class="col align-self-end text-end">
-                    <a href="url">Forgot password?</a>
+                    <a href="forgot_password.php">Forgot password?</a>
                   </div>
                 </div>
               </div>
@@ -170,5 +184,8 @@
           </div>
         </div>
       </div>
+
+      <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js" integrity="sha384-KsvD1yqQ1/1+IA7gi3P0tyJcT3vR+NdBTt13hSJ2lnve8agRGXTTyNaBYmCR/Nwi" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.min.js" integrity="sha384-nsg8ua9HAw1y0W1btsyWgBklPnCUAFLuTMS2G72MMONqmOymq585AcH49TLBQObG" crossorigin=\"anonymous"></script>
     </body>
 </html>
