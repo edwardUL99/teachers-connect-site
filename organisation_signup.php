@@ -246,7 +246,7 @@
        }
      </style>
 
-     <div class="container-fluid main-background overflow-auto flex-fill d-flex align-items-center justify-content-center">
+     <div class="container-fluid main-background overflow-auto d-flex align-items-center justify-content-center">
        <div class="registration-card">
          <div class="row card mt-5 mb-5 shadow">
           <img class="img-fluid w-50 h-50 m-auto" src="images/logo.png" alt="Teacher's Connect logo">
@@ -280,16 +280,16 @@
              <div class="row login-button m-auto w-50">
               <button type="submit" class="btn btn-primary login-button">Join now</button>
             </div>
-            <div class="row">
-              <div class="col align-self-center text-center">
-                <h5>Have an account?</h5>
-                <a href="login.php">Login</a>
-                <div class="align-self-center separator">or</div>
-                <h5>Want to sign up as a teacher?</h5>
-                <a href = "teacher_signup.php">Create a teacher</a>
-              </div>
-            </div>
           </form>
+        </div>
+        <div class="row">
+          <div class="col align-self-center text-center">
+            <h5>Have an account?</h5>
+            <a href="login.php">Login</a>
+            <div class="align-self-center separator">or</div>
+            <h5>Want to sign up as a teacher?</h5>
+            <a href = "teacher_signup.php">Create a teacher</a>
+          </div>
         </div>
       </div>
     </div>

@@ -259,7 +259,7 @@
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
               <div class="form-group login-input <?php echo (!empty($email_error)) ? 'has-error' : ''; ?>">
                 <label>E-mail Address</label>
-                <input type="email"  name="email" class="form-control" value="<?php echo $email; ?>" required>
+                <input type="email" name="email" class="form-control" value="<?php echo $email; ?>" required>
                 <span class="help-block login-error-message"><?php echo $email_error; ?></span>
               </div>
               <div class="row login-button">

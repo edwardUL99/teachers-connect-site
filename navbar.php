@@ -28,11 +28,19 @@
     * Goes to the login page
     */
    function goToLogin() {
-     header("Location: login.php");
+     $query = parse_url($_SERVER["REQUEST_URI"], PHP_URL_QUERY);
+     $script_name = htmlspecialchars($_SERVER["PHP_SELF"]);
+     if ($query != null) {
+       $script_name .= "?{$query}";
+     }
+     $data = array('goto' => $script_name);
+     $url = "login.php?".http_build_query($data);
+
+     header("Location: $url");
      exit;
    }
 
-   if (empty($_SERVER["HTTPS"])) {
+   if (empty($_SERVER["HTTPS"]) && $_SERVER["SERVER_NAME"] != "localhost") {
      header("Location: https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"], true, 301);
      exit;
    }

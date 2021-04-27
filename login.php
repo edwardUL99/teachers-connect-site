@@ -20,6 +20,8 @@
           $username = $username_error = "";
           $password = $password_error = "";
 
+          $goto_url = "feed.php";
+
           /**
             * Gets the banned to date/time
             */
@@ -70,6 +72,7 @@
           if($_SERVER['REQUEST_METHOD'] == "POST") {
             $username = $_POST["username"];
             $password = $_POST["password"];
+            $goto_url = $_POST["goto_url"];
 
             if (checkBanned($username) || checkBlacklist($username)) {
               $date_to = getBannedTo();
@@ -108,7 +111,7 @@
                       $_SESSION[LOGGED_IN] = true;
                       $_SESSION[USERNAME] = $username;
                       $_SESSION[USER_TYPE] = $user_type;
-                      header("Location: feed.php");
+                      header("Location: {$goto_url}");
                     } else {
                       $password_error = "Your password is incorrect";
                     }
@@ -128,6 +131,10 @@
 
                 $conn->close();
               }
+            } else if ($_SERVER["REQUEST_METHOD"] == "GET") {
+              if (isset($_GET["goto"])) {
+                $goto_url = $_GET["goto"];
+              }
             }
       ?>
 
@@ -137,8 +144,8 @@
         }
       </style>
 
-      <div class="container-fluid main-background overflow-auto flex-fill d-flex align-items-center justify-content-center">
-        <div class="registration-card">
+      <div class="container-fluid main-background overflow-auto d-flex align-items-center justify-content-center">
+        <div class="login-card">
           <div class="row card mt-5 mb-5 shadow">
             <?php
               if (!empty($success_message)) {
@@ -172,15 +179,16 @@
               <div class="row login-button">
                 <button class="btn btn-primary login-button m-auto w-50" type="submit">Login</button>
               </div>
-              <div class="row">
-                <div class="col align-self-center text-center">
-                  <H3>Need an account?</H3>
-                  <a href = "teacher_signup.php">Sign up</a>
-                  <div class="align-self-center separator">or</div>
-                  <a href = "organisation_signup.php">Create an Organisation</a>
-                </div>
-              </div>
+              <input type="hidden" name="goto_url" value="<?php echo $goto_url; ?>">
             </form>
+          </div>
+          <div class="row">
+            <div class="col align-self-center text-center">
+              <H3>Need an account?</H3>
+              <a href = "teacher_signup.php">Sign up</a>
+              <div class="align-self-center separator">or</div>
+              <a href = "organisation_signup.php">Create an Organisation</a>
+            </div>
           </div>
         </div>
       </div>
