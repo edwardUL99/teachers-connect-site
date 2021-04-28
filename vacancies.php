@@ -77,7 +77,7 @@
          }
          ?>
       <?php
-         if($user_type=='teacher'){
+         if($user_type=='teacher') {
          if(isset($_GET['r'])){
              if($_GET['r'] == ''){
 
@@ -89,49 +89,41 @@
                     $s = $_GET['s'];
                     $query6 = mysqli_query($conn, "select * from organisations where name = '$s'");
                       while($row = mysqli_fetch_array($query6)){
-                      $s = $row['organisation_id'];}
+                        $s = $row['organisation_id'];
+                      }
 
 
-                    $query = mysqli_query($conn, "select * from vacancies where organisation_id = '$s'");
-              while($row = mysqli_fetch_array($query)){
-             $vacancy_id = $row['vacancy_id'];
-             $organisation_id = $row['organisation_id'];
-             $job_title = $row['job_title'];
+                    $query = mysqli_query($conn, "select * from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id where vacancies.organisation_id = '$s'");
+                    while($row = mysqli_fetch_array($query)){
+                      $vacancy_id = $row['vacancy_id'];
+                      $organisation_id = $row['organisation_id'];
+                      $job_title = $row['job_title'];
 
-             $description = $row['description'];
-             $type = $row['type'];
+                      $description = $row['description'];
+                      $type = $row['type'];
+                      $org_name = $row['name'];
+                      $profile_photo = $row['profile_photo'];
+                      $profile_photo = ($profile_photo == null) ? DEFAULT_ORG_PROFILE_PIC:$profile_photo;
 
+                       echo '<div class="card" style ="margin-top: 20px; margin-bottom: 20px">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <img class="card-img-top rounded-circle" src='."\"{$profile_photo}\"".' alt="Card image">
+                                                </div>
+                                                <div class="col-8">
+                                                    <a href="vacancy_profile.php?id='.$vacancy_id.'">' . $org_name . '</a><br />
 
-              $query2 = mysqli_query($conn, "select * from organisations where organisation_id = '$organisation_id'");
-              while($row = mysqli_fetch_array($query2)){
-
-                  $org_name = $row['name'];
-                  $profile_photo = $row['profile_photo'];
-                  $profile_photo = ($profile_photo == null) ? DEFAULT_TEACHER_PROFILE_PIC:$profile_photo;
-
-
-
-              }
-
-             echo '<div class="card" style ="margin-top: 20px; margin-bottom: 20px">
-                              <div class="card-body">
-                                  <div class="row">
-                                      <div class="col-4">
-                                          <img class="card-img-top rounded-circle" src='."\"{$profile_photo}\"".' alt="Card image">
-                                      </div>
-                                      <div class="col-8">
-                                          <a href="vacancy_profile.php?id='.$vacancy_id.'">' . $org_name . '</a><br />
-
-                                          <h5 class="card-title">'. $job_title .'</h5>
-                                          <h5 class="card-title">'. $type .'</h5>
+                                                    <h5 class="card-title">'. $job_title .'</h5>
+                                                    <h5 class="card-title">'. $type .'</h5>
 
 
-                                      </div>
-                                  </div>
-                              </div>
-                          </div>';
-             }
-           }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>';
+                  }
+                }
             }
 
          }
@@ -151,10 +143,10 @@
               //echo $skillstring;
          $querystring =   "select distinct vacancies.vacancy_id, organisation_id, job_title, description, type from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where vacancy_skills.skill_id in (select skill_id from skills where $skillstring)";
          if(isset($_GET['s'])){
-         $sString = $_GET['s'];
-         if($sString != ''){
-         $querystring =   "select distinct vacancies.vacancy_id, organisation_id, job_title, description, type from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where organisations.name = '$sString' and vacancy_skills.skill_id in (select skill_id from skills where $skillstring)"; }
-         }
+           $sString = $_GET['s'];
+           if($sString != ''){
+             $querystring = "select distinct vacancies.vacancy_id, organisation_id, job_title, description, type from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where organisations.name = '$sString' and vacancy_skills.skill_id in (select skill_id from skills where $skillstring)";
+           }
 
 
          $query = mysqli_query($conn, $querystring);
@@ -185,7 +177,9 @@
                       </div>
                   </div>';
          }
-         }}
+         }
+       }
+     }
 
              if(!isset($_GET['r'])){
 
@@ -221,6 +215,7 @@
                               </div>';
 
              }}
+           }
          ?>
       <?php
          if($user_type=='organisation'){
@@ -329,7 +324,7 @@
                           $last_id2 = $conn->insert_id;
 
                           $sql4 = "INSERT INTO vacancy_skills (vacancy_id, skill_id)
-                          VALUES ('".$last_id."', '".$skill_id2."')";
+                          VALUES ('".$last_id."', '".$last_id2."')";
                           $conn->query($sql4);
                       }
 
@@ -338,6 +333,7 @@
                   echo '<script>alert("Vacancy added!")</script>';
                }
           }
+
 
           ?>
       </div>
