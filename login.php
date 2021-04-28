@@ -146,15 +146,18 @@
 
       <div class="container-fluid main-background overflow-auto d-flex align-items-center justify-content-center">
         <div class="login-card">
+          <div class="row login-logo m-auto">
+            <img class="img-fluid" src="images/logo.png" alt="Teacher's Connect logo">
+          </div>
           <div class="row card mt-5 mb-5 shadow">
             <?php
               if (!empty($success_message)) {
-                echo "<div class=\"row alert m-auto w-50 mt-5 mb-5 alert-success alert-dismissable fade show\" role=\"alert\">{$success_message}";
+                echo "<div class=\"row alert m-auto w-75 mt-5 mb-5 alert-success alert-dismissable fade show\" role=\"alert\">{$success_message}";
                 echo "<div class=\"col text-end\">";
                 echo "<button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button></div></div>";
               }
             ?>
-            <img class="img-fluid w-50 h-50 m-auto" src="images/logo.png" alt="Teacher's Connect logo">
+
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method ="POST">
               <div class="form-group login-input <?php echo (!empty($username_error)) ? 'has-error' : ''; ?>">
                 <label>Username</label>

@@ -247,9 +247,11 @@
      </style>
 
      <div class="container-fluid main-background overflow-auto d-flex align-items-center justify-content-center">
-       <div class="registration-card">
+       <div class="login-card">
+         <div class="row login-logo m-auto">
+           <img class="img-fluid" src="images/logo.png" alt="Teacher's Connect logo">
+         </div>
          <div class="row card mt-5 mb-5 shadow">
-          <img class="img-fluid w-50 h-50 m-auto" src="images/logo.png" alt="Teacher's Connect logo">
           <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
             <div class="form-group login-input <?php echo (!empty($organisation_name_error)) ? 'has-error' : ''; ?>">
               <label>Organisation Name</label>

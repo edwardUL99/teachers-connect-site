@@ -138,6 +138,7 @@
         </div>
         <div class="row mt-5 shadow card padding-1pcent" id="delete_account">
           <h4>Delete Account</h4>
+          <?php if ($user_type != ADMIN): ?>
           <p>This form is used to delete your account. To delete it, you will have to enter your password to confirm. Please note that
             this action is irreversible</p>
           <form id="delete_account_form">
@@ -154,6 +155,14 @@
               </div>
             </div>
           </form>
+          <?php else: ?>
+          <p>This form is used to delete this user's account. Deleting the account is irreversible.</p>
+          <div class="row text-end mt-2">
+            <div class="col">
+              <button type="button" onclick="handleDeleteAccount();" id="remove_button" class="btn btn-danger">Delete</button>
+            </div>
+          </div>
+          <?php endif; ?>
         </div>
       </div>
     <?php endif; ?>
@@ -161,6 +170,7 @@
     <script type="text/javascript" src="forms.js"></script>
     <script type="text/javascript" src="ajax.js"></script>
     <script>
+      const admin = <?php echo json_encode($user_type == ADMIN); ?>;
       const username = <?php echo json_encode($username); ?>;
       const password = document.getElementById('password');
       const confirm_password = document.getElementById('confirm_password');
@@ -289,13 +299,19 @@
         * Handles the deletion of the account
         */
       function handleDeleteAccount() {
-        var valid = validateForm('delete_account_form');
+        var valid = admin || validateForm('delete_account_form');
         if (valid) {
           var data = serializeForm('delete_account', 'input');
-          data['username'] = username;
-          data['edit_type'] = "organisation";
-          data['edit_form'] = "delete_account";
 
+          if (admin) {
+            data = {};
+            data['delete_password'] = "n/a";
+          }
+
+          data['username'] = username;
+          data['edit_type'] = "teacher";
+          data['edit_form'] = "delete_account";
+          data['admin_override'] = admin; // if admin, override the password check and just delete the account
           var ajax = getAJAX();
           if (ajax != null) {
             ajax.onreadystatechange = function() {

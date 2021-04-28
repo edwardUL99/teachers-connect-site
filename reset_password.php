@@ -155,33 +155,35 @@
 
         if (!$error_displayed):
       ?>
-        <div class="registration-card">
-          <div class="row card shadow">
-            <img class="img-fluid w-50 h-50 m-auto" src="images/logo.png" alt="Teacher's Connect logo">
-            <div class="row mb-5 mt-5 text-center">
-              <h4 class="underlined-header">Reset Password</h4>
-              <p>Enter your new password that will be then used to login to your account</p>
-            </div>
-            <div class="row">
-              <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-                <div class="form-group login-input <?php echo (!empty($password_error)) ? 'has-error' : ''; ?>">
-                  <label>Password (8 or more characters)</label>
-                  <input type="password" name="password" minlength="8" class="form-control" required>
-                  <span class="help-block login-error-message"><?php echo $password_error; ?></span>
-                </div>
-                <div class="form-group login-input <?php echo (!empty($confirm_password_error)) ? 'has-error' : ''; ?>">
-                  <label>Confirm Password</label>
-                  <input type="password" name="confirm_password" minlength="8" class="form-control" required>
-                  <span class="help-block login-error-message"><?php echo $confirm_password_error; ?></span>
-                </div>
-                <input type="hidden" name="username" value="<?php echo $username; ?>">
-                <div class="row login-button m-auto w-50">
-                  <button type="submit" class="btn btn-primary login-button">Reset</button>
-                </div>
-              </form>
-            </div>
+      <div class="login-card">
+        <div class="row login-logo m-auto">
+          <img class="img-fluid" src="images/logo.png" alt="Teacher's Connect logo">
+        </div>
+        <div class="row card shadow mb-5 mt-5">
+          <div class="row text-center">
+            <h4 class="underlined-header">Reset Password</h4>
+            <p>Enter your new password that will be then used to login to your account</p>
+          </div>
+          <div class="row">
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+              <div class="form-group login-input <?php echo (!empty($password_error)) ? 'has-error' : ''; ?>">
+                <label>Password (8 or more characters)</label>
+                <input type="password" name="password" minlength="8" class="form-control" required>
+                <span class="help-block login-error-message"><?php echo $password_error; ?></span>
+              </div>
+              <div class="form-group login-input <?php echo (!empty($confirm_password_error)) ? 'has-error' : ''; ?>">
+                <label>Confirm Password</label>
+                <input type="password" name="confirm_password" minlength="8" class="form-control" required>
+                <span class="help-block login-error-message"><?php echo $confirm_password_error; ?></span>
+              </div>
+              <input type="hidden" name="username" value="<?php echo $username; ?>">
+              <div class="row login-button m-auto w-50">
+                <button type="submit" class="btn btn-primary login-button">Reset</button>
+              </div>
+            </form>
           </div>
         </div>
+      </div>
       <?php endif; ?>
     </div>
   </body>

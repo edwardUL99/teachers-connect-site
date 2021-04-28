@@ -247,10 +247,12 @@
 
     <div class="container-fluid main-background overflow-auto flex-fill d-flex align-items-center justify-content-center">
       <?php if (empty($email) || !empty($email_error)): ?>
-      <div class="registration-card">
-        <div class="row card shadow">
-          <img class="img-fluid w-50 h-50 m-auto" src="images/logo.png" alt="Teacher's Connect logo">
-          <div class="row mb-5 mt-5 text-center">
+      <div class="login-card">
+        <div class="row login-logo m-auto">
+          <img class="img-fluid" src="images/logo.png" alt="Teacher's Connect logo">
+        </div>
+        <div class="row card shadow mb-5 mt-5">
+          <div class="row text-center">
             <h4 class="underlined-header">Forgot Password</h4>
             <p>Enter the e-mail address that you used to create your account. If more than 1 account exists for
               that address, you will be able to choose the account on the next screen</p>
