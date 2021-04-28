@@ -14,6 +14,7 @@
     $username = "";
     $edit_type = "";
     $edit_form = "";
+    $admin_override = false;
 
     /**
       * Throw error
@@ -29,6 +30,7 @@
       global $username;
       global $edit_type;
       global $edit_form;
+      global $admin_override;
 
       if (isset($_POST[USERNAME])) {
         $username = $_POST[USERNAME];
@@ -46,6 +48,10 @@
         $edit_form = $_POST[EDIT_FORM];
       } else {
         throwError();
+      }
+
+      if (isset($_POST["admin_override"])) {
+        $admin_override = $_POST["admin_override"];
       }
     }
 
@@ -821,14 +827,15 @@
     function processDeleteAccount() {
       global $username;
       global $conn;
+      global $admin_override;
 
-      $password = (isset($_POST['delete_password'])) ? $_POST['delete_password']:null;
+      $password = (isset($_POST['delete_password'])) ? $_POST['delete_password']:(($admin_override) ? null:"n/a");
 
       if ($password == null) {
         respond(false, "Password is a mandatory field");
       }
 
-      if (checkPasswordMatch($password)) {
+      if ($admin_override || checkPasswordMatch($password)) {
         $sql = "DELETE FROM accounts WHERE username = ?";
 
         if ($stmt = $conn->prepare($sql)) {

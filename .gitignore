@@ -1,4 +1,4 @@
 images/profile-pictures/*
 !images/profile-pictures/.gitkeep
-editing_files.txt
+.editing_files.txt
 web_edit.sh
