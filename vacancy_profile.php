@@ -45,31 +45,18 @@
         generateNavBar(VACANCIES);
 
 
-          $query = mysqli_query($conn, "select * from vacancies where vacancy_id = '$id'");
+          $query = mysqli_query($conn, "SELECT * FROM vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id WHERE vacancy_id = '$id'");
           while($row = mysqli_fetch_array($query)){
-
             $organisation_id = $row['organisation_id'];
-       $job_title = $row['job_title'];
+            $job_title = $row['job_title'];
 
-       $description = $row['description'];
-       $type = $row['type'];
-
-
-        $query2 = mysqli_query($conn, "select * from organisations where organisation_id = '$organisation_id'");
-        while($row = mysqli_fetch_array($query2)){
+            $description = $row['description'];
+            $type = $row['type'];
 
             $org_name = $row['name'];
             $profile_photo = $row['profile_photo'];
-            $profile_photo = ($profile_photo == null) ? DEFAULT_TEACHER_PROFILE_PIC:$profile_photo;
-
-
-
-        }
-
-
-
-
-
+            $profile_photo = ($profile_photo == null) ? DEFAULT_ORG_PROFILE_PIC:$profile_photo;
+            $org_username = $row['username'];
           }
       ?>
      <div class="container main-background">
@@ -82,7 +69,7 @@
           <img class="img-fluid rounded-circle" src=<?php echo "'".$profile_photo."'";?> alt="profile-picture">
         </div>
         <div class="col-9">
-          <h3><?php echo $org_name;?></h3>
+          <a href="organisation_profile.php?username=<?php echo $org_username; ?>"><h3><?php echo $org_name; ?></h3></a>
           <h4 class="subtitle"><?php echo $job_title;?></h4>
           <h5><?php echo $type; ?></h5>
           <p class="about-me-text"><?php echo $description; ?></p>

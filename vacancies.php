@@ -81,9 +81,6 @@
 
 
                 if($_GET['s'] != ''){
-
-
-
                     $s = $_GET['s'];
                     $query6 = mysqli_query($conn, "select * from organisations where name = '$s'");
                       while($row = mysqli_fetch_array($query6)){
@@ -149,71 +146,75 @@
 
          $query = mysqli_query($conn, $querystring);
          while($row = mysqli_fetch_array($query)){
-         $vacancy_id = $row['vacancy_id'];
-         $job_title = $row['job_title'];
-
-         $description = $row['description'];
-         $type = $row['type'];
-
-         $profile_photo = $row['profile_photo'];
-         $profile_photo = (!empty($profile_photo)) ? $profile_photo:DEFAULT_ORG_PROFILE_PIC;
-         echo '<div class="card" style ="margin-top: 20px; margin-bottom: 20px">
-                      <div class="card-body">
-                          <div class="row">
-                              <div class="col-4">
-                                  <img class="rounded-circle" src="'.$profile_photo.'" alt="Organisation Profile Image">
-                              </div>
-                              <div class="col-8">
-                                  <a href="vacancy_profile.php?id='.$vacancy_id.'">' . $job_title . '</a><br />
-
-                                  <h5 class="card-title">'. $description .'</h5>
-                                  <h5 class="card-title">'. $type .'</h5>
-
-
-                              </div>
-                          </div>
-                      </div>
-                  </div>';
+           displayVacancy($row);
          }
          }
        }
      }
 
+            if (isset($_GET['organisation'])) {
+              $org_id = $_GET['organisation'];
+
+              $sql = "SELECT * FROM vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id WHERE vacancies.organisation_id = ?;";
+
+              if ($stmt = $conn->prepare($sql)) {
+                $stmt->bind_param("i", $param_org);
+                $param_org = $org_id;
+
+                if ($stmt->execute()) {
+                  $result = $stmt->get_result();
+
+                  while($row = $result->fetch_assoc()){
+                      displayVacancy($row);
+                  }
+                } else {
+                  doSQLError($stmt->error);
+                }
+
+                $stmt->close();
+              } else {
+                doSQLError($conn->error);
+              }
+            } else {
+
              if(!isset($_GET['r'])){
 
                  //$q =$_GET['q'];
 
-
              $query = mysqli_query($conn, "SELECT * FROM vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id;");
              while($row = mysqli_fetch_array($query)){
-                 $vacancy_id = $row['vacancy_id'];
-                 $job_title = $row['job_title'];
-
-                 $description = $row['description'];
-                 $type = $row['type'];
-
-                 $profile_photo = $row['profile_photo'];
-                 $profile_photo = (!empty($profile_photo)) ? $profile_photo:DEFAULT_ORG_PROFILE_PIC;
-                  echo '<div class="card" style ="margin-top: 20px; margin-bottom: 20px">
-                                  <div class="card-body">
-                                      <div class="row">
-                                          <div class="col-4">
-                                              <img class="rounded-circle" src="'.$profile_photo.'" alt="Organisation Profile Image">
-                                          </div>
-                                          <div class="col-8">
-                                              <a href="vacancy_profile.php?id='.$vacancy_id.'">' . $job_title . '</a><br />
-
-                                              <h5 class="card-title">'. $description .'</h5>
-                                              <h5 class="card-title">'. $type .'</h5>
-
-
-                                          </div>
-                                      </div>
-                                  </div>
-                              </div>';
-
+                 displayVacancy($row);
              }}
            }
+         }
+
+         function displayVacancy($row) {
+           $vacancy_id = $row['vacancy_id'];
+           $job_title = $row['job_title'];
+
+           $description = $row['description'];
+           $type = $row['type'];
+
+           $profile_photo = $row['profile_photo'];
+           $profile_photo = (!empty($profile_photo)) ? $profile_photo:DEFAULT_ORG_PROFILE_PIC;
+            echo '<div class="card" style ="margin-top: 20px; margin-bottom: 20px">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <img class="rounded-circle" src="'.$profile_photo.'" alt="Organisation Profile Image">
+                                    </div>
+                                    <div class="col-8">
+                                        <a href="vacancy_profile.php?id='.$vacancy_id.'">' . $job_title . '</a><br />
+
+                                        <h5 class="card-title">'. $description .'</h5>
+                                        <h5 class="card-title">'. $type .'</h5>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>';
+         }
          ?>
       <?php
          if($user_type=='organisation'){
