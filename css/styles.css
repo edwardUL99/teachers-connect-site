@@ -177,3 +177,8 @@ html, body {
 .person-card-banned {
   width: 20rem;
 }
+
+.vacancy:hover {
+  background-color: #F5F5F5;
+  cursor: pointer;
+}

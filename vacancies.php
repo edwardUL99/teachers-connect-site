@@ -100,14 +100,14 @@
                       $profile_photo = $row['profile_photo'];
                       $profile_photo = ($profile_photo == null) ? DEFAULT_ORG_PROFILE_PIC:$profile_photo;
 
-                       echo '<div class="card" style ="margin-top: 20px; margin-bottom: 20px">
+                       echo '<div class="card vacancy" style ="margin-top: 20px; margin-bottom: 20px" onclick="window.location.href=\'vacancy_profile.php?id='.$vacancy_id.'\'">
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-4">
                                                     <img class="card-img-top rounded-circle" src='."\"{$profile_photo}\"".' alt="Card image">
                                                 </div>
                                                 <div class="col-8">
-                                                    <a href="vacancy_profile.php?id='.$vacancy_id.'">' . $org_name . '</a><br />
+                                                    <h4>' . $org_name . '</h4
 
                                                     <h5 class="card-title">'. $job_title .'</h5>
                                                     <h5 class="card-title">'. $type .'</h5>
@@ -197,14 +197,14 @@
 
            $profile_photo = $row['profile_photo'];
            $profile_photo = (!empty($profile_photo)) ? $profile_photo:DEFAULT_ORG_PROFILE_PIC;
-            echo '<div class="card" style ="margin-top: 20px; margin-bottom: 20px">
+            echo '<div class="card vacancy" style ="margin-top: 20px; margin-bottom: 20px" onclick="window.location.href=\'vacancy_profile.php?id='.$vacancy_id.'\'">
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-4">
                                         <img class="rounded-circle" src="'.$profile_photo.'" alt="Organisation Profile Image">
                                     </div>
                                     <div class="col-8">
-                                        <a href="vacancy_profile.php?id='.$vacancy_id.'">' . $job_title . '</a><br />
+                                        <h4>' . $job_title . '</h4>
 
                                         <h5 class="card-title">'. $description .'</h5>
                                         <h5 class="card-title">'. $type .'</h5>
