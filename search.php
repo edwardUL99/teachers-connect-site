@@ -137,14 +137,14 @@
                 $profile_photo = $row['profile_photo'];
                 $profile_photo = ($profile_photo == null) ? DEFAULT_TEACHER_PROFILE_PIC:$profile_photo;
 
-                 echo '<div class="card" style ="margin-top: 20px; margin-bottom: 20px">
+                 echo '<div class="card hoverable" style ="margin-top: 20px; margin-bottom: 20px" onclick="window.location.href=\'teacher_profile.php?username='.$username.'\'">
                                  <div class="card-body">
                                      <div class="row">
                                          <div class="col-4">
                                              <img class="card-img-top rounded-circle" src='."\"{$profile_photo}\"".' alt="Card image">
                                          </div>
                                          <div class="col-8">
-                                             <a href="teacher_profile.php?username='.$username.'">' . $first_name . ' '. $last_name . '</a><br />
+                                             <h4>' . $first_name . ' '. $last_name . '</h4>
 
                                              <h5 class="card-title">'. $headline .'</h5>
 

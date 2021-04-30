@@ -153,13 +153,13 @@
 
               $type = $row['type'];
 
-              $vacancies[] = '<div class="border mb-2">
+              $vacancies[] = '<div class="border mb-2 hoverable" onclick="window.location.href=\'vacancy_profile.php?id='.$vacancy_id.'\'">
                                 <div class="row">
                                   <div class="col-4">
                                     <img class="img-fluid rounded-circle" src='.$profile_photo.' alt="Card image">
                                   </div>
                                   <div class="col-8">
-                                    <a href="vacancy_profile.php?id='.$vacancy_id.'">' . $organisation->name() . '</a><br />
+                                    <a href="organisation_profile.php?username='. $organisation->username() . '"><h4>' . $organisation->name() . '</h4></a>
                                     <h5 class="card-title">'. $job_title .'</h5>
                                     <h5 class="card-title">'. $type .'</h5>
                                   </div>
