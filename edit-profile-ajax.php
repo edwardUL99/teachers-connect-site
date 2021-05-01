@@ -258,7 +258,15 @@
           }
 
           $stmt->close();
-          respond(true, "UPDATED");
+
+          $org_name = "";
+
+          if (!$delete) {
+            $org_name = getOrganisationName($value);
+          }
+          $data = array('organisation_name' => $org_name, 'selected_id' => $value);
+
+          respondData(true, "UPDATED", $data);
         } else {
           die("Database error: {$conn->error}");
         }
