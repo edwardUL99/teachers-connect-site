@@ -24,6 +24,8 @@
       $vacancies = array();
       $posts = array();
 
+      $contact_button = "";
+
       /**
        * Parses the URL for any GET parameters
        */
@@ -295,6 +297,52 @@
         }
       }
 
+      /**
+        * Gets the contact teacher button
+        */
+      function loadContactButton() {
+        global $username;
+        global $conn;
+        global $contact_button;
+        global $user_type;
+        global $own_profile;
+
+        if (!$own_profile) {
+          $sql = "SELECT email FROM accounts WHERE username = ?;";
+
+          if ($stmt = $conn->prepare($sql)) {
+            $stmt->bind_param("s", $param_username);
+            $param_username = $username;
+
+            if ($stmt->execute()) {
+              $row = $stmt->get_result()->fetch_assoc();
+
+              if ($row) {
+                $loggedin_username = $_SESSION[USERNAME];
+                $type = $user_type;
+                $name = getSenderName($loggedin_username, $type);
+
+                if ($type == TEACHER) {
+                  $type = "Teacher";
+                } else if ($type == ORGANISATION) {
+                  $type = "Organisation";
+                } else if ($type == ADMIN) {
+                  $type = "Administrator";
+                }
+
+                $contact_button = '<a href="mailto:'. $row['email'] . '?subject=Message from ' . $type . ' ' . $name . ' on TeachersConnect" class="btn btn-primary" style="margin-right: 1vw;">Contact Organisation</a>';
+              }
+            } else {
+              doSQLError($stmt->error);
+            }
+
+            $stmt->close();
+          } else {
+            doSQLError($conn->error);
+          }
+        }
+      }
+
       $loggedin_username = $_SESSION[USERNAME];
       $user_type = $_SESSION[USER_TYPE];
 
@@ -322,6 +370,9 @@
               loadVacancies();
               if (empty($error_message)) {
                 loadPosts();
+                if (empty($error_message)) {
+                  loadContactButton();
+                }
               }
             }
           }
@@ -352,10 +403,15 @@
           <h5><?php echo $organisation->location(); ?></h5>
           <p class="about-me-text"><?php $about = $organisation->about(); echo ($about == null) ? "":$about; ?></p>
         </div>
-        <?php if ($user_type != ORGANISATION || $own_profile): ?>
+        <?php if (!$own_profile || $user_type == ORGANISATION): ?>
         <div class="row mt-2">
           <div class="btn-toolbar">
             <?php echo getPrimaryProfileButton(); ?>
+            <?php
+              if (!empty($contact_button)) {
+                echo $contact_button;
+              }
+              ?>
             <?php if ($user_type == ADMIN): ?>
               <?php getBlockButton(); ?>
               <?php getBlacklistButton(); ?>

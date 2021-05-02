@@ -86,8 +86,11 @@
           echo "<option {$selected}>Choose an organisation</option>";
           echo "<option value=\"-1\">No Organisation</option>";
           foreach ($available_organisations as $key => $value) {
-            $selected = ($key == $curr_org_id) ? "selected":"";
-            echo "<option value=\"{$key}\" {$selected}>{$value}</option>";
+            $current_org = $key == $curr_org_id;
+            $selected = ($current_org) ? "selected":"";
+            $current_msg = ($current_org) ? " (Current)":"";
+            $id = ($current_org) ? "id=\"organisation-{$key}-current\"":"id=\"organisation-{$key}\"";
+            echo "<option value=\"{$key}\" {$selected} {$id}>{$value}{$current_msg}</option>";
           }
         } else {
           echo "<option selected>Choose an organisation</option>";
@@ -697,6 +700,7 @@
       const admin = <?php echo json_encode($user_type == ADMIN); ?>;
       const username = <?php echo json_encode($username); ?>;
       const org_choose_message = "Choose an organisation";
+      const leave_org_message = "-1";
       const degree_choose_message = "Choose a degree";
       const new_degree_message = "New degree";
       const remove_degree_message = "Choose a qualification";
@@ -707,6 +711,8 @@
       const join_button = document.getElementById('join_button');
       const organisation_choice = document.getElementById('organisation_choice');
       join_button.disabled = organisation_choice.value == org_choose_message;
+
+      var current_organisation = <?php echo json_encode(($current_organisation != null) ? $current_organisation->organisation_id():null); ?>;
 
       const degree_button = document.getElementById('degree_button');
       const degree_choice = document.getElementById('degree_choice');
@@ -899,6 +905,33 @@
 
                   if (success && message == "UPDATED") {
                     addAlertMessage(true, "You have successfully joined the organisation", "join_organisation");
+                    if (current_organisation != null) {
+                      var oldSelected = document.getElementById(`organisation-${current_organisation}-current`);
+
+                      if (oldSelected != null) {
+                        var name = oldSelected.innerHTML;
+                        var current_index = name.indexOf(" (Current)");
+
+                        if (current_index != -1) {
+                          name = name.substr(0, current_index);
+                          oldSelected.innerHTML = name;
+                          oldSelected.id = `organisation-${current_organisation}`;
+                        }
+                      }
+                    }
+
+                    var data = responseBody.data;
+                    var selectedId = data['selected_id'];
+
+                    if (selectedId != -1) {
+                      var joined_name = data['organisation_name'];
+                      var option = document.getElementById(`organisation-${selectedId}`);
+                      option.innerHTML = joined_name + " (Current)";
+                      option.id = `organisation-${selectedId}-current`;
+                      current_organisation = selectedId;
+                    } else {
+                      current_organisation = null;
+                    }
                   } else {
                     addAlertMessage(false, "An error has occurred joining organisation: " + message, "join_organisation");
                   }
@@ -921,6 +954,16 @@
         */
       function onOrganisationChosen() {
         join_button.disabled = organisation_choice.value == org_choose_message;
+
+        if (organisation_choice.value == leave_org_message) {
+          join_button.innerHTML = "Leave Current Organisation";
+          join_button.classList.remove('btn-primary');
+          join_button.classList.add('btn-danger');
+        } else {
+          join_button.innerHTML = "Join Organisation";
+          join_button.classList.remove('btn-danger');
+          join_button.classList.add('btn-primary');
+        }
       }
 
       /**
