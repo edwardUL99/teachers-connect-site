@@ -52,6 +52,18 @@ function validateForm(formId) {
 }
 
 /**
+  * Clears any validation from the provided form if it exists
+  */
+function clearValidation(formId) {
+  var form = document.getElementById(formId);
+
+  if (form != null) {
+    setTimeout(function() {
+      form.classList.remove('was-validated');}, 2000);
+  }
+}
+
+/**
   * Remove the value from the select identified by select id if it is found
   */
 function removeFromSelectByValue(selectId, value) {

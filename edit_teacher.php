@@ -94,10 +94,10 @@
           }
         } else {
           echo "<option selected>Choose an organisation</option>";
+          echo "<option>Enter organisation details</option>";
           foreach ($available_organisations as $key => $value) {
             echo "<option value=\"{$key}\">{$value}</option>";
           }
-          echo "<option>Enter organisation details</option>";
         }
       }
 
@@ -138,14 +138,13 @@
         global $available_degrees;
 
         echo "<option selected>Choose a degree</option>";
+        echo "<option>New degree</option>";
         foreach ($available_degrees as $key => $value) {
           $title = $value->title();
           $school = $value->school();
           $text = "{$title} - {$school}";
           echo "<option value=\"{$key}\">{$text}</option>";
         }
-
-        echo "<option>New degree</option>";
       }
 
       /**
@@ -791,6 +790,8 @@
                   } else {
                     addAlertMessage(false, "An error occurred updating your profile: " + message, "update_profile");
                   }
+
+                  clearValidation('update_profile_form');
                 } catch (e) {
                   alert(response);
                 }
@@ -832,6 +833,8 @@
                   } else {
                     addAlertMessage(false, "An error occurred updating your password: " + message, "update_password");
                   }
+
+                  clearValidation('update_password_form');
                 } catch (e) {
                   alert(response);
                 }
@@ -935,6 +938,8 @@
                   } else {
                     addAlertMessage(false, "An error has occurred joining organisation: " + message, "join_organisation");
                   }
+
+                  clearValidation('join_organisation_form');
                 } catch (e) {
                   alert(response);
                 }
@@ -1028,11 +1033,17 @@
 
                   if (success && message == "UPDATED") {
                     var data = responseBody.data;
-                    addToSelect('remove_qualification_choice', data['value'], data['text']);
+                    addToSelect('degree_choice', data['add_value'], data['add_text']);
+                    addToSelect('remove_qualification_choice', data['remove_value'], data['remove_text']);
                     addAlertMessage(true, "The qualification has been added to your profile successfully", "education_history");
                   } else {
                     addAlertMessage(false, "An error occurred adding the qualification: " + message, "education_history");
                   }
+
+                  clearValidation('new_education_form');
+                  setTimeout(function() {
+                    document.getElementById('new_education_form').reset();
+                    onDegreeChosen();}, 2000);
                 } catch (e) {
                   alert(response);
                 }
@@ -1082,6 +1093,9 @@
                   } else {
                     addAlertMessage(false, "An error occurred removing the qualification: ", "delete_education");
                   }
+
+                  clearValidation('delete_education_form');
+                  onQualificationChosen();
                 } catch (e) {
                   alert(response);
                 }
@@ -1155,11 +1169,21 @@
 
                   if (success && message == "UPDATED") {
                     var data = responseBody.data;
+
+                    if (data['organisation_value'] != null && data['organisation_name'] != null) {
+                      addToSelect('organisation_emp_choice', data['organisation_value'], data['organisation_name']);
+                    }
+
                     addToSelect('chosen_employment_history', data['value'], data['text']);
                     addAlertMessage(true, "Employment History successfully added to profile", "add_employment_history");
                   } else {
                     addAlertMessage(false, "An error has occurred adding employment history to your profile: " + message, "add_employment_history");
                   }
+
+                  clearValidation('add_employment_history_form');
+                  setTimeout(function() {
+                    document.getElementById('add_employment_history_form').reset();
+                    onOrganisationEmployerChosen();}, 2000);
                 } catch (e) {
                   alert(response);
                 }
@@ -1209,6 +1233,9 @@
                   } else {
                     addAlertMessage(false, "An error occurred removing employment history from your profile: " + message, "remove_employment_history");
                   }
+
+                  clearValidation('remove_employment_history_form');
+                  remove_emp_button.disabled = true;
                 } catch (e) {
                   alert(response);
                 }
@@ -1262,6 +1289,11 @@
                   } else {
                     addAlertMessage(false, "An error occurred adding skills to your profile: " + message, "add_skills");
                   }
+
+                  clearValidation('add_skills_form');
+                  setTimeout(function() {
+                    document.getElementById('add_skills_form').reset();
+                    add_skills_button.disabled = true;}, 2000);
                 } catch (e) {
                   alert(response);
                 }
@@ -1330,6 +1362,10 @@
                   } else {
                     addAlertMessage(false, "An error occurred removing skills from your profile: " + message, "remove_skill");
                   }
+
+                  clearValidation('remove_skill_form');
+                  document.getElementById('remove_skill_form').reset();
+                  remove_skill_button.disabled = true;
                 } catch (e) {
                   alert(response);
                 }

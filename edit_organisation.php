@@ -205,6 +205,8 @@
                   } else {
                     addAlertMessage(false, "An error occurred updating your profile: " + message, "update_profile");
                   }
+
+                  clearValidation('update_profile_form');
                 } catch (e) {
                   alert(response);
                 }
@@ -246,6 +248,8 @@
                   } else {
                     addAlertMessage(false, "An error occurred updating your password: " + message, "update_password");
                   }
+
+                  clearValidation('update_password_form');
                 } catch (e) {
                   alert(response);
                 }
