@@ -15,11 +15,11 @@ function serializeForm(divID, selectors) {
 
         if (input.nodeName.toLowerCase() == 'select' && input.multiple) {
           var options = {};
-          for (var i = 0, l = input.options.length; i < l; i++) {
-            var o = input.options[i];
+          for (var j = 0, l = input.options.length; j < l; i++) {
+            var o = input.options[j];
 
             if (o.selected) {
-              options[i] = o.value;
+              options[j] = o.value;
             }
           }
 
