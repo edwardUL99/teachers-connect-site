@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <!-- <meta charset="utf-8" -->
+        <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-        <link rel="stylesheet" href="css/styles3.css">
+        <link rel="stylesheet" href="css/landingpage.css">
         <title>
             Welcome to Teachers Connect!
         </title>
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="HandheldFriendly" content="true">
     </head>
 
     <body class="landing-page">
@@ -24,13 +27,13 @@
                 </div>
 
             </header>
-
+            
             <div class="landing-content">
                 <div class="landing-info">
-                    <h2>Welcome to your professional education community</h2>
                     <img class="landing-image" src="./images/LandingPageimg.jpg">
+                    <h2>Welcome to your professional education community</h2>
+                    <button class="landing-btn3" onclick="window.location.href='/teachers-connect-site-main/teacher_signup.php'">Continue</button>
                 </div>
-                <button class="landing-btn3" onclick="window.location.href='/teachers-connect-site-main/teacher_signup.php'">Continue</button>
             </div>
 
             <div id="landing-about">
