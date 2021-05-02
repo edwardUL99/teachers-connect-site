@@ -619,6 +619,11 @@
             <?php echo getPrimaryProfileButton(); ?>
             <?php getRejectConnectionButton(); ?>
             <?php if (!$own_profile): ?>
+            <?php
+              if (!empty($contact_button)) {
+                echo $contact_button;
+              }
+            ?>
             <div class="dropdown">
               <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 More
@@ -635,7 +640,7 @@
           <?php endif; ?>
           <?php
             getInviteButton();
-            if (!empty($contact_button)) {
+            if ($user_type == ORGANISATION && !empty($contact_button)) {
               echo $contact_button;
             }
             ?>
