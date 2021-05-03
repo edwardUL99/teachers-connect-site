@@ -15,11 +15,11 @@ function serializeForm(divID, selectors) {
 
         if (input.nodeName.toLowerCase() == 'select' && input.multiple) {
           var options = {};
-          for (var i = 0, l = input.options.length; i < l; i++) {
-            var o = input.options[i];
+          for (var j = 0, l = input.options.length; j < l; j++) {
+            var o = input.options[j];
 
             if (o.selected) {
-              options[i] = o.value;
+              options[j] = o.value;
             }
           }
 
@@ -49,6 +49,18 @@ function validateForm(formId) {
   }
 
   return false;
+}
+
+/**
+  * Clears any validation from the provided form if it exists
+  */
+function clearValidation(formId) {
+  var form = document.getElementById(formId);
+
+  if (form != null) {
+    setTimeout(function() {
+      form.classList.remove('was-validated');}, 2000);
+  }
 }
 
 /**

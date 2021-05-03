@@ -258,7 +258,15 @@
           }
 
           $stmt->close();
-          respond(true, "UPDATED");
+
+          $org_name = "";
+
+          if (!$delete) {
+            $org_name = getOrganisationName($value);
+          }
+          $data = array('organisation_name' => $org_name, 'selected_id' => $value);
+
+          respondData(true, "UPDATED", $data);
         } else {
           die("Database error: {$conn->error}");
         }
@@ -418,9 +426,11 @@
           $stmt->close();
           $titleSchool = getDegreeTitleAndSchool($degree_id);
           $data = array();
-          $data['value'] = "{$degree_id}-{$username}";
+          $data['remove_value'] = "{$degree_id}-{$username}";
           $date_obtained = formatDate($date_obtained);
-          $data['text'] = "{$titleSchool['title']} - {$date_obtained} - {$titleSchool['school']}";
+          $data['remove_text'] = "{$titleSchool['title']} - {$date_obtained} - {$titleSchool['school']}";
+          $data['add_value'] = $degree_id;
+          $data['add_text'] = "{$titleSchool['title']} - {$titleSchool['school']}";
           respondData(true, "UPDATED", $data);
         } else {
           die("Database error: {$conn->error}");
@@ -540,7 +550,8 @@
 
         $organisation_id = 0;
         $organisation_name = "";
-        if ($value == "Enter organisation details") {
+        $create_organisation = $value == "Enter organisation details";
+        if ($create_organisation) {
           $organisation_id = createOrganisation();
           $organisation_name = $_POST['organisation_name'];
         } else {
@@ -582,6 +593,8 @@
           $end_date = ($end_date == null) ? "Present":formatDate($end_date);
 
           $data = array();
+          $data['organisation_value'] = ($create_organisation) ? $organisation_id:null;
+          $data['organisation_name'] = ($create_organisation) ? $organisation_name:null;
           $data['value'] = $history_id;
           $data['text'] = "{$job_title} - {$organisation_name} - ({$start_date} - {$end_date})";
           respondData(true, "UPDATED", $data);
