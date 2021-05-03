@@ -86,15 +86,18 @@
           echo "<option {$selected}>Choose an organisation</option>";
           echo "<option value=\"-1\">No Organisation</option>";
           foreach ($available_organisations as $key => $value) {
-            $selected = ($key == $curr_org_id) ? "selected":"";
-            echo "<option value=\"{$key}\" {$selected}>{$value}</option>";
+            $current_org = $key == $curr_org_id;
+            $selected = ($current_org) ? "selected":"";
+            $current_msg = ($current_org) ? " (Current)":"";
+            $id = ($current_org) ? "id=\"organisation-{$key}-current\"":"id=\"organisation-{$key}\"";
+            echo "<option value=\"{$key}\" {$selected} {$id}>{$value}{$current_msg}</option>";
           }
         } else {
           echo "<option selected>Choose an organisation</option>";
+          echo "<option>Enter organisation details</option>";
           foreach ($available_organisations as $key => $value) {
             echo "<option value=\"{$key}\">{$value}</option>";
           }
-          echo "<option>Enter organisation details</option>";
         }
       }
 
@@ -135,14 +138,13 @@
         global $available_degrees;
 
         echo "<option selected>Choose a degree</option>";
+        echo "<option>New degree</option>";
         foreach ($available_degrees as $key => $value) {
           $title = $value->title();
           $school = $value->school();
           $text = "{$title} - {$school}";
           echo "<option value=\"{$key}\">{$text}</option>";
         }
-
-        echo "<option>New degree</option>";
       }
 
       /**
@@ -697,6 +699,7 @@
       const admin = <?php echo json_encode($user_type == ADMIN); ?>;
       const username = <?php echo json_encode($username); ?>;
       const org_choose_message = "Choose an organisation";
+      const leave_org_message = "-1";
       const degree_choose_message = "Choose a degree";
       const new_degree_message = "New degree";
       const remove_degree_message = "Choose a qualification";
@@ -707,6 +710,8 @@
       const join_button = document.getElementById('join_button');
       const organisation_choice = document.getElementById('organisation_choice');
       join_button.disabled = organisation_choice.value == org_choose_message;
+
+      var current_organisation = <?php echo json_encode(($current_organisation != null) ? $current_organisation->organisation_id():null); ?>;
 
       const degree_button = document.getElementById('degree_button');
       const degree_choice = document.getElementById('degree_choice');
@@ -785,6 +790,8 @@
                   } else {
                     addAlertMessage(false, "An error occurred updating your profile: " + message, "update_profile");
                   }
+
+                  clearValidation('update_profile_form');
                 } catch (e) {
                   alert(response);
                 }
@@ -826,6 +833,8 @@
                   } else {
                     addAlertMessage(false, "An error occurred updating your password: " + message, "update_password");
                   }
+
+                  clearValidation('update_password_form');
                 } catch (e) {
                   alert(response);
                 }
@@ -899,9 +908,38 @@
 
                   if (success && message == "UPDATED") {
                     addAlertMessage(true, "You have successfully joined the organisation", "join_organisation");
+                    if (current_organisation != null) {
+                      var oldSelected = document.getElementById(`organisation-${current_organisation}-current`);
+
+                      if (oldSelected != null) {
+                        var name = oldSelected.innerHTML;
+                        var current_index = name.indexOf(" (Current)");
+
+                        if (current_index != -1) {
+                          name = name.substr(0, current_index);
+                          oldSelected.innerHTML = name;
+                          oldSelected.id = `organisation-${current_organisation}`;
+                        }
+                      }
+                    }
+
+                    var data = responseBody.data;
+                    var selectedId = data['selected_id'];
+
+                    if (selectedId != -1) {
+                      var joined_name = data['organisation_name'];
+                      var option = document.getElementById(`organisation-${selectedId}`);
+                      option.innerHTML = joined_name + " (Current)";
+                      option.id = `organisation-${selectedId}-current`;
+                      current_organisation = selectedId;
+                    } else {
+                      current_organisation = null;
+                    }
                   } else {
                     addAlertMessage(false, "An error has occurred joining organisation: " + message, "join_organisation");
                   }
+
+                  clearValidation('join_organisation_form');
                 } catch (e) {
                   alert(response);
                 }
@@ -921,6 +959,16 @@
         */
       function onOrganisationChosen() {
         join_button.disabled = organisation_choice.value == org_choose_message;
+
+        if (organisation_choice.value == leave_org_message) {
+          join_button.innerHTML = "Leave Current Organisation";
+          join_button.classList.remove('btn-primary');
+          join_button.classList.add('btn-danger');
+        } else {
+          join_button.innerHTML = "Join Organisation";
+          join_button.classList.remove('btn-danger');
+          join_button.classList.add('btn-primary');
+        }
       }
 
       /**
@@ -985,11 +1033,17 @@
 
                   if (success && message == "UPDATED") {
                     var data = responseBody.data;
-                    addToSelect('remove_qualification_choice', data['value'], data['text']);
+                    addToSelect('degree_choice', data['add_value'], data['add_text']);
+                    addToSelect('remove_qualification_choice', data['remove_value'], data['remove_text']);
                     addAlertMessage(true, "The qualification has been added to your profile successfully", "education_history");
                   } else {
                     addAlertMessage(false, "An error occurred adding the qualification: " + message, "education_history");
                   }
+
+                  clearValidation('new_education_form');
+                  setTimeout(function() {
+                    document.getElementById('new_education_form').reset();
+                    onDegreeChosen();}, 2000);
                 } catch (e) {
                   alert(response);
                 }
@@ -1039,6 +1093,9 @@
                   } else {
                     addAlertMessage(false, "An error occurred removing the qualification: ", "delete_education");
                   }
+
+                  clearValidation('delete_education_form');
+                  onQualificationChosen();
                 } catch (e) {
                   alert(response);
                 }
@@ -1112,11 +1169,21 @@
 
                   if (success && message == "UPDATED") {
                     var data = responseBody.data;
+
+                    if (data['organisation_value'] != null && data['organisation_name'] != null) {
+                      addToSelect('organisation_emp_choice', data['organisation_value'], data['organisation_name']);
+                    }
+
                     addToSelect('chosen_employment_history', data['value'], data['text']);
                     addAlertMessage(true, "Employment History successfully added to profile", "add_employment_history");
                   } else {
                     addAlertMessage(false, "An error has occurred adding employment history to your profile: " + message, "add_employment_history");
                   }
+
+                  clearValidation('add_employment_history_form');
+                  setTimeout(function() {
+                    document.getElementById('add_employment_history_form').reset();
+                    onOrganisationEmployerChosen();}, 2000);
                 } catch (e) {
                   alert(response);
                 }
@@ -1166,6 +1233,9 @@
                   } else {
                     addAlertMessage(false, "An error occurred removing employment history from your profile: " + message, "remove_employment_history");
                   }
+
+                  clearValidation('remove_employment_history_form');
+                  remove_emp_button.disabled = true;
                 } catch (e) {
                   alert(response);
                 }
@@ -1219,6 +1289,11 @@
                   } else {
                     addAlertMessage(false, "An error occurred adding skills to your profile: " + message, "add_skills");
                   }
+
+                  clearValidation('add_skills_form');
+                  setTimeout(function() {
+                    document.getElementById('add_skills_form').reset();
+                    add_skills_button.disabled = true;}, 2000);
                 } catch (e) {
                   alert(response);
                 }
@@ -1287,6 +1362,10 @@
                   } else {
                     addAlertMessage(false, "An error occurred removing skills from your profile: " + message, "remove_skill");
                   }
+
+                  clearValidation('remove_skill_form');
+                  document.getElementById('remove_skill_form').reset();
+                  remove_skill_button.disabled = true;
                 } catch (e) {
                   alert(response);
                 }

@@ -21,6 +21,11 @@
       $following = false; // true if you are following this organisation or not
       $followers = array();
 
+      $vacancies = array();
+      $posts = array();
+
+      $contact_button = "";
+
       /**
        * Parses the URL for any GET parameters
        */
@@ -125,6 +130,137 @@
       }
 
       /**
+        * Load the organisations vacancies
+        */
+      function loadVacancies() {
+        global $vacancies;
+        global $organisation;
+        global $conn;
+
+        $profile_photo = $organisation->profile_photo();
+        $profile_photo = ($profile_photo == null || empty($profile_photo)) ? DEFAULT_ORG_PROFILE_PIC:$profile_photo;
+
+        $sql = "SELECT * FROM vacancies WHERE organisation_id = ? ORDER BY posted_at LIMIT 4";
+
+        if ($stmt = $conn->prepare($sql)) {
+          $stmt->bind_param("i", $param_organisation);
+          $param_organisation = $organisation->organisation_id();
+
+          if ($stmt->execute()) {
+            $result = $stmt->get_result();
+
+            while ($row = $result->fetch_assoc()) {
+              $vacancy_id = $row['vacancy_id'];
+              $job_title = $row['job_title'];
+
+              $type = $row['type'];
+
+              $vacancies[] = '<div class="border mb-2 hoverable" onclick="window.location.href=\'vacancy_profile.php?id='.$vacancy_id.'\'">
+                                <div class="row">
+                                  <div class="col-4">
+                                    <img class="img-fluid rounded-circle" src='.$profile_photo.' alt="Card image">
+                                  </div>
+                                  <div class="col-8">
+                                    <a href="organisation_profile.php?username='. $organisation->username() . '"><h4>' . $organisation->name() . '</h4></a>
+                                    <h5 class="card-title">'. $job_title .'</h5>
+                                    <h5 class="card-title">'. $type .'</h5>
+                                  </div>
+                              </div>
+                            </div>';
+            }
+          } else {
+            doSQLError($stmt->error);
+          }
+
+          $stmt->close();
+        } else {
+          doSQLError($conn->error);
+        }
+      }
+
+      /**
+        * Display the organisations vacancies
+        */
+      function displayVacancies() {
+        global $vacancies;
+        global $organisation;
+
+        $display_see_more = count($vacancies) == 4;
+
+        foreach ($vacancies as $value) {
+          echo $value;
+        }
+
+        if ($display_see_more) {
+          $data = array('organisation' => $organisation->organisation_id());
+          $query = http_build_query($data);
+          $url = "vacancies.php?".$query;
+          echo '<div class="row justify-content-center text-center">
+            <div class="col">
+               <a href="'.$url.'">See more</a>'.
+            '</div>
+          </div>';
+        }
+      }
+
+      /**
+        * Load all posts created by this teacher
+        */
+      function loadPosts() {
+        global $posts;
+        global $username;
+        global $conn;
+        global $organisation;
+
+        $profile_photo = $organisation->profile_photo();
+        $profile_photo = ($profile_photo == null || empty($profile_photo)) ? DEFAULT_ORG_PROFILE_PIC:$profile_photo;
+
+        $sql = "SELECT * FROM posts WHERE username = ? ORDER BY created_at DESC;";
+
+        if ($stmt = $conn->prepare($sql)) {
+          $stmt->bind_param("s", $param_username);
+          $param_username = $username;
+
+          if ($stmt->execute()) {
+            $result = $stmt->get_result();
+
+            while ($row = $result->fetch_assoc()) {
+              $content = $row['content'];
+              $name = getSenderName($username, ORGANISATION);
+              $posts[] = '<div class="border mb-2">
+                  <div class="row">
+                      <div class="col-2">
+                          <img class="rounded-circle" style="height: 100px; width: 100px;" src="'. $profile_photo . '" alt="Profile image" style="width:100%">
+                      </div>
+                      <div class="col-10">
+                          <h4 class="card-title">'. $name .'</h4>
+                          <p class="card-text">'. $content .'</p>
+                      </div>
+              </div>
+          </div>';
+            }
+          } else {
+            doSQLError($stmt->error);
+          }
+
+          $stmt->close();
+        } else {
+          doSQLError($conn->error);
+        }
+      }
+
+      /**
+        * Display this user's posts
+        */
+      function displayPosts() {
+        global $posts;
+
+        foreach ($posts as $value) {
+          echo $value;
+        }
+      }
+
+      /**
         * Sends the profile viewed notification
         */
       function sendNotification() {
@@ -161,6 +297,52 @@
         }
       }
 
+      /**
+        * Gets the contact teacher button
+        */
+      function loadContactButton() {
+        global $username;
+        global $conn;
+        global $contact_button;
+        global $user_type;
+        global $own_profile;
+
+        if (!$own_profile) {
+          $sql = "SELECT email FROM accounts WHERE username = ?;";
+
+          if ($stmt = $conn->prepare($sql)) {
+            $stmt->bind_param("s", $param_username);
+            $param_username = $username;
+
+            if ($stmt->execute()) {
+              $row = $stmt->get_result()->fetch_assoc();
+
+              if ($row) {
+                $loggedin_username = $_SESSION[USERNAME];
+                $type = $user_type;
+                $name = getSenderName($loggedin_username, $type);
+
+                if ($type == TEACHER) {
+                  $type = "Teacher";
+                } else if ($type == ORGANISATION) {
+                  $type = "Organisation";
+                } else if ($type == ADMIN) {
+                  $type = "Administrator";
+                }
+
+                $contact_button = '<a href="mailto:'. $row['email'] . '?subject=Message from ' . $type . ' ' . $name . ' on TeachersConnect" class="btn btn-primary" style="margin-right: 1vw;">Contact Organisation</a>';
+              }
+            } else {
+              doSQLError($stmt->error);
+            }
+
+            $stmt->close();
+          } else {
+            doSQLError($conn->error);
+          }
+        }
+      }
+
       $loggedin_username = $_SESSION[USERNAME];
       $user_type = $_SESSION[USER_TYPE];
 
@@ -182,6 +364,16 @@
               doError("You cannot view this profile as the user has been banned");
             } else {
               sendNotification();
+            }
+
+            if (empty($error_message)) {
+              loadVacancies();
+              if (empty($error_message)) {
+                loadPosts();
+                if (empty($error_message)) {
+                  loadContactButton();
+                }
+              }
             }
           }
         }
@@ -211,10 +403,15 @@
           <h5><?php echo $organisation->location(); ?></h5>
           <p class="about-me-text"><?php $about = $organisation->about(); echo ($about == null) ? "":$about; ?></p>
         </div>
-        <?php if ($user_type != ORGANISATION || $own_profile): ?>
+        <?php if (!$own_profile || $user_type == ORGANISATION): ?>
         <div class="row mt-2">
           <div class="btn-toolbar">
             <?php echo getPrimaryProfileButton(); ?>
+            <?php
+              if (!empty($contact_button)) {
+                echo $contact_button;
+              }
+              ?>
             <?php if ($user_type == ADMIN): ?>
               <?php getBlockButton(); ?>
               <?php getBlacklistButton(); ?>
@@ -247,6 +444,13 @@
           <div class="row">
             <h4 class="underlined-header">Vacancies</h4>
           </div>
+          <?php displayVacancies(); ?>
+        </div>
+        <div class="row shadow profile-card">
+          <div class="row">
+            <h4 class="underlined-header">Posts</h4>
+          </div>
+          <?php displayPosts(); ?>
         </div>
 
         <?php require "ban_modal.php"; ?>

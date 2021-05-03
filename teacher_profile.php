@@ -34,6 +34,8 @@
 
       $posts = array();
 
+      $contact_button = "";
+
       /**
        * Parses the URL for any GET parameters
        */
@@ -391,7 +393,7 @@
           $organisation = getViewingOrganisation();
 
           if ($organisation != null && $organisation != $current_organisation) {
-            echo "<button class=\"btn btn-primary\" onclick=\"handleOrganisationInvite();\">Invite to Organisation</button>";
+            echo "<button class=\"btn btn-primary\" onclick=\"handleOrganisationInvite();\" style=\"margin-right: 1vw;\">Invite to Organisation</button>";
           }
         }
       }
@@ -430,6 +432,52 @@
         }
       }
 
+      /**
+        * Gets the contact teacher button
+        */
+      function loadContactButton() {
+        global $username;
+        global $conn;
+        global $contact_button;
+        global $user_type;
+        global $own_profile;
+
+        if (!$own_profile) {
+          $sql = "SELECT email FROM accounts WHERE username = ?;";
+
+          if ($stmt = $conn->prepare($sql)) {
+            $stmt->bind_param("s", $param_username);
+            $param_username = $username;
+
+            if ($stmt->execute()) {
+              $row = $stmt->get_result()->fetch_assoc();
+
+              if ($row) {
+                $loggedin_username = $_SESSION[USERNAME];
+                $type = $user_type;
+                $name = getSenderName($loggedin_username, $type);
+
+                if ($type == TEACHER) {
+                  $type = "Teacher";
+                } else if ($type == ORGANISATION) {
+                  $type = "Organisation";
+                } else if ($type == ADMIN) {
+                  $type = "Administrator";
+                }
+
+                $contact_button = '<a href="mailto:'. $row['email'] . '?subject=Message from ' . $type . ' ' . $name . ' on TeachersConnect" class="btn btn-primary" style="margin-right: 1vw;">Contact Teacher</a>';
+              }
+            } else {
+              doSQLError($stmt->error);
+            }
+
+            $stmt->close();
+          } else {
+            doSQLError($conn->error);
+          }
+        }
+      }
+
       $loggedin_username = $_SESSION[USERNAME];
       $user_type = $_SESSION[USER_TYPE];
 
@@ -462,6 +510,10 @@
 
                 if (empty($error_message)) {
                   loadPosts();
+
+                  if (empty($error_message)) {
+                    loadContactButton();
+                  }
                 }
               }
             }
@@ -567,6 +619,11 @@
             <?php echo getPrimaryProfileButton(); ?>
             <?php getRejectConnectionButton(); ?>
             <?php if (!$own_profile): ?>
+            <?php
+              if (!empty($contact_button)) {
+                echo $contact_button;
+              }
+            ?>
             <div class="dropdown">
               <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 More
@@ -581,7 +638,12 @@
             <?php getBlacklistButton(); ?>
           <?php endif; ?>
           <?php endif; ?>
-          <?php getInviteButton(); ?>
+          <?php
+            getInviteButton();
+            if ($user_type == ORGANISATION && !empty($contact_button)) {
+              echo $contact_button;
+            }
+            ?>
           </div>
         </div>
       </div>
