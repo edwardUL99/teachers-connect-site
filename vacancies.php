@@ -34,6 +34,7 @@
          require "error.php";
          require "navbar.php";
 
+
          ?>
       <?php
          generateNavBar(VACANCIES);
@@ -41,7 +42,7 @@
       <?php
 
         if($user_type=='organisation'){
-       
+
        echo '<div class="container main-background">
         <div class="row mt-5 shadow card padding-1pcent" id="add_vacancy">
           <h4>Add Vacancy</h4>
@@ -57,26 +58,26 @@
                 <div class="form-group">
                   <label>Job Type</label>
                   <select class="form-select" id="type" name="type" >
-                  
+
                   <option value="Full-time">Full-time</option>
                   <option value="Part-time">Part-time</option>
-                  
+
                 </select>
                   <div class="form-text">
                     Tell us the hours here
                   </div>
                 </div>
               </div>
-        
-        
-                
-                
+
+
+
+
                 </div>
-              
+
               <div class="row">
-            
-              
-              
+
+
+
             <div class="form-group">
               <label>Description</label>
               <textarea name="description" id="description" class="form-control" rows="5" placeholder="Shepherds of the future!"></textarea>
@@ -93,9 +94,9 @@
                     Enter relevant skills in a comma-separated (,) list
                   </div>
                 </div>
-            
-            
-            
+
+
+
             <div class="row text-end">
               <div class="col">
                 <button type="submit" onclick="handleUpdateProfile();" class="btn btn-primary">Create</button>
@@ -115,12 +116,12 @@
                 $query8 = mysqli_query($conn, "select * from organisations where username = '$username'");
                 while($row = mysqli_fetch_array($query8)){
                 $organisation_id = $row['organisation_id'];}
-        
+
         $job_title = $_POST['job_title'];
         $description = $_POST['description'];
         $type = $_POST['type'];
         $skills = $_POST['skills'];
-        
+
         $sql = "INSERT INTO vacancies (organisation_id, job_title, description, type)
         VALUES ('".$organisation_id."', '".$job_title."', '".$description."','".$type."')";
         $conn->query($sql);
@@ -160,16 +161,16 @@
 
                 }
 
-            }   
+            }
 
             $success_message = "Vacancy added successfully!";
 
                 echo "<div class=\"row alert m-auto  mt-2 mb-2 alert-success alert-dismissable fade show\" role=\"alert\">{$success_message}";
                 echo "<div class=\"col text-end\">";
                 echo "<button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button></div></div>";
-        
-        
-        
+
+
+
 
          }
          echo '</div>';
@@ -237,6 +238,7 @@
                       $profile_photo = $row['profile_photo'];
                       $profile_photo = ($profile_photo == null) ? DEFAULT_ORG_PROFILE_PIC:$profile_photo;
 
+
                        displayVacancy($row);
                   }
                 }
@@ -264,7 +266,7 @@
              $querystring = "select distinct vacancies.vacancy_id, vacancies.organisation_id, job_title, description, type, profile_photo from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where organisations.name = '$sString' and vacancy_skills.skill_id in (select skill_id from skills where $skillstring)";
            }
 
-        
+
          $query = mysqli_query($conn, $querystring);
          while($row = mysqli_fetch_array($query)){
            $vacancy_id = $row['vacancy_id'];
@@ -275,12 +277,15 @@
                       $type = $row['type'];
                       $org_name = $row['name'];
                       $profile_photo = $row['profile_photo'];
-                      echo $profile_photo == null;
+                      //echo $profile_photo == null;
                       $profile_photo = ($profile_photo == null) ? DEFAULT_ORG_PROFILE_PIC:$profile_photo;
 
+
+
+
                        displayVacancy($row);
-                      
-           
+
+
            //displayVacancy($row);
          }
          }
@@ -313,13 +318,105 @@
             } else {
 
              if(!isset($_GET['r'])){
+            $teacherSkills = "";
+            $teacherSkillsForRecs = "";
 
-                 //$q =$_GET['q'];
+            $sql = "SELECT * FROM teacher_skills JOIN skills on teacher_skills.skill_id = skills.skill_id WHERE username = ?;";
 
+        if ($stmt = $conn->prepare($sql)) {
+          $stmt->bind_param("s", $param_username);
+          $username = $_SESSION['username'];
+          $param_username = $username;
+
+          if ($stmt->execute()) {
+            $result = $stmt->get_result();
+
+            if ($result->num_rows > 0) {
+
+              while ($row = $result->fetch_assoc()) {
+                    $teacherSkills = $teacherSkills . $row['name'] . ', ';
+                    $teacherSkillsForRecs = $teacherSkillsForRecs . " name = '".$row['name']."' or";
+
+
+
+              }}}}
+
+              $teacherSkills = substr($teacherSkills, 0, -2 );
+              $url = "edit_teacher.php?";
+              $data = array('username' => $username, 'scroll_to_id' => "add_skills");
+              $url = $url . http_build_query($data);
+            if($user_type=='teacher'){
+             echo '<br><h6>Recommended just for you, based on skills: <p style="color:blue"><i>' . $teacherSkills . '</i></p></h6>
+                    <p><a href="'.$url.'">Click here</a> to edit</p>';}
+
+             if($user_type == 'organisation' || $user_type == 'admin'){
              $query = mysqli_query($conn, "SELECT * FROM vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id order by posted_at desc;");
              while($row = mysqli_fetch_array($query)){
                  displayVacancy($row);
              }}
+
+
+             $teacherSkillsForRecs = substr($teacherSkillsForRecs, 0, -3 );
+
+            if($user_type == 'teacher'){
+
+            $count = 0;
+
+             $queryString =   "select distinct vacancies.vacancy_id, vacancies.organisation_id, job_title, description, type, profile_photo, posted_at from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where vacancy_skills.skill_id in (select skill_id from skills where $teacherSkillsForRecs) order by posted_at desc";
+             $query100 = mysqli_query($conn, $queryString);
+             while($row = mysqli_fetch_array($query100)){
+                 $count = $count + 1;
+                 displayVacancy($row);
+             }
+            if($count == 0){
+             echo '<h6>No results<p style="color:blue"></h6>';
+
+            }
+
+            //  echo '<div class="card" style ="margin-top: 20px; margin-bottom: 20px">
+            //                         <div class="card-body">
+            //                             <div class="row">
+            //                                 <h6>And everything else:<p style="color:blue"></h6>
+
+
+
+
+            //                             </div>
+            //                         </div>
+            //                 </div>';
+
+            echo '<h5>And everything else:</h5>';
+
+
+            if($count > 0){
+             $queryString =   "select * from vacancies where vacancy_id not in (select distinct vacancies.vacancy_id from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where vacancy_skills.skill_id in (select skill_id from skills where $teacherSkillsForRecs) order by posted_at desc)";
+             $query100 = mysqli_query($conn, $queryString);
+             while($row = mysqli_fetch_array($query100)){
+                 displayVacancy($row);
+             }}
+
+             else{
+                $queryString =   "select * from vacancies order by posted_at desc";
+             $query100 = mysqli_query($conn, $queryString);
+             while($row = mysqli_fetch_array($query100)){
+                 displayVacancy($row);
+             }
+
+             }
+
+
+
+
+
+
+             }
+
+
+
+
+
+
+             }
            }
          }
 
@@ -329,6 +426,7 @@
 
            $description = $row['description'];
            $type = $row['type'];
+           $posted_at = $row['posted_at'];
 
            $profile_photo = $row['profile_photo'];
            $profile_photo = (!empty($profile_photo)) ? $profile_photo:DEFAULT_ORG_PROFILE_PIC;
@@ -341,8 +439,9 @@
                                     <div class="col-8">
                                         <h4>' . $job_title . '</h4>
 
-                                        
+
                                         <h5 class="card-title">'. $type .'</h5>
+                                        <h5 class="card-title">'. $posted_at .'</h5>
 
 
                                     </div>
@@ -350,7 +449,7 @@
                             </div>
                         </div>';
 
-                        
+
          }
          ?>
       <?php
@@ -363,7 +462,7 @@
       <script type="text/javascript" src="forms.js"></script>
       <script type="text/javascript" src="ajax.js"></script>
       <script>function handleUpdateProfile() {
-        
+
           var data = serializeForm('update_profile', 'input,textarea');
           data['username'] = username;
           data['edit_type'] = "teacher";
@@ -394,7 +493,7 @@
 
           ajax.open("POST", "edit-profile-ajax.php", true);
           ajax.send(JSON.stringify(data));
-        
+
 
         return false;
       }

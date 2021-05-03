@@ -18,6 +18,8 @@
   require "navbar.php";
 
   $skills_options = array();
+
+
   function parseURL() {
         global $id;
 
@@ -66,6 +68,49 @@
       }
 
 
+        function loadRestOfData(){
+
+         global $id;
+         global $conn;
+         global $vacancy_job_title;
+         global $vacancy_description;
+         global $vacancy_type;
+
+
+             $sql = "SELECT * FROM vacancies where vacancy_id = ?;";
+
+             if ($stmt = $conn->prepare($sql)) {
+           $stmt->bind_param("i", $param_id);
+           $param_id = $id;
+
+
+
+          if ($stmt->execute()) {
+            $results = $stmt->get_result();
+                while ($row = $results->fetch_assoc()) {
+                $vacancy_job_title = $row['job_title'];
+                $vacancy_description = $row['description'];
+                $vacancy_type = $row['type'];
+
+
+               }
+             }
+
+           $stmt->close();
+         }
+ }
+
+
+
+
+
+
+
+
+
+
+
+
       function getSkillsOptions() {
         global $skills_options;
 
@@ -76,6 +121,7 @@
       generateNavBar(VACANCIES);
       parseURL();
       loadSkillsOptions();
+      loadRestOfData();
 
       ?>
 
@@ -87,16 +133,16 @@
               <div class="col-6">
                 <div class="form-group">
                   <label>Job Title</label>
-                  <input type="text" pattern="[A-Za-z\-  ]*" name="job_title" id="job_title" title="Please enter alphabetical characters only" class="form-control" placeholder="Fighter Pilot" required>
+                  <input type="text" pattern="[A-Za-z\-  ]*" name="job_title" id="job_title" title="Please enter alphabetical characters only" class="form-control" placeholder="Fighter Pilot" value="<?php echo $vacancy_job_title; ?>"  required>
                 </div>
                 </div>
         <div class="col-6">
                 <div class="form-group">
                   <label>Job Type</label>
-                  <select class="form-select" id="type" name="type" >
+                  <select class="form-select" id="type" name="type">
 
-                  <option value="full_time">Full-time</option>
-                  <option value="part_time">Part-time</option>
+                  <option value="Full-time" <?php if($vacancy_type == 'Full-time') echo 'selected' ?>>Full-time</option>
+                  <option value="Part-time" <?php if($vacancy_type == 'Full-time') echo 'selected' ?>>Part-time</option>
 
                 </select>
                   <div class="form-text">
@@ -116,7 +162,7 @@
 
             <div class="form-group">
               <label>Description</label>
-              <textarea name="description" id="description" class="form-control" rows="5" placeholder="Nyeeeeeerrrrmmmmmmmm"></textarea>
+              <textarea name="description" id="description" class="form-control" rows="5" placeholder="Nyeeeeeerrrrmmmmmmmm"><?php echo $vacancy_description; ?></textarea>
               <div class="form-text">
                 Enter a detailed piece of information about the position here
               </div>
