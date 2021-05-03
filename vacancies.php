@@ -39,7 +39,144 @@
          generateNavBar(VACANCIES);
          ?>
       <?php
-         if($user_type=='teacher'){
+
+        if($user_type=='organisation'){
+
+       echo '<div class="container main-background">
+        <div class="row mt-5 shadow card padding-1pcent" id="add_vacancy">
+          <h4>Add Vacancy</h4>
+          <form id="add_vacancy_form" method = "post">
+            <div class="row">
+              <div class="col-6">
+                <div class="form-group">
+                  <label>Job Title</label>
+                  <input type="text" pattern="[A-Za-z\-  ]*" name="job_title" id="job_title" title="Please enter alphabetical characters only" class="form-control" placeholder="Teacher" required>
+                </div>
+                </div>
+        <div class="col-6">
+                <div class="form-group">
+                  <label>Job Type</label>
+                  <select class="form-select" id="type" name="type" >
+
+                  <option value="Full-time">Full-time</option>
+                  <option value="Part-time">Part-time</option>
+
+                </select>
+                  <div class="form-text">
+                    Tell us the hours here
+                  </div>
+                </div>
+              </div>
+
+
+
+
+                </div>
+
+              <div class="row">
+
+
+
+            <div class="form-group">
+              <label>Description</label>
+              <textarea name="description" id="description" class="form-control" rows="5" placeholder="Shepherds of the future!"></textarea>
+              <div class="form-text">
+                Enter a detailed piece of information about the position here
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <div class="form-group">
+                  <label>Skills</label>
+                  <input type="text" name="skills" id="skills" class="form-control" maxlength="64" placeholder="English,Arithmetic,JAVA" >
+                  <div class="form-text">
+                    Enter relevant skills in a comma-separated (,) list
+                  </div>
+                </div>
+
+
+
+            <div class="row text-end">
+              <div class="col">
+                <button type="submit" onclick="handleUpdateProfile();" class="btn btn-primary">Create</button>
+              </div>
+            </div>
+          </form>
+        </div>
+        </div>
+        </div>';
+
+
+
+         if(isset($_POST['job_title']) && isset($_POST['description']) && isset($_POST['type'])){
+
+
+                $username = $_SESSION['username'];
+                $query8 = mysqli_query($conn, "select * from organisations where username = '$username'");
+                while($row = mysqli_fetch_array($query8)){
+                $organisation_id = $row['organisation_id'];}
+
+        $job_title = $_POST['job_title'];
+        $description = $_POST['description'];
+        $type = $_POST['type'];
+        $skills = $_POST['skills'];
+
+        $sql = "INSERT INTO vacancies (organisation_id, job_title, description, type)
+        VALUES ('".$organisation_id."', '".$job_title."', '".$description."','".$type."')";
+        $conn->query($sql);
+        $last_id = $conn->insert_id;
+
+        $myArray = explode(',', $skills);
+
+        foreach ($myArray as $value) {
+
+            $query9 = mysqli_query($conn, "select * from skills where name = '$value'");
+                while($row = mysqli_fetch_array($query9)){
+                $skill_id = $row['skill_id'];}
+
+                if(isset($skill_id)){
+
+
+
+                    $sql2 = "INSERT INTO vacancy_skills (vacancy_id, skill_id)
+                    VALUES ('".$last_id."', '".$skill_id."')";
+                    $conn->query($sql2);
+                    unset($skill_id);
+
+
+
+
+                }
+
+                else{
+                    $sql3 = "INSERT INTO skills (name)
+                    VALUES ('".$value."')";
+                    $conn->query($sql3);
+                    $last_id2 = $conn->insert_id;
+                    $sql4 = "INSERT INTO vacancy_skills (vacancy_id, skill_id)
+                    VALUES ('".$last_id."', '".$last_id2."')";
+                    $conn->query($sql4);
+
+
+                }
+
+            }
+
+            $success_message = "Vacancy added successfully!";
+
+                echo "<div class=\"row alert m-auto  mt-2 mb-2 alert-success alert-dismissable fade show\" role=\"alert\">{$success_message}";
+                echo "<div class=\"col text-end\">";
+                echo "<button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button></div></div>";
+
+
+
+
+         }
+         echo '</div>';
+    }
+
+
+         if($user_type=='teacher' || $user_type=='organisation' || $user_type =='admin'){
 
          $query4 = mysqli_query($conn, "select * from organisations");
 
@@ -75,7 +212,7 @@
          }
          ?>
       <?php
-         if($user_type=='teacher') {
+         if($user_type=='teacher' || $user_type=='organisation' || $user_type=='admin') {
          if(isset($_GET['r'])){
              if($_GET['r'] == ''){
 
@@ -179,7 +316,7 @@
 
                  //$q =$_GET['q'];
 
-             $query = mysqli_query($conn, "SELECT * FROM vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id;");
+             $query = mysqli_query($conn, "SELECT * FROM vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id order by posted_at desc;");
              while($row = mysqli_fetch_array($query)){
                  displayVacancy($row);
              }}
@@ -204,7 +341,7 @@
                                     <div class="col-8">
                                         <h4>' . $job_title . '</h4>
 
-                                        <h5 class="card-title">'. $description .'</h5>
+
                                         <h5 class="card-title">'. $type .'</h5>
 
 
@@ -217,136 +354,6 @@
          }
          ?>
       <?php
-          if($user_type=='organisation'){
-
-       echo '<div class="container main-background">
-        <div class="row mt-5 shadow card padding-1pcent" id="add_vacancy">
-          <h4>Add Vacancy</h4>
-          <form id="add_vacancy_form" method = "post">
-            <div class="row">
-              <div class="col-6">
-                <div class="form-group">
-                  <label>Job Title</label>
-                  <input type="text" pattern="[A-Za-z\-  ]*" name="job_title" id="job_title" title="Please enter alphabetical characters only" class="form-control" placeholder="Fighter Pilot" required>
-                </div>
-                </div>
-        <div class="col-6">
-                <div class="form-group">
-                  <label>Job Type</label>
-                  <select class="form-select" id="type" name="type" >
-
-                  <option value="full_time">Full-time</option>
-                  <option value="part_time">Part-time</option>
-
-                </select>
-                  <div class="form-text">
-                    Tell us the hours here
-                  </div>
-                </div>
-              </div>
-
-
-
-
-                </div>
-
-              <div class="row">
-
-
-
-            <div class="form-group">
-              <label>Description</label>
-              <textarea name="description" id="description" class="form-control" rows="5" placeholder="Nyeeeeeerrrrmmmmmmmm"></textarea>
-              <div class="form-text">
-                Enter a detailed piece of information about the position here
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-12">
-                <div class="form-group">
-                  <label>Skills</label>
-                  <input type="text" name="skills" id="skills" class="form-control" maxlength="64" placeholder="Shooting, Flying, Barrel Roll" >
-                  <div class="form-text">
-                    Enter relevant skills in a comma-separated (,) list
-                  </div>
-                </div>
-
-
-
-            <div class="row text-end">
-              <div class="col">
-                <button type="submit"  class="btn btn-primary">Create</button>
-              </div>
-            </div>
-          </form>
-        </div>';
-
-
-
-         if(isset($_POST['job_title']) && isset($_POST['description']) && isset($_POST['type'])){
-
-
-                $username = $_SESSION['username'];
-                $query8 = mysqli_query($conn, "select * from organisations where username = '$username'");
-                while($row = mysqli_fetch_array($query8)){
-                $organisation_id = $row['organisation_id'];}
-
-        $job_title = $_POST['job_title'];
-        $description = $_POST['description'];
-        $type = $_POST['type'];
-        $skills = $_POST['skills'];
-
-        $sql = "INSERT INTO vacancies (organisation_id, job_title, description, type)
-        VALUES ('".$organisation_id."', '".$job_title."', '".$description."','".$type."')";
-        $conn->query($sql);
-        $last_id = $conn->insert_id;
-
-        $myArray = explode(',', $skills);
-
-        foreach ($myArray as $value) {
-
-            $query9 = mysqli_query($conn, "select * from skills where name = '$value'");
-                while($row = mysqli_fetch_array($query9)){
-                $skill_id = $row['skill_id'];}
-
-                if(isset($skill_id)){
-
-
-
-                    $sql2 = "INSERT INTO vacancy_skills (vacancy_id, skill_id)
-                    VALUES ('".$last_id."', '".$skill_id."')";
-                    $conn->query($sql2);
-
-
-
-
-                }
-
-                else{
-                    $sql3 = "INSERT INTO skills (name)
-                    VALUES ('".$value."')";
-                    $conn->query($sql3);
-                    $last_id2 = $conn->insert_id;
-                    $sql4 = "INSERT INTO vacancy_skills (vacancy_id, skill_id)
-                    VALUES ('".$last_id."', '".$last_id2."')";
-                    $conn->query($sql4);
-
-
-                }
-
-            }
-
-            $success_message = "Vacancy added successfully!";
-
-                echo "<div class=\"row alert m-auto  mt-2 mb-2 alert-success alert-dismissable fade show\" role=\"alert\">{$success_message}";
-                echo "<div class=\"col text-end\">";
-                echo "<button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button></div></div>";
-
-
-
-
-         }
-    }
 
 
 
