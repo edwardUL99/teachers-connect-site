@@ -88,6 +88,32 @@
 						} else if ($organisation != null) {
 							$name = $organisation->name();
 						}
+
+						/**
+							* Gets the count of unread notifications
+							*/
+						function getNotificationsCount() {
+							global $conn;
+							global $username;
+
+							$sql = "SELECT COUNT(*) AS 'num_notifications' FROM notifications WHERE username = ? AND viewed = 0;";
+
+							if ($stmt = $conn->prepare($sql)) {
+								$stmt->bind_param("s", $param_username);
+								$param_username = $username;
+
+								$num_notifications = 0;
+								if ($stmt->execute()) {
+									$result = $stmt->get_result();
+									$num_notifications = $result->fetch_assoc()['num_notifications'];
+								}
+
+								$stmt->close();
+								return $num_notifications;
+							} else {
+								return 0;
+							}
+						}
         ?>
 
         <?php
@@ -107,8 +133,8 @@
 							</h4>
 
 							<p class="card-text">Some example text some example text. John Doe is an architect and engineer</p>
-							<button type="button" class="btn btn-primary">
-								Notifications <span class="badge bg-secondary">4</span>
+							<button type="button" class="btn btn-primary" onclick="window.location.href='notifications.php';">
+								Notifications <span class="badge bg-secondary"><?php echo getNotificationsCount(); ?></span>
 							</button>
 						</div>
 					</div>

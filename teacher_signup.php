@@ -265,65 +265,68 @@
 
      ?>
 
-    <div class="container-fluid main-background overflow-auto flex-fill">
-      <div class="row">
-        <div class="col shadow login-container min-vh-100">
-          <div class="col d-flex flex-column login-container-content">
-            <img class="img-fluid" src="images/logo.png" alt="Teacher's Connect logo">
+    <style>
+      .form-group {
+        margin-bottom: 2%;
+      }
+    </style>
+
+    <div class="container-fluid main-background overflow-auto d-flex align-items-center justify-content-center">
+      <div class="login-card">
+        <div class="row login-logo m-auto">
+          <img class="img-fluid" src="images/logo.png" alt="Teacher's Connect logo">
+        </div>
+        <div class="row card mt-5 mb-5 shadow">
+          <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
             <div class="row">
-              <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+              <div class="col">
                 <div class="form-group login-input <?php echo (!empty($first_name_error)) ? 'has-error' : ''; ?>">
                   <label>First Name</label>
                   <input type="text" pattern="[A-Za-z\-]*" name="first_name" title="Please enter alphabetical characters only" class="form-control" placeholder="John" value="<?php echo $first_name; ?>" required>
                   <span class="help-block login-error-message"><?php echo $first_name_error; ?></span>
                 </div>
+              </div>
+              <div class="col">
                 <div class="form-group login-input <?php echo (!empty($last_name_error)) ? 'has-error' : ''; ?>">
                   <label>Last Name</label>
                   <input type="text" pattern="[A-Za-z\-]*" name="last_name" title="Please enter alphabetical characters only" class="form-control" placeholder="Doe" value="<?php echo $last_name; ?>" required>
                   <span class="help-block login-error-message"><?php echo $last_name_error; ?></span>
                 </div>
-                <div class="form-group login-input <?php echo (!empty($username_error)) ? 'has-error' : ''; ?>">
-                  <label>Username</label>
-                  <input type="text" pattern="[A-Za-z0-9_\-]*" title="Please enter alphanumeric characters only" name="username" class="form-control" placeholder="jdoe" value="<?php echo $username; ?>" required>
-                  <span class="help-block login-error-message"><?php echo $username_error; ?></span>
-                </div>
-                <div class="form-group login-input <?php echo (!empty($email_error)) ? 'has-error' : ''; ?>">
-                  <label>E-mail</label>
-                  <input type="email" name="email" title="Please enter an email address only" class="form-control" placeholder="jdoe@email.com" value="<?php echo $email; ?>" required>
-                  <span class="help-block login-error-message"><?php echo $email_error; ?></span>
-                </div>
-                <div class="form-group login-input <?php echo (!empty($password_error)) ? 'has-error' : ''; ?>">
-                  <label>Password (8 or more characters)</label>
-                  <input type="password" name="password" minlength="8" class="form-control" required>
-                  <span class="help-block login-error-message"><?php echo $password_error; ?></span>
-                </div>
-                <div class="row">
-                  <p class="login-info-text">By clicking Join now, you agree to Teacher Connect's <a href="#">User Agreement</a>,<a href="#">Privacy Policy</a>,<a href="#">Cookie usage</a></p>
-                </div>
-                <div class="row login-button">
-                  <button type="submit" class="btn btn-primary login-button">Join now</button>
-                </div>
-              </form>
+              </div>
+            </div>
+            <div class="form-group login-input <?php echo (!empty($username_error)) ? 'has-error' : ''; ?>">
+              <label>Username</label>
+              <input type="text" pattern="[A-Za-z0-9_\-]*" title="Please enter alphanumeric characters only" name="username" class="form-control" placeholder="jdoe" value="<?php echo $username; ?>" required>
+              <span class="help-block login-error-message"><?php echo $username_error; ?></span>
+            </div>
+            <div class="form-group login-input <?php echo (!empty($email_error)) ? 'has-error' : ''; ?>">
+              <label>E-mail</label>
+              <input type="email" name="email" title="Please enter an email address only" class="form-control" placeholder="jdoe@email.com" value="<?php echo $email; ?>" required>
+              <span class="help-block login-error-message"><?php echo $email_error; ?></span>
+            </div>
+            <div class="form-group login-input <?php echo (!empty($password_error)) ? 'has-error' : ''; ?>">
+              <label>Password (8 or more characters)</label>
+              <input type="password" name="password" minlength="8" class="form-control" required>
+              <span class="help-block login-error-message"><?php echo $password_error; ?></span>
+            </div>
+            <div class="row">
+              <p class="login-info-text">By clicking Join now, you agree to Teacher Connect's <a href="#">User Agreement</a>,<a href="#">Privacy Policy</a>,<a href="#">Cookie usage</a></p>
             </div>
             <?php
                 displayError();
              ?>
-            <div class="row mb-3">
-              <div class="col align-self-center separator">or</div>
+            <div class="row login-button m-auto w-50">
+              <button type="submit" class="btn btn-primary login-button">Join now</button>
             </div>
-            <div class="row mb-3">
-              <div class="col text-center">
-                <a href="login.php">Login</a>
-              </div>
-            </div>
-            <div class="row mb-3">
-              <div class="col align-self-center separator">or</div>
-            </div>
-            <div class="row mb-3">
-              <div class="col text-center">
-                <a href="organisation_signup.php">Create an organisation</a>
-              </div>
-            </div>
+          </form>
+        </div>
+        <div class="row">
+          <div class="col align-self-center text-center">
+            <h5>Have an account?</h5>
+            <a href="login.php">Login</a>
+            <div class="align-self-center separator">or</div>
+            <h5>Want to sign up as an organisation?</h5>
+            <a href="organisation_signup.php">Create an Organisation</a>
           </div>
         </div>
       </div>

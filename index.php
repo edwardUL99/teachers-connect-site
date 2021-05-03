@@ -8,6 +8,11 @@
     exit;
   }
 
+  if (empty($_SERVER["HTTPS"]) && $_SERVER["SERVER_NAME"] != "localhost") {
+    header("Location: https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"], true, 301);
+    exit;
+  }
+
    if (isset($_SESSION[LOGGED_IN]) && $_SESSION[LOGGED_IN] == true) {
      if (!isset($_SESSION[USERNAME]) || !isset($_SESSION[USER_TYPE])) {
         goToLogin();

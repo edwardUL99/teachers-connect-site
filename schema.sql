@@ -351,7 +351,7 @@ CREATE TABLE IF NOT EXISTS notifications (
   id INTEGER AUTO_INCREMENT,
   username VARCHAR (32),
   sender VARCHAR (32),
-  type ENUM('view' , 'request' , 'like' , 'admin', 'org_invite'),
+  type ENUM('view' , 'request' , 'accepted', 'like' , 'follow', 'admin', 'org_invite'),
   target_link VARCHAR (255),
   viewed BOOLEAN DEFAULT false,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -396,4 +396,13 @@ This table contains the emails of blacklisted users. Emails that appear on this 
 CREATE TABLE IF NOT EXISTS email_blacklist (
   email VARCHAR (255),
   PRIMARY KEY (email)
+);
+
+CREATE TABLE IF NOT EXISTS password_reset_keys (
+  username VARCHAR(32),
+  reset_key VARCHAR(255) NOT NULL,
+  expiry TIMESTAMP NOT NULL,
+  FOREIGN KEY (username) REFERENCES accounts(username)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
 );

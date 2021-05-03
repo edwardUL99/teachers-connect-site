@@ -173,6 +173,9 @@
           die("Database error: {$stmt->error}");
         }
 
+        $notification = new ConnectionAcceptedNotification($destination, $sender, false, "teacher_profile.php?username={$destination}", null);
+        addNotification($notification);
+
         $stmt->close();
         respond(true, "ACCEPTED");
         exit;
@@ -366,6 +369,37 @@
   }
 
   /**
+    * Get the ussername of the organisation
+    */
+  function getOrganisationUsername($organisation_id) {
+    global $conn;
+
+    $sql = "SELECT username FROM organisations WHERE organisation_id = ?;";
+
+    if ($stmt = $conn->prepare($sql)) {
+      $stmt->bind_param("i", $param_id);
+      $param_id = $organisation_id;
+
+      $username = null;
+      if ($stmt->execute()) {
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+
+        if ($row) {
+          $username = $row['username'];
+        }
+      } else {
+        die("Database error: {$stmt->error}");
+      }
+
+      $stmt->close();
+      return $username;
+    } else {
+      die("Database error: {$conn->error}");
+    }
+  }
+
+  /**
     * Adds a new follow
     */
   function addFollow() {
@@ -382,6 +416,13 @@
 
       if (!$stmt->execute()) {
         die("Database error: {$stmt->error}");
+      }
+
+      $org_username = getOrganisationUsername($destination);
+
+      if ($org_username != null) {
+        $notification = new FollowNotification($sender, $org_username, false, "teacher_profile.php?username={$sender}", null);
+        addNotification($notification);
       }
 
       $stmt->close();
