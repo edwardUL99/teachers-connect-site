@@ -185,14 +185,14 @@
             	</div>
 
             	<div class="<?php echo ($user_type != ADMIN) ? 'col-9':'col'; ?>" id="home-feed">
-					<div class="card" style="margin-top:20px;">
+					<div class="card" style="margin-top:20px;" id="post_creation">
 						<div class="form-group" style="margin:10px;">
-							<form name="form" action="" method="post">
-								<textarea class="form-control" name="content" id="exampleFormControlTextarea1" rows="3" placeholder="Share your thoughts!" style="margin-bottom:10px;"></textarea>
-								<textarea class="form-control" name="tags" id="exampleFormControlTextarea1" rows="1" placeholder="Add tags to your post!" style="resize: none;"></textarea>
+							<form id="post_creation_form">
+								<textarea class="form-control" name="content" id="content" rows="3" placeholder="Share your thoughts!" style="margin-bottom:10px;"></textarea>
+								<input class="form-control" name="tags" id="tags" placeholder="Add tags to your post!">
 								<p style="font-size:12px;">Enter skills to add in a comma-separated (,) list</p>
 								<div class="card-body text-center">
-									<button type="submit" class="btn btn-primary">Post</button>
+									<button type="button" onclick="handlePostCreation();" class="btn btn-primary">Post</button>
 								</div>
 							</form>
 							<?php
@@ -349,7 +349,10 @@
 			</div>
 		</div>
 
+		<script type="text/javascript" src="forms.js"></script>
+    <script type="text/javascript" src="ajax.js"></script>
 		<script>
+			const username = <?php echo json_encode($username); ?>;
 
 			function handleRefresh() {
 				window.location.href = 'feed.php';
@@ -357,6 +360,40 @@
 
       function deletePost(post_id){
 				handleRefresh();
+			}
+
+			function handlePostCreation() {
+				var valid = validateForm('post_creation_form');
+				if (valid) {
+					var data = serializeForm('post_creation', 'textarea,input');
+					data['username'] = username;
+					data['edit_form'] = 'post_creation';
+
+					var ajax = getAJAX();
+					if (ajax != null) {
+						ajax.onreadystatechange = function() {
+							var response = ajax.response;
+
+							try {
+								var responseBody = JSON.parse(response);
+								var success = responseBody.success;
+								var message = responseBody.message;
+
+								if (success && message == "CREATED") {
+									// TODO add logic to create post from returned data.
+
+									addAlertMessage(true, "The post has been created successfully", "post_creation");
+								} else {
+									addAlertMessage(false, "An error occurred creating post: " + message, "post_creation");
+								}
+
+								clearValidation('post_creation_form');
+							} catch (e) {
+								alert(response);
+							}
+						}
+					}
+				}
 			}
 		</script>
 
