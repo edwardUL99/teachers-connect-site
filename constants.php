@@ -22,6 +22,8 @@
   define('EDIT_FORM', 'edit_form');
   define('UPDATE_PROFILE', 'update_profile');
   define('UPDATE_PASSWORD', 'update_password');
+  define('UPDATE_VACANCY', 'update_vacancy');
+  define('DELETE_VACANCY', 'delete_vacancy');
   define('JOIN_ORGANISATION', 'join_organisation');
   define('EDUCATION_HISTORY', 'education_history');
   define('DELETE_EDUCATION', 'delete_education');

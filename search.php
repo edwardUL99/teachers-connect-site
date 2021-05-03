@@ -33,6 +33,50 @@
          require "database.php";
          require "error.php";
          require "navbar.php";
+         require "teacher.php";
+         require "organisation.php";
+
+
+
+         function displayTeachers() {
+        global $teachers;
+
+        foreach ($teachers as $key => $value) {
+          $img_src = ($value->profile_photo() == null) ? DEFAULT_TEACHER_PROFILE_PIC:"{$value->profile_photo()}";
+          $name = "{$value->firstName()} {$value->lastName()}";
+          $headline = "{$value->headline()}";
+          $link = "teacher_profile.php?username={$value->username()}";
+          echo "<div class=\"card m-2 align-items-center person-card\" id=\"follower-{$value->username()}\">";
+          echo "<img class=\"card-img-top rounded-circle\" src=\"{$img_src}\" alt=\"Profile image\">";
+          echo "<div class=\"card-body\">";
+          echo "<h5 class=\"card-title\">{$name}</h5>";
+          echo "<p class=\"card-text\">{$headline}</p>";
+          echo "<a href=\"{$link}\" class=\"btn btn-primary\">View Profile</a>";
+          echo "</div></div>";
+        }
+      }
+
+      function displayOrganisations() {
+        global $organisations;
+
+        foreach ($organisations as $key => $value) {
+          $img_src = ($value->profile_photo() == null) ? DEFAULT_TEACHER_PROFILE_PIC:"{$value->profile_photo()}";
+          $name = "{$value->name()}";
+          $about = "{$value->about()}";
+          $headline = "{$value->headline()}";
+          $location = "{$value->location()}";
+          $link = "organisation_profile.php?username={$value->username()}";
+          echo "<div class=\"card m-2 align-items-center person-card\" id=\"follower-{$value->username()}\">";
+          echo "<img class=\"card-img-top rounded-circle\" src=\"{$img_src}\" alt=\"Profile image\">";
+          echo "<div class=\"card-body\">";
+          echo "<h5 class=\"card-title\">{$name}</h5>";
+          echo "<p class=\"card-text\">{$headline}</p>";
+          //echo "<p class=\"card-text\">{$about}</p>";
+          echo "<p class=\"card-text\">{$location}</p>";
+          echo "<a href=\"{$link}\" class=\"btn btn-primary\">View Profile</a>";
+          echo "</div></div>";
+        }
+      }
 
          ?>
       <?php
@@ -63,147 +107,82 @@
 
          <?php
 
-            $query = mysqli_query($conn, "select * from teachers where first_name like '$q%' or concat(first_name, \" \", last_name) like '$q%'");
-
-            $rowCount = mysqli_num_rows($query);
-
-            $query2 = mysqli_query($conn, "select * from organisations where name like '$q%'");
-
-
-             $rowCount2 = mysqli_num_rows($query2);
-
-
-
-               echo "<br>";
-
-
-               echo "<container><a href='search.php?q=$q&r=teacher'>Teachers($rowCount)</a>    <a href='search.php?q=$q&r=organisation'>Organisations($rowCount2)</a>    <a href='search.php?q=$q&r='>Reset</a></container>";
-
-
-               if($r !="teacher" && $r !="organisation"){
-
-
-
-                   if($rowCount >= $rowCount2  && $rowCount > 0){
-                       $r = "teacher";}
-
-                   else if($rowCount < $rowCount2){
-                       $r = "organisation";}
-
-                    else {
-
-                        echo "<br>";
-                        echo "<br>";
-
-                        echo "No results for search '$q'";
-
-                    }
-
-
-
-
-
-
-
-
-               }
-
-
-
-
-
-
-
-
-
-            if($r=="teacher"){
-            $query = mysqli_query($conn, "select * from teachers where first_name like '$q%' or concat(first_name, \" \", last_name) like '$q%'");
-
-            $rowCount = mysqli_num_rows($query);
-
-
-
-            echo "<br>";
-            echo "<br>";
-
-            echo "Found $rowCount teachers for search '$q'";
-
+            $query = mysqli_query($conn, "select * from teachers where first_name like '$q%' or concat(first_name, \" \", last_name) like '$q%' or last_name like '$q%'");
 
             while($row = mysqli_fetch_array($query)){
-                $first_name = $row['first_name'];
-                $last_name = $row['last_name'];
-                $username = $row['username'];
-                $headline = $row['headline'];
-                $profile_photo = $row['profile_photo'];
-                $profile_photo = ($profile_photo == null) ? DEFAULT_TEACHER_PROFILE_PIC:$profile_photo;
+                        
 
-                 echo '<div class="card hoverable" style ="margin-top: 20px; margin-bottom: 20px" onclick="window.location.href=\'teacher_profile.php?username='.$username.'\'">
-                                 <div class="card-body">
-                                     <div class="row">
-                                         <div class="col-4">
-                                             <img class="card-img-top rounded-circle" src='."\"{$profile_photo}\"".' alt="Card image">
-                                         </div>
-                                         <div class="col-8">
-                                             <h4>' . $first_name . ' '. $last_name . '</h4>
+                        $teachers[] = new Teacher($row['username'], $row['first_name'],
+                            $row['last_name'], $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
 
-                                             <h5 class="card-title">'. $headline .'</h5>
-
-                                         </div>
-                                     </div>
-                                 </div>
-                             </div>';
-
-            }
-
-
-
-            }
-
-
-            if($r=="organisation"){
-            $query = mysqli_query($conn, "select * from organisations where name like '$q%'");
-
+                            
+                            
+                      }
 
             $rowCount = mysqli_num_rows($query);
-            echo "<br>";
-            echo "<br>";
 
-            echo "Found $rowCount organisations for search '$q'";
+            $query2 = mysqli_query($conn, "select * from organisations where name like '%$q%'");
 
-            while($row = mysqli_fetch_array($query)){
-                $name = $row['name'];
-                $headline = $row['headline'];
-                $location = $row['location'];
-                $username = $row['username'];
-                $profile_photo = $row['profile_photo'];
-                $profile_photo = ($profile_photo == null) ? DEFAULT_TEACHER_PROFILE_PIC:$profile_photo;
+            while($row = mysqli_fetch_array($query2)){
+                        
 
-                 echo '<div class="card" style ="margin-top: 20px; margin-bottom: 20px">
-                                 <div class="card-body">
-                                     <div class="row">
-                                         <div class="col-4">
-                                             <img class="card-img-top rounded-circle" src='."\"{$profile_photo}\"".' alt="Card image">
-                                         </div>
-                                         <div class="col-8">
-                                             <a href="organisation_profile.php?username='.$username.'">' . $name .  '</a><br />
+                        $organisations[] = new Organisation($row['organisation_id'], $row['username'],
+                            $row['name'], $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
 
-                                             <h5 class="card-title">'. $headline .'</h5>
+                           
+                        
 
-                                         </div>
-                                     </div>
-                                 </div>
-                             </div>';
+                            
+                            
+                      }
 
-            }
-
-
-            }
+            $rowCount2 = mysqli_num_rows($query2);
 
 
 
 
+        if($rowCount > 0){
+            echo '<div class="row shadow profile-card">
+          <div class="row">
+            <div class="col-2">
+              <h4 class="underlined-header">Results</h4>
+            </div>
+            <div class="col-4 text-center">
+              <p>Teachers returned for name: <i>'.$q.'</i></p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col pl-5">
+
+            </div>
+          </div>
+          <div class="row" id="followers_view">';
+
+                         displayTeachers();
+
+                    echo '</div></div>';}
 
 
+                            if($rowCount2 > 0){
+            echo '<div class="row shadow profile-card">
+          <div class="row">
+            <div class="col-2">
+              <h4 class="underlined-header">Results</h4>
+            </div>
+            <div class="col-4 text-center">
+              <p>Organisations returned for name: <i>'.$q.'</i></p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col pl-5">
+
+            </div>
+          </div>
+          <div class="row" id="followers_view">';
+
+                         displayOrganisations();
+
+                    echo '</div>';}
 
             ?>
       </div>
