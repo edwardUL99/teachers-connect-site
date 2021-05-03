@@ -657,7 +657,7 @@
         */
       function ban() {
         var form = document.forms['ban_user_form'];
-        form.action = "ban_user.php";
+        form.action = "administration_action.php";
         form.method = "post";
         addReturnURL(form);
 
@@ -689,7 +689,7 @@
         */
       function blacklist() {
         var form = document.createElement('form');
-        form.action = "ban_user.php";
+        form.action = "administration_action.php";
         form.method = "post";
         addReturnURL(form);
 
