@@ -163,8 +163,8 @@
 							?>
 						</div>
 					</div>
-					
-					<div class="card"> 
+
+					<div class="card">
 						<div class="tags" style="text-align: center;">
 							<h3><b><u>Tags</b></u></h3>
 							<?php
@@ -176,12 +176,12 @@
 						</div>
 					</div>
 
-					<div class="card" style="margin-top:20px;"> 
+					<div class="card" style="margin-top:20px;">
 						<button type="button" class="btn btn-primary btn-sm" style="margin:20px" onclick="window.location.href='edit_tags.php';">
 							Add tags to follow
 						</button>
 					</div>
-					
+
             	</div>
 
             	<div class="<?php echo ($user_type != ADMIN) ? 'col-9':'col'; ?>" id="home-feed">
@@ -201,7 +201,7 @@
 										$content = $_POST['content'];
 										$tags = $_POST['tags'];
 										$username = $_SESSION['username'];
-										
+
 										$sql = "INSERT INTO posts (`username`, `content`) VALUES ('{$username}', '{$content}');";
 
 										if ($conn->query($sql) === FALSE) {
@@ -214,13 +214,13 @@
 												while($row = mysqli_fetch_array($query9)){
 													$tag_id = $row['tag_id'];
 												}
-									
+
 												if(isset($tag_id)){
 													$sql2 = "INSERT INTO post_tags (post_id, tag_id)
 													VALUES ('".$last_id."', '".$tag_id."')";
 													$conn->query($sql2);
 													unset($tag_id);
-									
+
 												} else {
 													$sql3 = "INSERT INTO tags (name)
 													VALUES ('".$value."')";
@@ -230,17 +230,14 @@
 													VALUES ('".$last_id."', '".$last_id2."')";
 													$conn->query($sql4);
 												}
-											} 
-											echo '<script>
-													handleRefresh();
-												</script>';
+											}
 										}
 									}
 								}
 							?>
 						</div>
 					</div>
-					
+
 
 					<?php
 						//this array is used to see teachers the user is friends with, companies they follow
@@ -272,10 +269,9 @@
 							global $conn;
 							print_r($post_id);
 							$delete_post_query = mysqli_query($conn, "delete from posts where post_id='" . $post_id . "';");
-							handleRefresh();
 						}
-						
-						$post_list = [];					
+
+						$post_list = [];
 						if($user_type == TEACHER){
 							array_push($post_list, $_SESSION['username']);
 						} else if($user_type == ORGANISATION){
@@ -288,13 +284,13 @@
 
 						$sql_friend_check_sender = mysqli_query($conn, "select * from connections where sender = '" . $_SESSION['username'] . "' and status = 'accepted';");
 						$post_list = addToPostArray($sql_friend_check_sender, 'destination', $post_list);
-						
+
 						$sql_friend_check_des = mysqli_query($conn, "select * from connections where destination = '" . $_SESSION['username'] . "' and status = 'accepted';");
 						$post_list = addToPostArray($sql_friend_check_des, 'sender', $post_list);
 
 						$sql_org_check = mysqli_query($conn, "select * from followed_organisations where teacher_username = '" . $_SESSION['username'] . "';");
 						$post_list = addToPostArray($sql_org_check, 'organisation_id', $post_list);
-						
+
 						$query = mysqli_query($conn, "select * from posts order by created_at desc");
 						while($row = mysqli_fetch_array($query)){
 
@@ -333,9 +329,9 @@
 											<p class="card-text">'. $content .'</p>
 											<button type="button" class="btn btn-primary">Like 👍</button>
 										</div>
-										
+
 										<div class="col-2">';
-								
+
 								echo'<p>'. $time_created .'</p>';
 
 								if($_SESSION['username'] == $username or $user_type == ADMIN){
@@ -352,22 +348,17 @@
 				</div>
 			</div>
 		</div>
-		
+
 		<script>
-			function handleRefresh(){
-				window.location.href = window.location.href = 'feed.php';
+
+			function handleRefresh() {
+				window.location.href = 'feed.php';
+			}
+
+      function deletePost(post_id){
+				handleRefresh();
 			}
 		</script>
-		
-		<script>
-			function deletePost(int $post_id){
-							global $conn;
-							print_r($post_id);
-							$delete_post_query = mysqli_query($conn, "delete from posts where post_id='" . $post_id . "';");
-							handleRefresh();
-						}
-		</scipt>
 
 	</body>
 </html>
-
