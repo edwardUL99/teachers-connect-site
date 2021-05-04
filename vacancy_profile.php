@@ -20,6 +20,7 @@
       $org;
       $id;
       $org_id;
+      $contact_button;
 
       if($user_type == 'organisation'){
 
@@ -34,10 +35,56 @@
 
             while ($row = $result->fetch_assoc()) {
                 $org = $row['organisation_id'];
-                
+
+
               } }}}
 
-              
+
+
+
+    function loadContactButton() {
+
+        global $conn;
+        global $contact_button;
+        global $org_id;
+
+
+
+          $sql = "SELECT email FROM accounts join organisations on accounts.username = organisations.username WHERE organisation_id = ?;";
+
+          if ($stmt = $conn->prepare($sql)) {
+            $stmt->bind_param("i", $param_org_id);
+            $param_org_id = $org_id;
+
+            if ($stmt->execute()) {
+              $row = $stmt->get_result()->fetch_assoc();
+
+              if ($row) {
+                $loggedin_username = $_SESSION[USERNAME];
+                $name;
+                $email = $row['email'];
+
+                $query = mysqli_query($conn, "select * from teachers where username = '".$loggedin_username."'");
+
+                while($row = mysqli_fetch_array($query)){
+                        $name = $row['first_name'] . " " . $row['last_name'];
+                }
+
+                $contact_button = '<a href="mailto:'. $email . '?subject=Message from ' . $name . ' on TeachersConnect" class="btn btn-primary" style="margin-right: 1vw;">Apply!</a>';
+              }
+            }
+
+            $stmt->close();
+          }
+
+      }
+
+
+
+
+
+
+
 
 
 
@@ -106,11 +153,11 @@
             $result = $stmt->get_result();
 
             if ($result->num_rows > 0) {
-              
+
               while ($row = $result->fetch_assoc()) {
                 $org_id = $row['organisation_id'];
               }
-              
+
             }
           } else {
             doSQLError($stmt->error);
@@ -133,44 +180,45 @@
 
      parseURL();
      getVacancyOrg();
+     loadContactButton();
 
-    
+
 
 
      ?>
 
      <?php
         generateNavBar(VACANCIES);
-        
-        
-        
+
+
+
         function getEditVacancy($org_id,$organisation_id) {
-        
+
 
         if($organisation_id == $org_id){
-        
+
         $btn_class = "\"btn btn-primary\"";
         $btn_target = "onclick=\"handleEdit();\"";
         $btn = "<button class={$btn_class} style=\"margin-right: 1vw;\" id=\"connect-button\" {$btn_target}>";
-        
+
           return "{$btn}Edit</button></a>";
           }
           return false;
-          
+
           "<button class=\"btn btn-primary\" style=\"margin-right: 1vw;\" id=\"connect-button\" onclick=\"handleEdit();\">Edit</button></a>";
 
-          
 
 
-          
-    
+
+
+
       }
 
-      
 
 
 
-        
+
+
 
 
           $query = mysqli_query($conn, "SELECT * FROM vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id WHERE vacancy_id = '$id'");
@@ -200,22 +248,26 @@
           <a href="organisation_profile.php?username=<?php echo $org_username; ?>"><h3><?php echo $org_name; ?></h3></a>
           <h4 class="subtitle"><?php echo $job_title;?></h4>
           <h5><?php echo $type; ?></h5>
-          
+
         </div>
         <div class="row mt-2">
           <div class="btn-toolbar">
 
-        
-        <?php 
+
+        <?php
         if($org_id == $org || $user_type == 'admin'){
 
         echo "<button class=\"btn btn-primary\" style=\"margin-right: 1vw;\" id=\"connect-button\" onclick=\"handleEdit();\">Edit</button></a>";
+
         }
-        
-        
-        //echo getEditVacancy(); 
-        
-        
+        if($user_type == 'teacher'){
+        echo $contact_button;
+        }
+
+
+        //echo getEditVacancy();
+
+
         ?>
         </div>
         </div>
@@ -225,7 +277,7 @@
         <div class="row">
           <h4 class="underlined-header">Job Description</h4>
         </div>
-        
+
         <p class="about-me-text"><?php echo $description; ?></p>
       </div>
 
@@ -234,7 +286,7 @@
           <h4 class="underlined-header">Skills</h4>
         </div>
         <?php loadSkills(); ?>
-        
+
       </div>
 
 
@@ -246,7 +298,7 @@
       <script>
       const id = <?php echo json_encode($id); ?>;
       function handleEdit() {
-          
+
           //header('Location: '. 'edit_vacancy.php?id=' . $id);
 
 
@@ -255,9 +307,9 @@
           window.location.href = window.location.href = `edit_vacancy.php?id=${id}`
           //window.location.href = window.location.href = 'connections.php';
           return false;
-          
+
       }
-      
+
       </script>
   </body>
 </html>

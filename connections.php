@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Connections</title>
+    <title>Vacancy Profile</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
     <link type="text/css" href="css/styles.css" rel="stylesheet">
     <link type="text/css" href="css/feed.css" rel="stylesheet">
@@ -15,12 +15,13 @@
       require "error.php";
       require "database.php";
       require "teacher.php";
+      require "organisation.php";
 
       $loggedin_username = $_SESSION[USERNAME];
       $user_type = $_SESSION[USER_TYPE];
 
 
-      echo $teacher_username;
+
 
 
       /**
@@ -83,6 +84,10 @@
 
 
 
+
+
+
+
       function displayRequests() {
         global $friendRequests;
 
@@ -119,7 +124,7 @@
       }
 
       function displayOrgFriends($orgFriends) {
-        
+
 
         foreach ($orgFriends as $key => $value) {
           $img_src = ($value->profile_photo() == null) ? DEFAULT_TEACHER_PROFILE_PIC:"{$value->profile_photo()}";
@@ -136,8 +141,79 @@
         }
       }
 
+
+
+        function loadOrgsFollowed(){
+
+          global $conn;
+          global $orgsFollowed;
+          $teacher_username = $_SESSION[USERNAME];
+
+
+
+
+        $query = mysqli_query($conn, "SELECT * FROM organisations where organisation_id in (select organisation_id from followed_organisations where teacher_username = '".$teacher_username."');");
+
+
+                while($row = mysqli_fetch_array($query)){
+                    //echo $row['name'];
+                    $orgsFollowed[] = new Organisation($row['organisation_id'], $row['username'],
+                            $row['name'], $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
+
+                            //echo sizeof($orgsFollowed);
+
+
+                }
+        }
+
+
+
+
+
+
+
+        function displayOrgsFollowed($theseOrgs) {
+
+        //$global orgsFollowed;
+
+        foreach ($theseOrgs as $key => $value) {
+
+          $img_src = ($value->profile_photo() == null) ? DEFAULT_TEACHER_PROFILE_PIC:"{$value->profile_photo()}";
+          $name = "{$value->name()}";
+          $about = "{$value->about()}";
+          $headline = "{$value->headline()}";
+          $location = "{$value->location()}";
+          $link = "organisation_profile.php?username={$value->username()}";
+          echo "<div class=\"card m-2 align-items-center person-card\" id=\"follower-{$value->username()}\">";
+          echo "<img class=\"card-img-top rounded-circle\" src=\"{$img_src}\" alt=\"Profile image\">";
+          echo "<div class=\"card-body\">";
+          echo "<h5 class=\"card-title\">{$name}</h5>";
+          echo "<p class=\"card-text\">{$headline}</p>";
+          //echo "<p class=\"card-text\">{$about}</p>";
+          echo "<p class=\"card-text\">{$location}</p>";
+          echo "<a href=\"{$link}\" class=\"btn btn-primary\">View Profile</a>";
+          echo "</div></div>";
+
+
+        }
+      }
+
+
+
+
+
+
+
+
       loadFriendRequests();
       loadFriends();
+      loadOrgsFollowed();
+
+
+
+
+
+
 
 
 
@@ -179,13 +255,13 @@
          type="submit">Search</button>
 
          </form>
-         
+
          </div>';
 
       ?>
 
        <?php
-         
+
          if(isset($_GET['r'])){
              if($_GET['r'] == ''){
                  if($_GET['s'] == ''){
@@ -194,7 +270,7 @@
                     $orgFriends;
                     $orgId;
                     $count;
-                
+
                     $t = $_GET['t'];
                     $query1 = mysqli_query($conn, "select * from organisations where name = '$t'");
                       while($row = mysqli_fetch_array($query1)){
@@ -203,7 +279,7 @@
                       if($orgId != ''){
                       $query = mysqli_query($conn, "select * from teachers where username in (select username from employment_history where organisation_id = $orgId)");
                       while($row = mysqli_fetch_array($query)){
-                        
+
 
                         $orgFriends[] = new Teacher($row['username'], $row['first_name'],
                             $row['last_name'], $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
@@ -266,23 +342,23 @@
                     $count;
 
                     $r = $_GET['r'];
-                
+
                     $t = $_GET['t'];
                     $query1 = mysqli_query($conn, "select * from organisations where name = '$t'");
                       while($row = mysqli_fetch_array($query1)){
                           $orgId = $row['organisation_id'];
                       }
 
-                    
+
 
 
 
 
 
                       $query = mysqli_query($conn, "select * from teachers where username in (select teachers.username from employment_history join teachers on teachers.username = employment_history.username where organisation_id =                             $orgId and first_name like '%$r%')");
-                      
+
                       while($row = mysqli_fetch_array($query)){
-                        
+
 
                         $orgFriends[] = new Teacher($row['username'], $row['first_name'],
                             $row['last_name'], $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
@@ -335,7 +411,7 @@
 
                     $r = $_GET['r'];
                     $s = $_GET['s'];
-                    $t = $_GET['t']; 
+                    $t = $_GET['t'];
                     $myArray = explode(',', $s);
                     $skillstring = '';
                     foreach ($myArray as $value){
@@ -353,8 +429,8 @@
                       }
 
                       $skillsIdString = substr($skillsIdString, 0, -3 );
-                      
-                
+
+
 
 
                     if($skillsIdString != ''){
@@ -368,17 +444,17 @@
                           $orgId = $row['organisation_id'];
                       }
 
-                    
 
 
 
-                        
-                      
-                      
+
+
+
+
                       $query = mysqli_query($conn, "select * from teachers where username in (select teachers.username from employment_history join teachers on teachers.username = employment_history.username where organisation_id =                             $orgId and first_name like '%$r%') and username in (select username from teacher_skills where $skillsIdString)");
-                      
+
                       while($row = mysqli_fetch_array($query)){
-                        
+
 
                         $orgFriends[] = new Teacher($row['username'], $row['first_name'],
                             $row['last_name'], $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
@@ -428,7 +504,7 @@
                          </div>';}
                         }}
                          }
-                         
+
                          if($_GET['r'] == ''){
                          if($_GET['s'] != ''){
                          if($_GET['t'] != ''){
@@ -436,9 +512,9 @@
                     $orgId;
                     $count;
 
-                    
+
                     $s = $_GET['s'];
-                    $t = $_GET['t']; 
+                    $t = $_GET['t'];
                     $myArray = explode(',', $s);
                     $skillstring = '';
                     foreach ($myArray as $value){
@@ -456,8 +532,8 @@
                       }
 
                       $skillsIdString = substr($skillsIdString, 0, -3 );
-                      
-                
+
+
 
 
                     if($skillsIdString != ''){
@@ -471,17 +547,17 @@
                           $orgId = $row['organisation_id'];
                       }
 
-                    
 
 
 
-                        
-                      
-                      
+
+
+
+
                       $query = mysqli_query($conn, "select * from teachers where username in (select teachers.username from employment_history join teachers on teachers.username = employment_history.username where organisation_id =                             $orgId ) and username in (select username from teacher_skills where $skillsIdString)");
-                      
+
                       while($row = mysqli_fetch_array($query)){
-                        
+
 
                         $orgFriends[] = new Teacher($row['username'], $row['first_name'],
                             $row['last_name'], $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
@@ -538,11 +614,11 @@
                          if($_GET['t'] == ''){
 
                             $r = $_GET['r'];
-                    
+
                              $query = mysqli_query($conn, "select * from teachers where first_name like '%$r%'");
-                      
+
                       while($row = mysqli_fetch_array($query)){
-                        
+
 
                         $orgFriends[] = new Teacher($row['username'], $row['first_name'],
                             $row['last_name'], $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
@@ -603,7 +679,7 @@
 
                     $r = $_GET['r'];
                     $s = $_GET['s'];
-                    
+
                     $myArray = explode(',', $s);
                     $skillstring = '';
                     foreach ($myArray as $value){
@@ -621,18 +697,18 @@
                       }
 
                       $skillsIdString = substr($skillsIdString, 0, -3 );
-                      
-                
+
+
 
 
                     if($skillsIdString != ''){
 
- 
-                      
+
+
                       $query = mysqli_query($conn, "select * from teachers where username in (select username from teachers where first_name like '%$r%') and username in (select username from teacher_skills where $skillsIdString)");
-                      
+
                       while($row = mysqli_fetch_array($query)){
-                        
+
 
                         $orgFriends[] = new Teacher($row['username'], $row['first_name'],
                             $row['last_name'], $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
@@ -680,7 +756,7 @@
                          <h1>No results</hi>
 
                          </div>';}
-  
+
                          }}}
 
                         if($_GET['r'] == ''){
@@ -691,9 +767,9 @@
                     $orgId;
                     $count;
 
-                   
+
                     $s = $_GET['s'];
-                    
+
                     $myArray = explode(',', $s);
                     $skillstring = '';
                     foreach ($myArray as $value){
@@ -711,18 +787,18 @@
                       }
 
                       $skillsIdString = substr($skillsIdString, 0, -3 );
-                      
-                
+
+
 
 
                     if($skillsIdString != ''){
 
- 
-                      
+
+
                       $query = mysqli_query($conn, "select * from teachers where username in (select username from teacher_skills where $skillsIdString)");
-                      
+
                       while($row = mysqli_fetch_array($query)){
-                        
+
 
                         $orgFriends[] = new Teacher($row['username'], $row['first_name'],
                             $row['last_name'], $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
@@ -780,13 +856,13 @@
 
                          }}}
 
- 
+
                          }
 
 
                 ?>
 
-      
+
 
 
 
@@ -834,6 +910,28 @@
           <div class="row" id="followers_view">';
 
           displayFriends();
+
+         echo '</div>
+        </div>
+
+        <div class="row shadow profile-card">
+          <div class="row">
+            <div class="col-2">
+              <h4 class="underlined-header">Organisations Followed</h4>
+            </div>
+            <div class="col-4 text-center">
+              <p>These are the organisations you follow!</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col pl-5">
+
+            </div>
+          </div>
+          <div class="row" id="followers_view">';
+
+          displayOrgsFollowed($orgsFollowed);
+          //echo sizeof($orgsFollowed);
 
          echo '</div>
         </div>
