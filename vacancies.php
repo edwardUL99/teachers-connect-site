@@ -234,7 +234,7 @@
                       }
 
 
-                    $query = mysqli_query($conn, "select * from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id where vacancies.organisation_id = '$s'");
+                    $query = mysqli_query($conn, "select * from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id where vacancies.organisation_id = '$s' order by posted_at desc");
                     while($row = mysqli_fetch_array($query)){
                       $vacancy_id = $row['vacancy_id'];
                       $organisation_id = $row['organisation_id'];
@@ -267,11 +267,11 @@
               $skillstring = substr($skillstring, 0, -3 );
 
               //echo $skillstring;
-         $querystring =   "select distinct vacancies.vacancy_id, vacancies.organisation_id, job_title, description, type, profile_photo, posted_at from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where vacancy_skills.skill_id in (select skill_id from skills where $skillstring)";
+         $querystring =   "select distinct vacancies.vacancy_id, vacancies.organisation_id, job_title, description, type, profile_photo, posted_at from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where vacancy_skills.skill_id in (select skill_id from skills where $skillstring) order by posted_at desc";
          if(isset($_GET['s'])){
            $sString = $_GET['s'];
            if($sString != ''){
-             $querystring = "select distinct vacancies.vacancy_id, vacancies.organisation_id, job_title, description, type, profile_photo, posted_at from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where organisations.name = '$sString' and vacancy_skills.skill_id in (select skill_id from skills where $skillstring)";
+             $querystring = "select distinct vacancies.vacancy_id, vacancies.organisation_id, job_title, description, type, profile_photo, posted_at from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where organisations.name = '$sString' and vacancy_skills.skill_id in (select skill_id from skills where $skillstring) order by posted_at desc";
            }
 
 
@@ -435,7 +435,7 @@
            $description = $row['description'];
            $type = $row['type'];
            $posted_at = $row['posted_at'];
-           
+
            $timestamp = strtotime($posted_at . "+ 5 hours");
            $posted_at = date("H:i:s", $timestamp);
            $posted_at2 = date("d/m/Y", $timestamp);

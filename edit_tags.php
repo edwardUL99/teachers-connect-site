@@ -79,10 +79,10 @@
         <div class="container">
             <div class="row shadow card padding-1pcent mt-5">
                 <div class="col padding-1pcent" id="add_tags">
-                    <h4>Add Skills</h4>
+                    <h4>Add Tags</h4>
                     <form id="add_tags_form">
                         <div class="form-group">
-                            <label>Skills</label>
+                            <label>Tags</label>
                             <input type="text" name="tags" id="tags" class="form-control" required>
                             <div class="form-text">
                                 Enter tags to add in a comma-separated (,) list
@@ -99,7 +99,7 @@
                     <h4>Remove Tags</h4>
                     <form id="remove_skill_form">
                         <div class="form-group">
-                            <label>Choose skills to tags</label>
+                            <label>Choose tags to remove</label>
                             <select class="form-select" multiple id="skills_choice" onchange="onSkillChosen();" name="skills_choice">
 
                             <?php getSkillsOptions(); ?>
