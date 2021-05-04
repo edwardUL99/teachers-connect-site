@@ -91,7 +91,7 @@
 
             <div class="row text-end">
               <div class="col">
-                <button type="submit" onclick="handleUpdateProfile();" class="btn btn-primary">Create</button>
+                <button type="submit" class="btn btn-primary">Create</button>
               </div>
             </div>
           </form>
@@ -200,6 +200,14 @@
       <?php
          if($user_type=='teacher' || $user_type=='organisation' || $user_type=='admin') {
          if(isset($_GET['r'])){
+
+              if($_GET['r'] == ''){
+                  if($_GET['s'] == ''){
+
+                      echo '<br>';
+                      echo '<h3>No results<p style="color:blue"></h3>';
+                  }}
+
              if($_GET['r'] == ''){
 
 
@@ -211,7 +219,7 @@
                       }
 
 
-                    $query = mysqli_query($conn, "select * from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id where vacancies.organisation_id = '$s'");
+                    $query = mysqli_query($conn, "select * from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id where vacancies.organisation_id = '$s' order by posted_at desc");
                     while($row = mysqli_fetch_array($query)){
                       $vacancy_id = $row['vacancy_id'];
                       $organisation_id = $row['organisation_id'];
@@ -244,11 +252,11 @@
               $skillstring = substr($skillstring, 0, -3 );
 
               //echo $skillstring;
-         $querystring =   "select distinct vacancies.vacancy_id, vacancies.organisation_id, job_title, description, type, profile_photo from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where vacancy_skills.skill_id in (select skill_id from skills where $skillstring)";
+         $querystring =   "select distinct vacancies.vacancy_id, vacancies.organisation_id, job_title, description, type, profile_photo, posted_at from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where vacancy_skills.skill_id in (select skill_id from skills where $skillstring) order by posted_at desc";
          if(isset($_GET['s'])){
            $sString = $_GET['s'];
            if($sString != ''){
-             $querystring = "select distinct vacancies.vacancy_id, vacancies.organisation_id, job_title, description, type, profile_photo from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where organisations.name = '$sString' and vacancy_skills.skill_id in (select skill_id from skills where $skillstring)";
+             $querystring = "select distinct vacancies.vacancy_id, vacancies.organisation_id, job_title, description, type, profile_photo, posted_at from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where organisations.name = '$sString' and vacancy_skills.skill_id in (select skill_id from skills where $skillstring) order by posted_at desc";
            }
 
 
@@ -383,6 +391,10 @@
            $type = $row['type'];
            $posted_at = $row['posted_at'];
 
+           $timestamp = strtotime($posted_at . "+ 5 hours");
+           $posted_at = date("H:i:s", $timestamp);
+           $posted_at2 = date("d/m/Y", $timestamp);
+
            $profile_photo = $row['profile_photo'];
            $profile_photo = (!empty($profile_photo)) ? $profile_photo:DEFAULT_ORG_PROFILE_PIC;
             echo '<div class="card hoverable" style ="margin-top: 20px; margin-bottom: 20px" onclick="window.location.href=\'vacancy_profile.php?id='.$vacancy_id.'\'">
@@ -394,7 +406,7 @@
                                     <div class="col-8">
                                         <h4>' . $job_title . '</h4>
                                         <h5 class="card-title">'. $type .'</h5>
-                                        <h5 class="card-title">'. $posted_at .'</h5>
+                                        <h5 class="card-title">Posted at '. $posted_at .' on the '. $posted_at2 .'</h5>
                                     </div>
                                 </div>
                             </div>
@@ -409,45 +421,6 @@
 
           ?>
       </div>
-      </script>
-      <script type="text/javascript" src="forms.js"></script>
-      <script type="text/javascript" src="ajax.js"></script>
-      <script>function handleUpdateProfile() {
-
-          var data = serializeForm('update_profile', 'input,textarea');
-          data['username'] = username;
-          data['edit_type'] = "teacher";
-          data['edit_form'] = "update_profile";
-
-          var ajax = getAJAX();
-          if (ajax != null) {
-            ajax.onreadystatechange = function() {
-              if (ajax.readyState == 4) {
-                var response = ajax.response;
-
-                try {
-                  var responseBody = JSON.parse(response);
-                  var success = responseBody.success;
-                  var message = responseBody.message;
-
-                  if (success && message == "UPDATED") {
-                    addAlertMessage(true, "Vacancy has been updated successfully", "update_profile");
-                  } else {
-                    addAlertMessage(false, "An error occurred updating your profile: " + message, "update_profile");
-                  }
-                } catch (e) {
-                  alert(response);
-                }
-              }
-            }
-          }
-
-          ajax.open("POST", "edit-profile-ajax.php", true);
-          ajax.send(JSON.stringify(data));
-
-
-        return false;
-      }
-</script>
+    
       </body>
       </html>
