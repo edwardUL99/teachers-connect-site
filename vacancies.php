@@ -259,11 +259,11 @@
               $skillstring = substr($skillstring, 0, -3 );
 
               //echo $skillstring;
-         $querystring =   "select distinct vacancies.vacancy_id, vacancies.organisation_id, job_title, description, type, profile_photo from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where vacancy_skills.skill_id in (select skill_id from skills where $skillstring)";
+         $querystring =   "select distinct vacancies.vacancy_id, vacancies.organisation_id, job_title, description, type, profile_photo, posted_at from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where vacancy_skills.skill_id in (select skill_id from skills where $skillstring)";
          if(isset($_GET['s'])){
            $sString = $_GET['s'];
            if($sString != ''){
-             $querystring = "select distinct vacancies.vacancy_id, vacancies.organisation_id, job_title, description, type, profile_photo from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where organisations.name = '$sString' and vacancy_skills.skill_id in (select skill_id from skills where $skillstring)";
+             $querystring = "select distinct vacancies.vacancy_id, vacancies.organisation_id, job_title, description, type, profile_photo, posted_at from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where organisations.name = '$sString' and vacancy_skills.skill_id in (select skill_id from skills where $skillstring)";
            }
 
 
@@ -427,6 +427,11 @@
            $description = $row['description'];
            $type = $row['type'];
            $posted_at = $row['posted_at'];
+           $timestamp = strtotime($posted_at);
+
+           $posted_at = date("H:i:s", $timestamp);
+           $posted_at2 = date("d/m/Y", $timestamp);
+
 
            $profile_photo = $row['profile_photo'];
            $profile_photo = (!empty($profile_photo)) ? $profile_photo:DEFAULT_ORG_PROFILE_PIC;
@@ -441,7 +446,7 @@
 
 
                                         <h5 class="card-title">'. $type .'</h5>
-                                        <h5 class="card-title">'. $posted_at .'</h5>
+                                        <h5 class="card-title">Posted at '. $posted_at .' on the '. $posted_at2 .'</h5>
 
 
                                     </div>
