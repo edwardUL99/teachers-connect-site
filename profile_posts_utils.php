@@ -181,6 +181,12 @@
 
           $type = $row['type'];
 
+          $posted_at = $row['posted_at'];
+
+          $timestamp = strtotime($posted_at . "+ 5 hours");
+          $posted_at = date("H:i", $timestamp);
+          $posted_at2 = date("d/m/Y", $timestamp);
+
           $vacancies[] = '<div class="border mb-2 hoverable" onclick="window.location.href=\'vacancy_profile.php?id='.$vacancy_id.'\'">
                             <div class="row">
                               <div class="col-4">
@@ -190,6 +196,7 @@
                                 <a href="organisation_profile.php?username='. $organisation->username() . '"><h4>' . $organisation->name() . '</h4></a>
                                 <h5 class="card-title">'. $job_title .'</h5>
                                 <h5 class="card-title">'. $type .'</h5>
+                                <h5 class="card-title">Posted at '. $posted_at .' on the '. $posted_at2 .'</h5>
                               </div>
                           </div>
                         </div>';

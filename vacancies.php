@@ -166,11 +166,13 @@
 
          $query4 = mysqli_query($conn, "select * from organisations");
 
-         echo'<div class="row">
+         if ($user_type == ORGANISATION) {
+           echo '<div class="row">';
+         } else {
+           echo '<div class="container main-background">';
+         }
 
-
-
-         <div class="d-flex" style ="margin-top: 20px">
+         echo '<div class="d-flex" style ="margin-top: 20px">
          <form class="d-flex" autocomplete="off" action= "vacancies.php" method = "GET">
 
          <input class="form-control me-2"
@@ -333,7 +335,8 @@
               $url = $url . http_build_query($data);
             if($user_type=='teacher'){
              echo '<br><h6>Recommended just for you, based on skills: <p style="color:blue"><i>' . $teacherSkills . '</i></p></h6>
-                    <p><a href="'.$url.'">Click here</a> to edit</p>';}
+                    <p><a href="'.$url.'">Click here</a> to edit your skills</p>';
+                  }
 
              if($user_type == 'organisation' || $user_type == 'admin'){
              $query = mysqli_query($conn, "SELECT * FROM vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id order by posted_at desc;");
@@ -421,6 +424,6 @@
 
           ?>
       </div>
-    
+
       </body>
       </html>
