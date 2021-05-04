@@ -435,10 +435,14 @@
            $description = $row['description'];
            $type = $row['type'];
            $posted_at = $row['posted_at'];
-           $timestamp = strtotime($posted_at);
+
+
+
+           $timestamp = strtotime($posted_at . "+ 5 hours");
 
            $posted_at = date("H:i:s", $timestamp);
            $posted_at2 = date("d/m/Y", $timestamp);
+
 
 
            $profile_photo = $row['profile_photo'];
