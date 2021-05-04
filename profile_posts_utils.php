@@ -199,7 +199,7 @@
                                 <h4>' . $organisation->name() . '</h4>
                                 <h5 class="card-title">'. $job_title .'</h5>
                                 <h5 class="card-title">'. $type .'</h5>
-                                <h5 class="card-title">Posted at '. $posted_at .' on the '. $posted_at2 .'</h5>
+                                <h5 class="card-title">Posted at '. $posted_at .' on '. $posted_at2 .'</h5>
                               </div>
                           </div>
                         </div>';

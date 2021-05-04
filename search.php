@@ -51,6 +51,7 @@
           echo "<div class=\"card-body\">";
           echo "<h5 class=\"card-title\">{$name}</h5>";
           echo "<p class=\"card-text\">{$headline}</p>";
+          echo "</div><div class=\"text-center m-auto mb-2\">";
           echo "<a href=\"{$link}\" class=\"btn btn-primary\">View Profile</a>";
           echo "</div></div>";
         }
@@ -71,8 +72,8 @@
           echo "<div class=\"card-body\">";
           echo "<h5 class=\"card-title\">{$name}</h5>";
           echo "<p class=\"card-text\">{$headline}</p>";
-          //echo "<p class=\"card-text\">{$about}</p>";
           echo "<p class=\"card-text\">{$location}</p>";
+          echo "</div><div class=\"text-center m-auto mb-2\">";
           echo "<a href=\"{$link}\" class=\"btn btn-primary\">View Profile</a>";
           echo "</div></div>";
         }
@@ -121,7 +122,7 @@
 
             $rowCount = mysqli_num_rows($query);
 
-            $query2 = mysqli_query($conn, "select * from organisations where name like '%$q%'");
+            $query2 = mysqli_query($conn, "select * from organisations where name like '%$q%' AND username IS NOT NULL;");
 
             while($row = mysqli_fetch_array($query2)){
 
@@ -146,12 +147,17 @@
           <div class="row">
             <div class="col-2">
               <h4 class="underlined-header">Results</h4>
-            </div>
-            <div class="col-4 text-center">
-              <p>Teachers returned for name: <i>'.$q.'</i></p>
-            </div>
-          </div>
-          <div class="row">
+            </div>';
+
+            echo '<div class="col-4 text-center">';
+            if (!empty($q)) {
+              echo '<p>Teachers returned for name: <i>'.$q.'</i></p>';
+            } else {
+              echo '<p>Teachers</p>';
+            }
+            echo '</div>';
+
+          echo '</div><div class="row">
             <div class="col pl-5">
 
             </div>
@@ -168,12 +174,17 @@
           <div class="row">
             <div class="col-2">
               <h4 class="underlined-header">Results</h4>
-            </div>
-            <div class="col-4 text-center">
-              <p>Organisations returned for name: <i>'.$q.'</i></p>
-            </div>
-          </div>
-          <div class="row">
+            </div>';
+
+            echo '<div class="col-4 text-center">';
+            if (!empty($q)) {
+              echo '<p>Organisations returned for name: <i>'.$q.'</i></p>';
+            } else {
+              echo '<p>Organisations</p>';
+            }
+            echo '</div>';
+
+          echo '</div><div class="row">
             <div class="col pl-5">
 
             </div>

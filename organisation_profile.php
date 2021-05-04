@@ -129,6 +129,7 @@
           echo "<div class=\"card-body\">";
           echo "<h5 class=\"card-title\">{$name}</h5>";
           echo "<p class=\"card-text\">{$headline}</p>";
+          echo "</div><div class=\"text-center m-auto mb-2\" style=\"background: none;\">";
           echo "<a href=\"{$link}\" class=\"btn btn-primary\">View Profile</a>";
           echo "</div></div>";
         }
@@ -433,11 +434,14 @@
         headline.innerHTML = data['headline'];
         card_body.appendChild(headline);
 
+        var link_div = document.createElement("div");
+        link_div.classList.add('text-center', 'm-auto', 'mb-2');
         var link = document.createElement("a");
         link.classList.add("btn", "btn-primary");
         link.href = "teacher_profile.php?username=" + data['username'];
         link.innerHTML = "View Profile";
-        card_body.appendChild(link);
+        link_div.appendChild(link);
+        card.appendChild(link_div);
 
         var number = parseInt(followers_number.innerHTML);
         followers_number.innerHTML = ++number;
