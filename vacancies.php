@@ -215,6 +215,14 @@
       <?php
          if($user_type=='teacher' || $user_type=='organisation' || $user_type=='admin') {
          if(isset($_GET['r'])){
+
+              if($_GET['r'] == ''){
+                  if($_GET['s'] == ''){
+
+                      echo '<br>';
+                      echo '<h3>No results<p style="color:blue"></h3>';
+                  }}
+
              if($_GET['r'] == ''){
 
 
