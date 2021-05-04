@@ -24,11 +24,15 @@
 
 
 
+
+
       /**
         * Retrieve the number of followers for this organisation
         */
       function loadFriendRequests() {
         global $conn;
+        global $countFriendRequests;
+
 
         global $friendRequests;
         $teacher_username = $_SESSION[USERNAME];
@@ -40,11 +44,12 @@
 
                 while($row = mysqli_fetch_array($query)){
 
-
                             $query2 = mysqli_query($conn, "SELECT * FROM teachers where username = '".$row['sender']."';");
                             while($row = mysqli_fetch_array($query2)){
                             $friendRequests[] = new Teacher($row['username'], $row['first_name'],
                             $row['last_name'], $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
+                            $countFriendRequests = $countFriendRequests + 1;
+
 
 
 
@@ -57,6 +62,7 @@
         global $conn;
 
         global $friends;
+        global $countFriends;
         $teacher_username = $_SESSION[USERNAME];
 
         //$sql = "SELECT * FROM connections where (destination = '$teacher_username' or destination = '$teacher_username') and status = 'accepted';";
@@ -74,6 +80,7 @@
                             while($row = mysqli_fetch_array($query2)){
                             $friends[] = new Teacher($row['username'], $row['first_name'],
                             $row['last_name'], $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
+                            $countFriends++;
 
 
 
@@ -147,6 +154,7 @@
 
           global $conn;
           global $orgsFollowed;
+          global $countOrgs;
           $teacher_username = $_SESSION[USERNAME];
 
 
@@ -159,6 +167,7 @@
                     //echo $row['name'];
                     $orgsFollowed[] = new Organisation($row['organisation_id'], $row['username'],
                             $row['name'], $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
+                            $orgsFollowed++;
 
                             //echo sizeof($orgsFollowed);
 
@@ -888,7 +897,7 @@
           </div>
           <div class="row" id="followers_view">';
 
-          displayRequests();
+          if($countFriendRequests >0){displayRequests();}
 
           echo '</div>
         </div>
@@ -909,7 +918,7 @@
           </div>
           <div class="row" id="followers_view">';
 
-          displayFriends();
+          if($countFriends >0){displayFriends();}
 
          echo '</div>
         </div>
@@ -930,7 +939,7 @@
           </div>
           <div class="row" id="followers_view">';
 
-          displayOrgsFollowed($orgsFollowed);
+          if($orgsFollowed >0){displayOrgsFollowed($orgsFollowed);}
           //echo sizeof($orgsFollowed);
 
          echo '</div>
