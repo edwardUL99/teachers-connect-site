@@ -331,6 +331,11 @@
 							$content = $row['content'];
 							$username = $row['username'];
 							$time_created = $row['created_at'];
+							
+							$time_created_original = strtotime($time_created);
+							$time_created = date("H:i", $time_created_original);
+							$time_created2 = date("d/m/Y", $time_created_original);
+
 							$post_id = $row['post_id'];
 
 							if(in_array($username, $post_list) or in_array(getOrgId($username, $conn), $post_list) or $user_type == ADMIN or in_array($post_id, $tag_post_list)){
@@ -380,7 +385,10 @@
 								}
 								
 								echo '</div>
-								<div class="col-2";"><p><b>'. $time_created .'</b></p>';
+								<div class="col-2">
+									<p><b>'. $time_created2 .'</b></p>
+									<p><b>'. $time_created .'</b></p>'
+									;
 
 								if($_SESSION['username'] == $username or $user_type == ADMIN){
 									$data = array('post_id' => $post_id, 'return_url' => "feed.php");
