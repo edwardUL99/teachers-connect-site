@@ -19,6 +19,10 @@
 
             function setCreated_at($created_at){
                 $this->created_at = $created_at;
+
+                if ($this->created_at == null) {
+                  $this->created = date('Y-m-d H:i:s');
+                }
             }
 
             function setTarget_link($target_link){
@@ -151,14 +155,15 @@
         function addNotification(Notification $notification){
           global $conn;
 
-          $sql = "INSERT INTO notifications (username, sender, type, target_link) VALUES (?, ?, ?, ?);";
+          $sql = "INSERT INTO notifications (username, sender, type, target_link, created_at) VALUES (?, ?, ?, ?, ?);";
 
           if ($stmt = $conn->prepare($sql)) {
-            $stmt->bind_param("ssss", $param_username, $param_sender, $param_type, $param_target);
+            $stmt->bind_param("sssss", $param_username, $param_sender, $param_type, $param_target, $param_created_at);
             $param_username = $notification->getReceiver();
             $param_sender = $notification->getSender();
             $param_type = $notification->getType();
             $param_target = $notification->getTarget_link();
+            $param_created_at = $notification->getCreated_at();
 
             if (!$stmt->execute()) {
               die("Database error: {$stmt->error}");

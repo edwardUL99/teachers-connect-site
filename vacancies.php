@@ -68,19 +68,11 @@
                   </div>
                 </div>
               </div>
-
-
-
-
                 </div>
-
               <div class="row">
-
-
-
             <div class="form-group">
               <label>Description</label>
-              <textarea name="description" id="description" class="form-control" rows="5" placeholder="Shepherds of the future!"></textarea>
+              <textarea name="description" id="description" class="form-control" rows="5" placeholder="Outline the job role here"></textarea>
               <div class="form-text">
                 Enter a detailed piece of information about the position here
               </div>
@@ -136,17 +128,10 @@
                 $skill_id = $row['skill_id'];}
 
                 if(isset($skill_id)){
-
-
-
                     $sql2 = "INSERT INTO vacancy_skills (vacancy_id, skill_id)
                     VALUES ('".$last_id."', '".$skill_id."')";
                     $conn->query($sql2);
                     unset($skill_id);
-
-
-
-
                 }
 
                 else{
@@ -181,7 +166,7 @@
 
          $query4 = mysqli_query($conn, "select * from organisations");
 
-         echo'<div class="container main-background">
+         echo'<div class="row">
 
 
 
@@ -279,14 +264,7 @@
                       $profile_photo = $row['profile_photo'];
                       //echo $profile_photo == null;
                       $profile_photo = ($profile_photo == null) ? DEFAULT_ORG_PROFILE_PIC:$profile_photo;
-
-
-
-
                        displayVacancy($row);
-
-
-           //displayVacancy($row);
          }
          }
        }
@@ -373,18 +351,6 @@
 
             }
 
-            //  echo '<div class="card" style ="margin-top: 20px; margin-bottom: 20px">
-            //                         <div class="card-body">
-            //                             <div class="row">
-            //                                 <h6>And everything else:<p style="color:blue"></h6>
-
-
-
-
-            //                             </div>
-            //                         </div>
-            //                 </div>';
-
             echo '<h5>And everything else:</h5>';
 
 
@@ -403,18 +369,7 @@
              }
 
              }
-
-
-
-
-
-
-             }
-
-
-
-
-
+           }
 
              }
            }
@@ -438,12 +393,8 @@
                                     </div>
                                     <div class="col-8">
                                         <h4>' . $job_title . '</h4>
-
-
                                         <h5 class="card-title">'. $type .'</h5>
                                         <h5 class="card-title">'. $posted_at .'</h5>
-
-
                                     </div>
                                 </div>
                             </div>
