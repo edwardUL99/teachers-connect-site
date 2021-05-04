@@ -43,7 +43,11 @@
     $content = $post_row['content'];
     $post_id = $post_row['post_id'];
     $username = $post_row['username'];
-    $time_created = $post_row['created_at'];
+    $time_created = $row['created_at'];
+
+    $time_created_original = strtotime($time_created);
+    $time_created = date("H:i", $time_created_original);
+    $time_created2 = date("d/m/Y", $time_created_original);
 
     $liked = alreadyLiked($post_id, $_SESSION['username']);
     $post = '<div class="border mb-2" id="post-card-'. $post_id . '">
@@ -71,7 +75,10 @@
     }
 
     $post .= '</div>
-      <div class="col-2"><p><b>'. $time_created .'</b></p>';
+    <div class="col-2">
+      <p><b>'. $time_created .'</b></p>
+      <p><b>'. $time_created2 .'</b></p>'
+      ;
 
     if($_SESSION['username'] == $username or $user_type == ADMIN){
       $data = array('post_id' => $post_id, 'return_url' => "teacher_profile.php");
