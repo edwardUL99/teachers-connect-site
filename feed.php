@@ -23,6 +23,12 @@
 						$teacher = null;
 						$organisation = null;
 						$profile_photo = null;
+						
+						$post_id_scroll = -1;
+						
+						if (isset($_GET['post_id'])) {
+							$post_id_scroll = $_GET['post_id'];
+						}
 
 						if ($user_type == TEACHER) {
 							$sql = "SELECT * FROM teachers WHERE username = ?;";
@@ -137,12 +143,12 @@
 									if($user_type == TEACHER){
 										$tag_query = mysqli_query($conn, "select * from teachers where username = '" . $_SESSION['username'] . "';");
 										while($connection_row = mysqli_fetch_array($tag_query)){
-											echo $connection_row['about'];
+											echo $connection_row['headline'];
 										}
 									} else if($user_type == ORGANISATION){
 										$tag_query = mysqli_query($conn, "select * from organisations where username = '" . $_SESSION['username'] . "';");
 										while($connection_row = mysqli_fetch_array($tag_query)){
-											echo $connection_row['about'];
+											echo $connection_row['headline'];
 										}
 									}
 								?>
@@ -151,11 +157,11 @@
 							<?php
 								$noti_count = getNotificationsCount();
 								if($noti_count == 0){
-									echo '<button type="button" class="btn btn-primary" onclick="window.location.href="notifications.php";">
+									echo '<button type="button" class="btn btn-primary" onclick="window.location.href=\'notifications.php\';">
 										Notifications <span class="badge bg-secondary">'. $noti_count .'</span>
 									</button>';
 								} else {
-									echo '<button type="button" class="btn btn-success" onclick="window.location.href="notifications.php";">
+									echo '<button type="button" class="btn btn-success" onclick="window.location.href=\'notifications.php\';">
 										Notifications <span class="badge bg-secondary"> '. $noti_count .'</span>
 									</button>';
 								}
@@ -188,18 +194,18 @@
 					<div class="card" style="margin-top:20px;" id="post_creation">
 						<div class="form-group" style="margin:10px;">
 							<form id="post_creation_form">
-								<textarea class="form-control" name="content" id="content" rows="3" placeholder="Share your thoughts!" style="margin-bottom:10px;"></textarea>
-								<input class="form-control" name="tags" id="tags" placeholder="Add tags to your post!">
-								<p style="font-size:12px;">Enter skills to add in a comma-separated (,) list</p>
+								<textarea class="form-control" name="content" id="content" rows="3" placeholder="Share your thoughts" style="margin-bottom:10px;"></textarea>
+								<input class="form-control" name="tags" id="tags" placeholder="Add tags to your post (e.g. Math, English, Irish)" style="margin-bottom:5px;">
+								<p style="font-size:12px; margin-left:4px; color:grey;">Enter tags to add in a comma-separated (,) list</p>
 								<div class="card-body text-center">
 									<button type="button" onclick="handlePostCreation();" class="btn btn-primary">Post</button>
 								</div>
 							</form>
 							<?php
 								if($_SERVER["REQUEST_METHOD"] == "POST"){
-									if(isset($_POST['content']) and $_POST['tags'] != ''){
+									if(isset($_POST['content'])){
 										$content = $_POST['content'];
-										$tags = $_POST['tags'];
+										
 										$username = $_SESSION['username'];
 
 										$sql = "INSERT INTO posts (`username`, `content`) VALUES ('{$username}', '{$content}');";
@@ -207,28 +213,31 @@
 										if ($conn->query($sql) === FALSE) {
 											echo "Error uploading post, try again";
 										} else {
-											$last_id = $conn->insert_id;
-											$myArray = explode(',', $tags);
-											foreach ($myArray as $value) {
-												$query9 = mysqli_query($conn, "select * from tags where name = '$value'");
-												while($row = mysqli_fetch_array($query9)){
-													$tag_id = $row['tag_id'];
-												}
+											if(!empty($_POST['tags'])){
+												$tags = $_POST['tags'];
+												$last_id = $conn->insert_id;
+												$myArray = explode(',', $tags);
+												foreach ($myArray as $value) {
+													$query9 = mysqli_query($conn, "select * from tags where name = '$value'");
+													while($row = mysqli_fetch_array($query9)){
+														$tag_id = $row['tag_id'];
+													}
 
-												if(isset($tag_id)){
-													$sql2 = "INSERT INTO post_tags (post_id, tag_id)
-													VALUES ('".$last_id."', '".$tag_id."')";
-													$conn->query($sql2);
-													unset($tag_id);
+													if(isset($tag_id)){
+														$sql2 = "INSERT INTO post_tags (post_id, tag_id)
+														VALUES ('".$last_id."', '".$tag_id."')";
+														$conn->query($sql2);
+														unset($tag_id);
 
-												} else {
-													$sql3 = "INSERT INTO tags (name)
-													VALUES ('".$value."')";
-													$conn->query($sql3);
-													$last_id2 = $conn->insert_id;
-													$sql4 = "INSERT INTO post_tags (post_id, tag_id)
-													VALUES ('".$last_id."', '".$last_id2."')";
-													$conn->query($sql4);
+													} else {
+														$sql3 = "INSERT INTO tags (name)
+														VALUES ('".$value."')";
+														$conn->query($sql3);
+														$last_id2 = $conn->insert_id;
+														$sql4 = "INSERT INTO post_tags (post_id, tag_id)
+														VALUES ('".$last_id."', '".$last_id2."')";
+														$conn->query($sql4);
+													}
 												}
 											}
 										}
@@ -257,21 +266,16 @@
 							return null;
 						}
 
-						function addToPostArray($param_query, string $post_column, $post_list){
-							//populate post_list from sql query
+						function addToArray($param_query, string $post_column, $list){
+							//populate list from sql query
 							while($connection_row = mysqli_fetch_array($param_query)){
-								array_push($post_list, $connection_row[$post_column]);
+								array_push($list, $connection_row[$post_column]);
 							}
-							return $post_list;
-						}
-
-						function deletePost(int $post_id){
-							global $conn;
-							print_r($post_id);
-							$delete_post_query = mysqli_query($conn, "delete from posts where post_id='" . $post_id . "';");
+							return $list;
 						}
 
 						$post_list = [];
+						$tag_post_list = [];
 						if($user_type == TEACHER){
 							array_push($post_list, $_SESSION['username']);
 						} else if($user_type == ORGANISATION){
@@ -283,15 +287,45 @@
 						$post_name = null;
 
 						$sql_friend_check_sender = mysqli_query($conn, "select * from connections where sender = '" . $_SESSION['username'] . "' and status = 'accepted';");
-						$post_list = addToPostArray($sql_friend_check_sender, 'destination', $post_list);
+						$post_list = addToArray($sql_friend_check_sender, 'destination', $post_list);
 
 						$sql_friend_check_des = mysqli_query($conn, "select * from connections where destination = '" . $_SESSION['username'] . "' and status = 'accepted';");
-						$post_list = addToPostArray($sql_friend_check_des, 'sender', $post_list);
+						$post_list = addToArray($sql_friend_check_des, 'sender', $post_list);
 
 						$sql_org_check = mysqli_query($conn, "select * from followed_organisations where teacher_username = '" . $_SESSION['username'] . "';");
-						$post_list = addToPostArray($sql_org_check, 'organisation_id', $post_list);
+						$post_list = addToArray($sql_org_check, 'organisation_id', $post_list);
 
+						$sql_tag_check = mysqli_query($conn, "select post_id from post_tags inner join teacher_interests on post_tags.tag_id = teacher_interests.tag_id where username ='" . $_SESSION['username'] . "';");
+						$tag_post_list = addToArray($sql_tag_check, 'post_id', $tag_post_list);
+						
 						$query = mysqli_query($conn, "select * from posts order by created_at desc");
+						
+						function alreadyLiked($post_id, $username) {
+							global $conn;
+
+							$sql = "SELECT * FROM post_likes WHERE post_id = ? AND username = ?;";
+
+							if ($stmt = $conn->prepare($sql)) {
+							    $stmt->bind_param("is", $param_id, $param_username);
+							    $param_id = $post_id;
+							    $param_username = $username;
+
+							    if ($stmt->execute()) {
+								$result = $stmt->get_result();
+
+								$exists = $result->num_rows > 0;
+								$stmt->close();
+
+								return $exists;
+							    } else {
+								die("Database Error: {$stmt->error}");  
+							    }
+							} else {
+							    die("Database Error: {$conn->error}");  
+							}
+						}
+						
+						echo '<div id="posts-container">';
 						while($row = mysqli_fetch_array($query)){
 
 							$content = $row['content'];
@@ -299,7 +333,7 @@
 							$time_created = $row['created_at'];
 							$post_id = $row['post_id'];
 
-							if(in_array($username, $post_list) or in_array(getOrgId($username, $conn), $post_list) or $user_type == ADMIN){
+							if(in_array($username, $post_list) or in_array(getOrgId($username, $conn), $post_list) or $user_type == ADMIN or in_array($post_id, $tag_post_list)){
 								if(getAccountType($username, $conn) == 'teacher'){
 									$sql = "select * from teachers where username = '$username';";
 									$result = $conn->query($sql);
@@ -316,26 +350,44 @@
 										$profile_photo = ($profile_photo == null || empty($profile_photo)) ? DEFAULT_ORG_PROFILE_PIC:$profile_photo;
 										$post_name = $row["name"];
 									}
-								}
-
-								echo '<div class="card">
+								} 
+								
+								
+								$liked = alreadyLiked($post_id, $_SESSION['username']);
+								echo '<div class="card" id="post-card-'. $post_id . '">
 								<div class="card-body">
 									<div class="row">
-										<div class="col-4">
-											<img class="card-img-top rounded-circle" style="height: 100px; width: 100px;" src="'. $profile_photo . '" alt="Profile image" style="width:100%">
+										<div class="col-3"">
+											<img class="card-img-top rounded-circle" style="margin-left:auto; margin-right: auto; display: block;" src="'. $profile_photo . '" alt="Profile image"">
 										</div>
-										<div class="col-6">
-											<h4 class="card-title">'. $post_name .'</h4>
-											<p class="card-text">'. $content .'</p>
-											<button type="button" class="btn btn-primary">Like 👍</button>
-										</div>
-
-										<div class="col-2">';
-
-								echo'<p>'. $time_created .'</p>';
+										<div class="col-7">
+											<h3 class="card-title"><b>'. $post_name .'</b></h3>
+											<p class="card-text">'. $content .'</p>';
+											if ($liked) {
+												echo '<button type="button" class="btn btn-danger btn-sm" id="post-'. $post_id . '" onclick="handlePostLike('. $post_id . ', \''. $username . '\');">Unlike 👍</button>';
+											} else {
+												echo '<button type="button" class="btn btn-primary btn-sm" id="post-'. $post_id . '" onclick="handlePostLike('. $post_id . ', \''. $username . '\');">Like 👍</button>';
+											}
+										
+								$tag_query = mysqli_query($conn, "select tags.name from post_tags inner join tags on post_tags.tag_id = tags.tag_id where post_id = '". $post_id ."';");
+								if (mysqli_num_rows($tag_query) > 0) {
+									echo '<p style="margin-top:10px;"><b>Tags:</b> ';
+									while($connection_row = mysqli_fetch_array($tag_query)){
+										print $connection_row['name'] . " ";
+									} 
+	
+									echo '</p>';
+								}
+								
+								echo '</div>
+								<div class="col-2";"><p><b>'. $time_created .'</b></p>';
 
 								if($_SESSION['username'] == $username or $user_type == ADMIN){
-									echo'<button type="button" class="btn btn-outline-danger btn-sm" onclick="deletePost('.$post_id.');">Delete</button>';
+									$data = array('post_id' => $post_id, 'return_url' => "feed.php");
+									$query_string = http_build_query($data);
+									$url = "post_delete.php?".$query_string;
+
+									echo "<a href=\"{$url}\" class=\"btn btn-outline-danger btn-sm\">Delete</a>";
 								}
 
 								echo'		</div>
@@ -344,22 +396,119 @@
 								</div>';
 							}
 						}
+
+						echo "</div>";
 					?>
 				</div>
 			</div>
 		</div>
 
 		<script type="text/javascript" src="forms.js"></script>
-    <script type="text/javascript" src="ajax.js"></script>
+    	<script type="text/javascript" src="ajax.js"></script>
 		<script>
-			const username = <?php echo json_encode($username); ?>;
-
+			const username = <?php echo json_encode($_SESSION['username']); ?>;
+			
+			const post_id_scroll = <?php echo json_encode($post_id_scroll); ?>;
+			
+			if (post_id_scroll != -1) {
+			
+				var post = document.getElementById(`post-card-${post_id_scroll}`);
+				if (post != null) {
+					post.scrollIntoView();
+				}
+			}
+			
 			function handleRefresh() {
 				window.location.href = 'feed.php';
 			}
 
-      function deletePost(post_id){
-				handleRefresh();
+			function createPost(data) {
+				var post_id = data['post_id'];
+				var post_username = data['username'];
+
+				var card = document.createElement("div");
+				card.classList.add('card');
+				card.id = `post-card-${post_id}`;
+
+				var card_body = document.createElement("div");
+				card_body.classList.add('card-body');
+				card.appendChild(card_body);
+
+				var row = document.createElement("div");
+				row.classList.add('row');
+				card_body.appendChild(row);
+
+				var col_3 = document.createElement("div");
+				col_3.classList.add('col-3');
+				row.appendChild(col_3);
+
+				var img = document.createElement("img");
+				img.classList.add('card-img-top', 'rounded-circle');
+				img.src = data['profile_photo'];
+				col_3.appendChild(img);
+
+				var col_7 = document.createElement("div");
+				col_7.classList.add('col-7');
+				row.appendChild(col_7);
+
+				var h3 = document.createElement("h3");
+				h3.classList.add('card-title');
+				var b = document.createElement("b");
+				b.innerHTML = data['post_name'];
+				h3.appendChild(b);
+				col_7.appendChild(h3);
+
+				var content = document.createElement("p");
+				content.classList.add('card-text');
+				content.innerHTML = data['content'];
+				col_7.appendChild(content);
+
+				var like_button = document.createElement("button");
+				like_button.type = "button";
+				like_button.classList.add('btn', 'btn-primary', 'btn-sm');
+				like_button.innerHTML = "Like 👍";
+				like_button.onclick = function() { handlePostLike(post_id, post_username); };
+				like_button.id = `post-${post_id}`;
+				col_7.appendChild(like_button);
+
+				var tags = data['post_tags'];
+
+				if (tags != null) {
+					var tags_p = document.createElement("p");
+					tags_p.style.marginTop = "10px;";
+					var tags_b = document.createElement("b");
+					tags_b.innerHTML = "Tags: ";
+					tags_p.appendChild(tags_b);
+					col_7.appendChild(tags_p);
+
+					var tagString = "";
+					for (var tag in tags) {
+						tagString += tags[tag] + " ";
+					}					
+
+					tags_p.appendChild(document.createTextNode(tagString));
+				}
+
+				var col_2 = document.createElement("div");
+				col_2.classList.add('col-2');
+				row.appendChild(col_2);
+
+				var created_at_p = document.createElement("p");
+				var created_at_b = document.createElement("b");
+				created_at_b.innerHTML = data['created_at'];
+				created_at_p.appendChild(created_at_b);
+				col_2.appendChild(created_at_p);
+
+				if (username == post_username) {
+					var delete_button = document.createElement("a");
+					delete_button.classList.add('btn', 'btn-outline-danger', 'btn-sm');
+					delete_button.href=`post_delete.php?post_id=${post_id}&return_url=feed.php`;
+					delete_button.innerHTML = "Delete";
+					col_2.appendChild(delete_button);
+				}
+
+				var posts_container = document.getElementById('posts-container');
+				posts_container.prepend(card);
 			}
 
 			function handlePostCreation() {
@@ -372,30 +521,89 @@
 					var ajax = getAJAX();
 					if (ajax != null) {
 						ajax.onreadystatechange = function() {
-							var response = ajax.response;
+							if (ajax.readyState == 4) {
+								var response = ajax.response;
 
-							try {
-								var responseBody = JSON.parse(response);
-								var success = responseBody.success;
-								var message = responseBody.message;
+								try {
+									var responseBody = JSON.parse(response);
+									var success = responseBody.success;
+									var message = responseBody.message;
 
-								if (success && message == "CREATED") {
-									// TODO add logic to create post from returned data.
+									if (success && message == "CREATED") {
+										var data = responseBody.data;
+										createPost(data);
 
-									addAlertMessage(true, "The post has been created successfully", "post_creation");
-								} else {
-									addAlertMessage(false, "An error occurred creating post: " + message, "post_creation");
+										addAlertMessage(true, "The post has been created successfully", "post_creation");
+									} else {
+										addAlertMessage(false, "An error occurred creating post: " + message, "post_creation");
+									}
+
+									clearValidation('post_creation_form');
+								} catch (e) {
+									alert(e);
 								}
-
-								clearValidation('post_creation_form');
-							} catch (e) {
-								alert(response);
 							}
 						}
+
+						ajax.open("POST", "feed-action-ajax.php", true);
+						ajax.send(JSON.stringify(data));
 					}
 				}
 			}
+
+			function handlePostLike(post_id, creator_username) {
+				var data = {};
+				data['post_id'] = post_id;
+				data['creator_username'] = creator_username;
+				data['username'] = username;
+
+				data['edit_form'] = 'post_like';
+
+				var ajax = getAJAX();
+				if (ajax != null) {
+					ajax.onreadystatechange = function() {
+							if (ajax.readyState == 4) {
+								var response = ajax.response;
+
+								try {
+									var responseBody = JSON.parse(response);
+									var success = responseBody.success;
+									var message = responseBody.message;
+									
+									if (success) {
+										var data = responseBody.data;
+										var post_id = data['post_id'];
+										var button = document.getElementById(`post-${post_id}`);
+
+										if (message == "LIKED") {
+											button.classList.remove('btn-primary');
+											button.classList.add('btn-danger');
+											button.innerHTML = "Unlike 👍";
+										} else if (message == "REMOVED") {
+											button.classList.remove('btn-danger');
+											button.classList.add('btn-primary');
+											button.innerHTML = "Like 👍";
+										}
+									} else {
+										addAlertMessage(false, "An error occurred liking post: " + message, `post-card-${post_id}`);
+									}
+								} catch (e) {
+									alert(e);
+								}
+							}
+						}
+
+						ajax.open("POST", "feed-action-ajax.php", true);
+						ajax.send(JSON.stringify(data));
+				}
+			}
 		</script>
+<!-- 
+		<script>
+			if ( window.history.replaceState ) {
+				window.history.replaceState( null, null, window.location.href );
+			}
+		</script> -->
 
 	</body>
 </html>
