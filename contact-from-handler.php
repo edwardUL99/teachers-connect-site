@@ -12,13 +12,25 @@
                 ./n"
                 ;
 
-    $send_to = "18266401@studentmail.ul.ie";
+    $send_to = "ayoubjdair00@gmail.com";
+
+    $headers = 'From:' .$email;
 
     if( mail($send_to, $subject, $content)!==true)
     {
-        die('Fail to send');
+        //die('');
+        header("Location: landingpage.php");
     }else{
         echo "Success";
         header("Location: landingpage.php");
     }
+    
+    // if( mail($send_to, $subject, $content, $headers))
+    // {
+    //     echo "sucsess";
+    //     header("Location: landingpage.php");
+
+    // }else{
+    //     echo "failed";
+    // }
 ?> 
