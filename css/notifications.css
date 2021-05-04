@@ -6,10 +6,12 @@ body{
     background: #38F094;
     overflow-y: scroll; 
     overflow-x:hidden;
+	font-family: Arial, sans-serif;
 }
 
 .notificationPage{
     background-color: #38F094;
+	font-family: Arial, sans-serif;
 }
 
 #heading{
