@@ -335,8 +335,7 @@
               $url = $url . http_build_query($data);
             if($user_type=='teacher'){
              echo '<br><h6>Recommended just for you, based on skills: <p style="color:blue"><i>' . $teacherSkills . '</i></p></h6>
-                    <p><a href="'.$url.'">Click here</a> to edit your skills</p>';
-                  }
+                    <p><a href="'.$url.'">Click here</a> to edit</p>';}
 
              if($user_type == 'organisation' || $user_type == 'admin'){
              $query = mysqli_query($conn, "SELECT * FROM vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id order by posted_at desc;");
@@ -394,8 +393,8 @@
            $type = $row['type'];
            $posted_at = $row['posted_at'];
 
-           $timestamp = strtotime($posted_at . "+ 5 hours");
-           $posted_at = date("H:i:s", $timestamp);
+           $timestamp = strtotime($posted_at);
+           $posted_at = date("H:i", $timestamp);
            $posted_at2 = date("d/m/Y", $timestamp);
 
            $profile_photo = $row['profile_photo'];
