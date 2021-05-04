@@ -53,7 +53,7 @@
 
                 if ($row) {
                     $profile_photo = $row['profile_photo'];
-                    
+
                     if ($profile_photo == null) {
                     	$profile_photo = ($type == TEACHER) ? DEFAULT_TEACHER_PROFILE_PIC:DEFAULT_ORG_PROFILE_PIC;
                     }
@@ -62,7 +62,7 @@
                 $stmt->close();
                 return $profile_photo;
             } else {
-                respond(false, "Database Error: {$stmt->error}");   
+                respond(false, "Database Error: {$stmt->error}");
             }
         } else {
             respond(false, "Database Error: {$conn->error}");
@@ -116,6 +116,7 @@
                 }
 
                 $type = getUserType($username);
+                $profile_url = ($type == TEACHER) ? "teacher_profile.php?username={$username}":"organisation_profile.php?username={$username}";
 
                 $data = array();
                 $data['post_tags'] = $added_tags;
@@ -125,6 +126,8 @@
                 $data['profile_photo'] = getProfilePhoto($username, $type);
                 $data['post_name'] = getSenderName($username, $type);
                 $data['username'] = $username;
+                $data['profile_url'] = $profile_url;
+
                 respondData(true, "CREATED", $data);
             }
         } else {
@@ -150,10 +153,10 @@
 
                 return $exists;
             } else {
-                respond(false, "Database Error: {$stmt->error}");  
+                respond(false, "Database Error: {$stmt->error}");
             }
         } else {
-            respond(false, "Database Error: {$conn->error}");  
+            respond(false, "Database Error: {$conn->error}");
         }
     }
 
@@ -168,14 +171,14 @@
             $param_username = $username;
 
             if (!$stmt->execute()) {
-                respond(false, "Database Error: {$stmt->error}");  
+                respond(false, "Database Error: {$stmt->error}");
             }
 
             $stmt->close();
             $data = array('post_id' => $post_id);
             respondData(true, "REMOVED", $data);
         } else {
-            respond(false, "Database Error: {$conn->error}");  
+            respond(false, "Database Error: {$conn->error}");
         }
     }
 
@@ -190,18 +193,18 @@
             $param_username = $username;
 
             if (!$stmt->execute()) {
-                respond(false, "Database Error: {$stmt->error}");  
+                respond(false, "Database Error: {$stmt->error}");
             }
 
             $stmt->close();
 
             $notification = new LikeNotification($username, $creator_username, false, "feed.php?post_id={$post_id}", null);
             addNotification($notification);
-            
+
             $data = array('post_id' => $post_id);
             respondData(true, "LIKED", $data);
         } else {
-            respond(false, "Database Error: {$conn->error}");  
+            respond(false, "Database Error: {$conn->error}");
         }
     }
 
