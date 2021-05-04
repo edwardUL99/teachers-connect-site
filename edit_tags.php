@@ -23,6 +23,57 @@
             generateNavBar(HOME);
             $username = $_SESSION['username'];
 
+
+
+            $skills_options = array();
+
+            function loadSkillsOptions() {
+                global $username;
+                global $conn;
+                global $skills_options;
+
+        $sql = "SELECT * FROM teacher_interests NATURAL JOIN tags WHERE username = ?;";
+
+        if ($stmt = $conn->prepare($sql)) {
+          $stmt->bind_param("s", $param_username);
+          $param_username = $username;
+
+
+
+
+
+          if ($stmt->execute()) {
+            $results = $stmt->get_result();
+
+            if ($results->num_rows > 0) {
+              while ($row = $results->fetch_assoc()) {
+                $value = $row['tag_id'];
+                $text = $row['name'];
+                $skills_options[] = "<option value=\"{$value}\">{$text}</option>";
+              }
+            }
+          } else {
+            doSQLError($stmt->error);
+          }
+
+          $stmt->close();
+        } else {
+          doSQLError($conn->error);
+        }
+      }
+
+      function getSkillsOptions() {
+        global $skills_options;
+
+        foreach ($skills_options as $key => $value) {
+          echo $value;
+        }
+      }
+
+      loadSkillsOptions();
+
+
+
         ?>
 
         <div class="container">
@@ -50,6 +101,8 @@
                         <div class="form-group">
                             <label>Choose skills to tags</label>
                             <select class="form-select" multiple id="skills_choice" onchange="onSkillChosen();" name="skills_choice">
+
+                            <?php getSkillsOptions(); ?>
 
                             </select>
                             <div class="form-text">
