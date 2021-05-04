@@ -13,6 +13,7 @@
       require "teacher_variables.php";
       require "navbar.php";
       require "notifications_utils.php";
+      require "profile_posts_utils.php";
 
       $own_profile = false;
       $connected = null;
@@ -31,8 +32,6 @@
       $blacklisted = false;
 
       $organisation_viewer = false; // true if the user viewing the teacher is an organisation
-
-      $posts = array();
 
       $contact_button = "";
 
@@ -206,63 +205,6 @@
 
         $loggedin_username = $_SESSION[USERNAME];
         return $connection_pending && $loggedin_username == $connection_sender;
-      }
-
-      /**
-        * Load all posts created by this teacher
-        */
-      function loadPosts() {
-        global $posts;
-        global $username;
-        global $conn;
-        global $teacher;
-
-        $profile_photo = $teacher->profile_photo();
-        $profile_photo = ($profile_photo == null || empty($profile_photo)) ? DEFAULT_TEACHER_PROFILE_PIC:$profile_photo;
-
-        $sql = "SELECT * FROM posts WHERE username = ? ORDER BY created_at DESC;";
-
-        if ($stmt = $conn->prepare($sql)) {
-          $stmt->bind_param("s", $param_username);
-          $param_username = $username;
-
-          if ($stmt->execute()) {
-            $result = $stmt->get_result();
-
-            while ($row = $result->fetch_assoc()) {
-              $content = $row['content'];
-              $name = getSenderName($username, TEACHER);
-              $posts[] = '<div class="border mb-2">
-                  <div class="row">
-                      <div class="col-2">
-                          <img class="rounded-circle" style="height: 100px; width: 100px;" src="'. $profile_photo . '" alt="Profile image" style="width:100%">
-                      </div>
-                      <div class="col-10">
-                          <h4 class="card-title">'. $name .'</h4>
-                          <p class="card-text">'. $content .'</p>
-                      </div>
-              </div>
-          </div>';
-            }
-          } else {
-            doSQLError($stmt->error);
-          }
-
-          $stmt->close();
-        } else {
-          doSQLError($conn->error);
-        }
-      }
-
-      /**
-        * Display this user's posts
-        */
-      function displayPosts() {
-        global $posts;
-
-        foreach ($posts as $value) {
-          echo $value;
-        }
       }
 
       /**
@@ -509,7 +451,7 @@
                 }
 
                 if (empty($error_message)) {
-                  loadPosts();
+                  loadTeacherPosts($teacher);
 
                   if (empty($error_message)) {
                     loadContactButton();
@@ -1151,6 +1093,52 @@
         }
       }
 
+      function handlePostLike(post_id, creator_username) {
+				var data = {};
+				data['post_id'] = post_id;
+				data['creator_username'] = creator_username;
+				data['username'] = username;
+
+				data['edit_form'] = 'post_like';
+
+				var ajax = getAJAX();
+				if (ajax != null) {
+					ajax.onreadystatechange = function() {
+							if (ajax.readyState == 4) {
+								var response = ajax.response;
+
+								try {
+									var responseBody = JSON.parse(response);
+									var success = responseBody.success;
+									var message = responseBody.message;
+
+									if (success) {
+										var data = responseBody.data;
+										var post_id = data['post_id'];
+										var button = document.getElementById(`post-${post_id}`);
+
+										if (message == "LIKED") {
+											button.classList.remove('btn-primary');
+											button.classList.add('btn-danger');
+											button.innerHTML = "Unlike 👍";
+										} else if (message == "REMOVED") {
+											button.classList.remove('btn-danger');
+											button.classList.add('btn-primary');
+											button.innerHTML = "Like 👍";
+										}
+									} else {
+										addAlertMessage(false, "An error occurred liking post: " + message, `post-card-${post_id}`);
+									}
+								} catch (e) {
+									alert(e);
+								}
+							}
+						}
+
+						ajax.open("POST", "feed-action-ajax.php", true);
+						ajax.send(JSON.stringify(data));
+				}
+			}
     </script>
   </body>
 </html>
