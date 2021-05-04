@@ -170,6 +170,7 @@
 						</div>
 					</div>
 
+					<?php if ($user_type == TEACHER): ?>
 					<div class="card">
 						<div class="tags" style="text-align: center;">
 							<h3><b><u>Tags</b></u></h3>
@@ -188,6 +189,7 @@
 						</button>
 					</div>
 
+					<?php endif; ?>
             	</div>
 
             	<div class="<?php echo ($user_type != ADMIN) ? 'col-9':'col'; ?>" id="home-feed">
@@ -386,8 +388,8 @@
 								
 								echo '</div>
 								<div class="col-2">
-									<p><b>'. $time_created2 .'</b></p>
-									<p><b>'. $time_created .'</b></p>'
+									<p><b>'. $time_created .'</b></p>
+									<p><b>'. $time_created2 .'</b></p>'
 									;
 
 								if($_SESSION['username'] == $username or $user_type == ADMIN){
