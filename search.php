@@ -60,7 +60,7 @@
         global $organisations;
 
         foreach ($organisations as $key => $value) {
-          $img_src = ($value->profile_photo() == null) ? DEFAULT_TEACHER_PROFILE_PIC:"{$value->profile_photo()}";
+          $img_src = ($value->profile_photo() == null) ? DEFAULT_ORG_PROFILE_PIC:"{$value->profile_photo()}";
           $name = "{$value->name()}";
           $about = "{$value->about()}";
           $headline = "{$value->headline()}";
@@ -110,13 +110,13 @@
             $query = mysqli_query($conn, "select * from teachers where first_name like '$q%' or concat(first_name, \" \", last_name) like '$q%' or last_name like '$q%'");
 
             while($row = mysqli_fetch_array($query)){
-                        
+
 
                         $teachers[] = new Teacher($row['username'], $row['first_name'],
                             $row['last_name'], $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
 
-                            
-                            
+
+
                       }
 
             $rowCount = mysqli_num_rows($query);
@@ -124,16 +124,16 @@
             $query2 = mysqli_query($conn, "select * from organisations where name like '%$q%'");
 
             while($row = mysqli_fetch_array($query2)){
-                        
+
 
                         $organisations[] = new Organisation($row['organisation_id'], $row['username'],
                             $row['name'], $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
 
-                           
-                        
 
-                            
-                            
+
+
+
+
                       }
 
             $rowCount2 = mysqli_num_rows($query2);

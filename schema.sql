@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS accounts (
   username VARCHAR(32) NOT NULL,
   email VARCHAR(255),
   password VARCHAR(255) NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   type ENUM('admin' , 'teacher' , 'organisation'),
   PRIMARY KEY (username)
 );
@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS vacancies (
   job_title VARCHAR(64),
   description TEXT,
   type VARCHAR(64),
-  posted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (vacancy_id),
   FOREIGN KEY (organisation_id) REFERENCES organisations(organisation_id)
     ON DELETE CASCADE
@@ -268,7 +268,7 @@ CREATE TABLE IF NOT EXISTS posts (
   post_id INTEGER AUTO_INCREMENT,
   username VARCHAR (32),
   content TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (post_id),
   FOREIGN KEY (username) REFERENCES accounts(username)
     ON DELETE CASCADE
@@ -354,7 +354,7 @@ CREATE TABLE IF NOT EXISTS notifications (
   type ENUM('view' , 'request' , 'accepted', 'like' , 'follow', 'admin', 'org_invite'),
   target_link VARCHAR (255),
   viewed BOOLEAN DEFAULT false,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   FOREIGN KEY (username) REFERENCES accounts(username)
     ON DELETE CASCADE
@@ -376,8 +376,8 @@ CREATE TABLE IF NOT EXISTS banned_users (
   username VARCHAR(32),
   banned_by VARCHAR(32),
   reason VARCHAR(64),
-  date_from DATETIME DEFAULT CURRENT_TIMESTAMP,
-  date_to DATETIME,
+  date_from TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  date_to TIMESTAMP,
   PRIMARY KEY (username),
   FOREIGN KEY (username) REFERENCES accounts(username)
     ON DELETE CASCADE
