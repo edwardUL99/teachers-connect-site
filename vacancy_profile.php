@@ -233,6 +233,12 @@
             $profile_photo = $row['profile_photo'];
             $profile_photo = ($profile_photo == null) ? DEFAULT_ORG_PROFILE_PIC:$profile_photo;
             $org_username = $row['username'];
+
+            $posted_at = $row['posted_at'];
+
+            $timestamp = strtotime($posted_at);
+            $posted_at = date("H:i", $timestamp);
+            $posted_at2 = date("d/m/Y", $timestamp);
           }
       ?>
      <div class="container main-background">
@@ -248,6 +254,7 @@
           <a href="organisation_profile.php?username=<?php echo $org_username; ?>"><h3><?php echo $org_name; ?></h3></a>
           <h4 class="subtitle"><?php echo $job_title;?></h4>
           <h5><?php echo $type; ?></h5>
+          <h5 class="card-title">Posted at <?php echo $posted_at ?> on the <?php echo $posted_at2 ?></h5>
 
         </div>
         <div class="row mt-2">
