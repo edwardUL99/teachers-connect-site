@@ -35,11 +35,14 @@
 
       $contact_button = "";
 
+      $post_id_scroll = -1;
+
       /**
        * Parses the URL for any GET parameters
        */
       function parseURL() {
         global $username;
+        global $post_id_scroll;
 
         if ($_SERVER["REQUEST_METHOD"] == "GET") {
           $parsed_url = parse_url($_SERVER["REQUEST_URI"], PHP_URL_QUERY);
@@ -48,6 +51,10 @@
 
           if (isset($params['username'])) {
             $username = $params['username'];
+          }
+
+          if (isset($params['post_id'])) {
+            $post_id_scroll = $params['post_id'];
           }
         }
       }
@@ -702,6 +709,15 @@
 
       var reject_button = document.getElementById('reject-button');
 
+      const post_id_scroll = <?php echo json_encode($post_id_scroll); ?>;
+
+			if (post_id_scroll != -1) {
+				var post = document.getElementById(`post-card-${post_id_scroll}`);
+				if (post != null) {
+					post.scrollIntoView();
+				}
+			}
+
       /**
         * Updates the ajax_progress message
         */
@@ -1098,8 +1114,8 @@
 				data['post_id'] = post_id;
 				data['creator_username'] = creator_username;
 				data['username'] = username;
-
 				data['edit_form'] = 'post_like';
+        data['like_source'] = 'teacher_profile.php';
 
 				var ajax = getAJAX();
 				if (ajax != null) {
@@ -1143,7 +1159,7 @@
       function deletePost(post_id) {
 				var data = {};
 				data['post_id'] = post_id;
-				data['username'] = username;
+				data['username'] = loggedin_username;
 				data['edit_form'] = 'post_delete';
 
 				var ajax = getAJAX();

@@ -256,7 +256,7 @@
         }
     }
 
-    function addLike($post_id, $username, $creator_username) {
+    function addLike($post_id, $username, $creator_username, $like_source) {
         global $conn;
 
         $sql = "INSERT INTO post_likes (post_id, username) VALUES (?, ?);";
@@ -272,7 +272,7 @@
 
             $stmt->close();
 
-            $notification = new LikeNotification($username, $creator_username, false, "feed.php?post_id={$post_id}", null);
+            $notification = new LikeNotification($username, $creator_username, false, "{$like_source}?post_id={$post_id}", null);
             addNotification($notification);
 
             $data = array('post_id' => $post_id);
@@ -298,10 +298,16 @@
             respond(false, "creator_username is a mandatory field");
         }
 
+        if (isset($_POST['like_source'])) {
+          $like_source = $_POST['like_source'];
+        } else {
+          respond(false, "like_source is a mandatory field");
+        }
+
         if (alreadyLiked($post_id, $username)) {
             removeLike($post_id, $username);
         } else {
-            addLike($post_id, $username, $creator_username);
+            addLike($post_id, $username, $creator_username, $like_source);
         }
     }
 

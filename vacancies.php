@@ -229,8 +229,10 @@
          <datalist id="orgs_list">';
 
          while($row = mysqli_fetch_array($query4)){
+
           $org_name = $row['name'];
-         echo '<option>'.$org_name.'<option>';
+        if($row['username'] != null){
+         echo '<option>'.$org_name.'<option>';}
          }
          echo '</datalist>
 
@@ -377,9 +379,6 @@
         $url = "edit_teacher.php?";
         $data = array('username' => $username, 'scroll_to_id' => "add_skills");
         $url = $url . http_build_query($data);
-            if($user_type=='teacher'){
-             echo '<br><h6>Recommended just for you, based on skills: <p style="color:blue"><i>' . $teacherSkills . '</i></p></h6>
-                    <p><a href="'.$url.'">Click here</a> to edit</p>';}
 
              if($user_type == 'organisation' || $user_type == 'admin'){
              $query = mysqli_query($conn, "SELECT * FROM vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id order by posted_at desc;");
@@ -396,27 +395,33 @@
 
              $queryString = "select distinct vacancies.vacancy_id, vacancies.organisation_id, job_title, description, type, profile_photo, posted_at from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where vacancy_skills.skill_id in (select skill_id from skills where $teacherSkillsForRecs) order by posted_at desc";
              $query100 = mysqli_query($conn, $queryString);
-             while($row = mysqli_fetch_array($query100)){
-                 $count = $count + 1;
-                 displayVacancy($row);
+
+             if (mysqli_num_rows($query100) > 0) {
+               if($user_type=='teacher'){
+                echo '<br><h6>Recommended just for you, based on skills: <p style="color:blue"><i>' . $teacherSkills . '</i></p></h6>
+                       <p><a href="'.$url.'">Click here</a> to edit</p>';}
+               while($row = mysqli_fetch_array($query100)){
+                   displayVacancy($row);
+                   $count++;
+               }
+             } else {
+               if($count > 0){
+                 echo '<h6>No results<p style="color:blue"></h6>';
+               }
              }
-            if($count == 0){
-             echo '<h6>No results<p style="color:blue"></h6>';
-
-            }
-
-            echo '<h5>And everything else:</h5>';
-
 
             if($count > 0){
-             $queryString =   "select * from vacancies where vacancy_id not in (select distinct vacancies.vacancy_id from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where vacancy_skills.skill_id in (select skill_id from skills where $teacherSkillsForRecs) order by posted_at desc)";
+
+             echo '<br>';
+             echo '<h4>And everything else:</h4>';
+             $queryString =   "select * from vacancies join organisations on vacancies.organisation_id = organisations.organisation_id where vacancy_id not in (select distinct vacancies.vacancy_id from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where vacancy_skills.skill_id in (select skill_id from skills where $teacherSkillsForRecs) order by posted_at desc)";
              $query100 = mysqli_query($conn, $queryString);
              while($row = mysqli_fetch_array($query100)){
                  displayVacancy($row);
              }}
 
              else{
-                $queryString =   "select * from vacancies order by posted_at desc";
+                $queryString =   "select * from vacancies join organisations on vacancies.organisation_id = organisations.organisation_id order by posted_at desc";
              $query100 = mysqli_query($conn, $queryString);
              while($row = mysqli_fetch_array($query100)){
                  displayVacancy($row);

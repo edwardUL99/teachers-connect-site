@@ -386,7 +386,6 @@
 			const post_id_scroll = <?php echo json_encode($post_id_scroll); ?>;
 
 			if (post_id_scroll != -1) {
-
 				var post = document.getElementById(`post-card-${post_id_scroll}`);
 				if (post != null) {
 					post.scrollIntoView();
@@ -543,6 +542,7 @@
 				data['creator_username'] = creator_username;
 				data['username'] = username;
 				data['edit_form'] = 'post_like';
+				data['like_source'] = 'feed.php';
 
 				var ajax = getAJAX();
 				if (ajax != null) {

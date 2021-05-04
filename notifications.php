@@ -19,7 +19,7 @@
       ?>
 
       <div class = "wrapper">
-          <P id="heading-2"> Notifications <P>
+          <P id="heading-2"> Notifications<P>
           <a href = "deleteall.php" class = "clear-all"> Clear All</a>
 
           <div class="notification-tray">
@@ -29,6 +29,10 @@
                     */
                   function getSenderProfilePhoto($sender, $user_type) {
                     global $conn;
+
+                    if ($sender == "Teachers Connect Bot") {
+                      return "images/bot.png";
+                    }
 
                     $table = null;
                     if ($user_type == TEACHER) {

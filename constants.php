@@ -32,8 +32,8 @@
   define('ADD_SKILLS', 'add_skills');
   define('REMOVE_SKILL', 'remove_skill');
   define('DELETE_ACCOUNT', 'delete_account');
-  define('DEFAULT_TEACHER_PROFILE_PIC', 'images/logo.png');
-  define('DEFAULT_ORG_PROFILE_PIC', 'images/logo.png');
+  define('DEFAULT_TEACHER_PROFILE_PIC', 'images/teacher_profile.png');
+  define('DEFAULT_ORG_PROFILE_PIC', 'images/org.png');
 
   /**
     * Format a date object
