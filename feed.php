@@ -505,9 +505,15 @@
 				col_2.classList.add('col-2');
 				row.appendChild(col_2);
 
+
 				var created_at_p = document.createElement("p");
 				var created_at_b = document.createElement("b");
-				created_at_b.innerHTML = data['created_at'];
+				created_at_b.innerHTML = data['time_created'];
+				created_at_p.appendChild(created_at_b);
+				col_2.appendChild(created_at_p);
+				created_at_p = document.createElement("p");
+				created_at_b = document.createElement("b");
+				created_at_b.innerHTML = data['date_created'];
 				created_at_p.appendChild(created_at_b);
 				col_2.appendChild(created_at_p);
 

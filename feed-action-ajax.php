@@ -79,6 +79,10 @@
             $timestamp = date('Y-m-d H:i:s');
             $sql = "INSERT INTO posts (`username`, `content`, `created_at`) VALUES ('{$username}', '{$content}', '{$timestamp}');";
 
+            $timestamp = strtotime($timestamp);
+            $time = date("H:i", $timestamp);
+            $date = date("d/m/Y", $timestamp);
+
             if ($conn->query($sql) === FALSE) {
                 respond(false, "Error uploading post, try again");
             } else {
@@ -120,7 +124,8 @@
 
                 $data = array();
                 $data['post_tags'] = $added_tags;
-                $data['created_at'] = $timestamp;
+                $data['time_created'] = $time;
+                $data['date_created'] = $date;
                 $data['content'] = $content;
                 $data['post_id'] = $post_id;
                 $data['profile_photo'] = getProfilePhoto($username, $type);
