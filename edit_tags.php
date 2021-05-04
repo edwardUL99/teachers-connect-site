@@ -21,23 +21,76 @@
 
         <?php
             generateNavBar(HOME);
+            $username = $_SESSION['username'];
+
+
+
+            $skills_options = array();
+
+            function loadSkillsOptions() {
+                global $username;
+                global $conn;
+                global $skills_options;
+
+        $sql = "SELECT * FROM teacher_interests NATURAL JOIN tags WHERE username = ?;";
+
+        if ($stmt = $conn->prepare($sql)) {
+          $stmt->bind_param("s", $param_username);
+          $param_username = $username;
+
+
+
+
+
+          if ($stmt->execute()) {
+            $results = $stmt->get_result();
+
+            if ($results->num_rows > 0) {
+              while ($row = $results->fetch_assoc()) {
+                $value = $row['tag_id'];
+                $text = $row['name'];
+                $skills_options[] = "<option value=\"{$value}\">{$text}</option>";
+              }
+            }
+          } else {
+            doSQLError($stmt->error);
+          }
+
+          $stmt->close();
+        } else {
+          doSQLError($conn->error);
+        }
+      }
+
+      function getSkillsOptions() {
+        global $skills_options;
+
+        foreach ($skills_options as $key => $value) {
+          echo $value;
+        }
+      }
+
+      loadSkillsOptions();
+
+
+
         ?>
-        
+
         <div class="container">
             <div class="row shadow card padding-1pcent mt-5">
-                <div class="col padding-1pcent" id="add_skills">
+                <div class="col padding-1pcent" id="add_tags">
                     <h4>Add Skills</h4>
-                    <form id="add_skills_form">
+                    <form id="add_tags_form">
                         <div class="form-group">
                             <label>Skills</label>
-                            <input type="text" name="skills" id="skills" oninput="onSkillsInput();" class="form-control" required>
+                            <input type="text" name="tags" id="tags" class="form-control" required>
                             <div class="form-text">
                                 Enter tags to add in a comma-separated (,) list
                             </div>
                         </div>
                         <div class="row text-end mt-2">
                             <div class="col">
-                                <button type="button" onClick="handleNewSkills();" id="add_skills_button" class="btn btn-primary">Add</button>
+                                <button type="button" onClick="handleNewTags();" id="add_skills_button" class="btn btn-primary">Add</button>
                             </div>
                         </div>
                     </form>
@@ -48,10 +101,12 @@
                         <div class="form-group">
                             <label>Choose skills to tags</label>
                             <select class="form-select" multiple id="skills_choice" onchange="onSkillChosen();" name="skills_choice">
-                                <?php getSkillsOptions(); ?>
+
+                            <?php getSkillsOptions(); ?>
+
                             </select>
                             <div class="form-text">
-                                Select the skill to tag from the list
+                                Select tags from the list to remove
                             </div>
                         </div>
                         <div class="row text-end mt-2">
@@ -63,5 +118,115 @@
                 </div>
             </div>
         </div>
+
+
+    <script type="text/javascript" src="forms.js"></script>
+    <script type="text/javascript" src="ajax.js"></script>
+    <script>
+    const username = <?php echo json_encode($username); ?>;
+    function handleNewTags() {
+        // var valid = validateForm('add_tags_form');
+        // if (valid) {
+          var data = serializeForm('add_tags', 'input');
+          data['username'] = username;
+          data['edit_form'] = "add_tags";
+
+          var ajax = getAJAX();
+          if (ajax != null) {
+            ajax.onreadystatechange = function() {
+              if (ajax.readyState == 4) {
+                var response = ajax.response;
+
+                try {
+                  var responseBody = JSON.parse(response);
+                  var success = responseBody.success;
+                  var message = responseBody.message;
+
+                  if (success && message == "UPDATED") {
+
+                    var data = responseBody.data;
+
+                    for (var property in data) {
+                      addToSelect('skills_choice', property, data[property]);
+                    }
+                    addAlertMessage(true, "Tags have been added successfully", "add_tags");
+                  } else {
+                    addAlertMessage(false, "An error occurred updating your tags: " + message, "add_tags");
+                  }
+                } catch (e) {
+                  alert(response);
+                }
+              }
+            }
+          }
+
+          ajax.open("POST", "add_tags_ajax.php", true);
+          ajax.send(JSON.stringify(data));
+
+
+      }
+
+
+      function handleDeleteSkill() {
+        var valid = validateForm('remove_skill_form');
+        if (valid) {
+          var data = serializeForm('remove_skill', 'select');
+          data['username'] = username;
+          data['edit_form'] = "remove_skill";
+
+          var ajax = getAJAX();
+          if (ajax != null) {
+            ajax.onreadystatechange = function() {
+              if (ajax.readyState == 4) {
+                var response = ajax.response;
+
+                try {
+                  var responseBody = JSON.parse(response);
+                  var success = responseBody.success;
+                  var message = responseBody.message;
+
+                  if (success && message == "UPDATED") {
+                    var data = responseBody.data;
+
+                    for (var property in data) {
+                      removeFromSelectByValue('skills_choice', data[property]);
+                    }
+
+                    addAlertMessage(true, "Tags removed successfully", "remove_skill");
+                  } else {
+                    addAlertMessage(false, "An error occurred removing tags: " + message, "remove_skill");
+                  }
+                } catch (e) {
+                  alert(response);
+                }
+              }
+            }
+          }
+
+          ajax.open("POST", "add_tags_ajax.php", true);
+          ajax.send(JSON.stringify(data));
+        }
+
+        return false;
+      }
+
+      function getNumberSkillsSelected() {
+        var numberSelected = 0;
+        for (var i = 0; i < skills_choice.options.length; i++) {
+          if (skills_choice.options[i].selected) {
+            numberSelected++;
+          }
+        }
+
+        return numberSelected;
+      }
+
+      /**
+        * Handles the selection of a skill to remove
+        */
+      function onSkillChosen() {
+        remove_skill_button.disabled = getNumberSkillsSelected() == 0;
+      }
+    </script>
     </body>
 </html>

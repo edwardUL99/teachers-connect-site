@@ -110,7 +110,7 @@
       if ($user_type == TEACHER) {
         $class_name = ($page == CONNECTIONS) ? ACTIVE:INACTIVE;
         echo "<li class=\"nav-item\">
-        <a {$class_name} href=\"#\">Connections</a>
+        <a {$class_name} href=\"connections.php\">Network</a>
         </li>";
       }
 
