@@ -632,6 +632,45 @@
 						ajax.send(JSON.stringify(data));
 				}
 			}
+
+      function deletePost(post_id) {
+				var data = {};
+				data['post_id'] = post_id;
+				data['username'] = username;
+				data['edit_form'] = 'post_delete';
+
+				var ajax = getAJAX();
+				if (ajax != null) {
+					ajax.onreadystatechange = function() {
+							if (ajax.readyState == 4) {
+								var response = ajax.response;
+
+								try {
+									var responseBody = JSON.parse(response);
+									var success = responseBody.success;
+									var message = responseBody.message;
+
+									if (success) {
+										var data = responseBody.data;
+										var post_id = data['post_id'];
+										var element = document.getElementById(`post-card-${post_id}`);
+
+										if (message == "REMOVED" && element != null) {
+											element.remove();
+										}
+									} else {
+										addAlertMessage(false, "An error occurred removing post: " + message, `post-card-${post_id}`);
+									}
+								} catch (e) {
+									alert(e);
+								}
+							}
+						}
+
+						ajax.open("POST", "feed-action-ajax.php", true);
+						ajax.send(JSON.stringify(data));
+				}
+			}
     </script>
   </body>
 </html>

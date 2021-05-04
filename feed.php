@@ -204,49 +204,6 @@
 									<button type="button" onclick="handlePostCreation();" class="btn btn-primary">Post</button>
 								</div>
 							</form>
-							<?php
-								if($_SERVER["REQUEST_METHOD"] == "POST"){
-									if(isset($_POST['content'])){
-										$content = $_POST['content'];
-
-										$username = $_SESSION['username'];
-
-										$sql = "INSERT INTO posts (`username`, `content`) VALUES ('{$username}', '{$content}');";
-
-										if ($conn->query($sql) === FALSE) {
-											echo "Error uploading post, try again";
-										} else {
-											if(!empty($_POST['tags'])){
-												$tags = $_POST['tags'];
-												$last_id = $conn->insert_id;
-												$myArray = explode(',', $tags);
-												foreach ($myArray as $value) {
-													$query9 = mysqli_query($conn, "select * from tags where name = '$value'");
-													while($row = mysqli_fetch_array($query9)){
-														$tag_id = $row['tag_id'];
-													}
-
-													if(isset($tag_id)){
-														$sql2 = "INSERT INTO post_tags (post_id, tag_id)
-														VALUES ('".$last_id."', '".$tag_id."')";
-														$conn->query($sql2);
-														unset($tag_id);
-
-													} else {
-														$sql3 = "INSERT INTO tags (name)
-														VALUES ('".$value."')";
-														$conn->query($sql3);
-														$last_id2 = $conn->insert_id;
-														$sql4 = "INSERT INTO post_tags (post_id, tag_id)
-														VALUES ('".$last_id."', '".$last_id2."')";
-														$conn->query($sql4);
-													}
-												}
-											}
-										}
-									}
-								}
-							?>
 						</div>
 					</div>
 				<?php endif; ?>
@@ -335,7 +292,7 @@
 							$content = $row['content'];
 							$username = $row['username'];
 							$time_created = $row['created_at'];
-							
+
 							$time_created_original = strtotime($time_created);
 							$time_created = date("H:i", $time_created_original);
 							$time_created2 = date("d/m/Y", $time_created_original);
@@ -405,7 +362,7 @@
 									$query_string = http_build_query($data);
 									$url = "post_delete.php?".$query_string;
 
-									echo "<a href=\"{$url}\" class=\"btn btn-outline-danger btn-sm\">Delete</a>";
+									echo '<button type="button" class="btn btn-outline-danger btn-sm" onclick="deletePost('.$post_id.');">Delete</button>';
 								}
 
 								echo'		</div>
@@ -515,7 +472,6 @@
 				col_2.classList.add('col-2');
 				row.appendChild(col_2);
 
-
 				var created_at_p = document.createElement("p");
 				var created_at_b = document.createElement("b");
 				created_at_b.innerHTML = data['time_created'];
@@ -528,9 +484,9 @@
 				col_2.appendChild(created_at_p);
 
 				if (username == post_username) {
-					var delete_button = document.createElement("a");
+					var delete_button = document.createElement("button");
 					delete_button.classList.add('btn', 'btn-outline-danger', 'btn-sm');
-					delete_button.href=`post_delete.php?post_id=${post_id}&return_url=feed.php`;
+					delete_button.onclick = function() { deletePost(post_id); };
 					delete_button.innerHTML = "Delete";
 					col_2.appendChild(delete_button);
 				}
@@ -566,7 +522,9 @@
 										addAlertMessage(false, "An error occurred creating post: " + message, "post_creation");
 									}
 
-									clearValidation('post_creation_form');
+									var form = document.getElementById('post_creation_form');
+									form.classList.remove('was-validated');
+									form.reset();
 								} catch (e) {
 									alert(e);
 								}
@@ -584,7 +542,6 @@
 				data['post_id'] = post_id;
 				data['creator_username'] = creator_username;
 				data['username'] = username;
-
 				data['edit_form'] = 'post_like';
 
 				var ajax = getAJAX();
@@ -614,6 +571,45 @@
 										}
 									} else {
 										addAlertMessage(false, "An error occurred liking post: " + message, `post-card-${post_id}`);
+									}
+								} catch (e) {
+									alert(e);
+								}
+							}
+						}
+
+						ajax.open("POST", "feed-action-ajax.php", true);
+						ajax.send(JSON.stringify(data));
+				}
+			}
+
+			function deletePost(post_id) {
+				var data = {};
+				data['post_id'] = post_id;
+				data['username'] = username;
+				data['edit_form'] = 'post_delete';
+
+				var ajax = getAJAX();
+				if (ajax != null) {
+					ajax.onreadystatechange = function() {
+							if (ajax.readyState == 4) {
+								var response = ajax.response;
+
+								try {
+									var responseBody = JSON.parse(response);
+									var success = responseBody.success;
+									var message = responseBody.message;
+
+									if (success) {
+										var data = responseBody.data;
+										var post_id = data['post_id'];
+										var element = document.getElementById(`post-card-${post_id}`);
+
+										if (message == "REMOVED" && element != null) {
+											element.remove();
+										}
+									} else {
+										addAlertMessage(false, "An error occurred removing post: " + message, `post-card-${post_id}`);
 									}
 								} catch (e) {
 									alert(e);

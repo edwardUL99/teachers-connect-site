@@ -7,6 +7,7 @@
 
     define('POST_CREATION', 'post_creation');
     define('POST_LIKE', 'post_like');
+    define('POST_DELETE', 'post_delete');
 
     $username = "";
     $edit_form = "";
@@ -304,6 +305,32 @@
         }
     }
 
+    function processPostDeletion() {
+      global $conn;
+
+      if (isset($_POST['post_id'])) {
+        $post_id = $_POST['post_id'];
+      } else {
+        respond(false, "Post ID is a mandatory field");
+      }
+
+      $sql = "DELETE FROM posts WHERE post_id = ?;";
+
+      if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param("i", $param_post);
+        $param_post = $post_id;
+
+        if (!$stmt->execute()) {
+          respond(false, "Database Error: {$stmt->error}");
+        }
+
+        $stmt->close();
+        respondData(true, "REMOVED", array('post_id' => $post_id));
+      } else {
+        respond(false, "Database Error: {$conn->error}");
+      }
+    }
+
     /**
      * Carries out the post action
      */
@@ -314,8 +341,10 @@
             processPostCreation();
         } else if ($edit_form == POST_LIKE) {
             processPostLike();
+        } else if ($edit_form == POST_DELETE) {
+          processPostDeletion();
         } else {
-            die("Invalid EDIT_FORM providedL {$edit_form}");
+            die("Invalid EDIT_FORM provided: {$edit_form}");
         }
     }
 

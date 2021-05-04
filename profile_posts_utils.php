@@ -43,7 +43,7 @@
     $content = $post_row['content'];
     $post_id = $post_row['post_id'];
     $username = $post_row['username'];
-    $time_created = $row['created_at'];
+    $time_created = $post_row['created_at'];
 
     $time_created_original = strtotime($time_created);
     $time_created = date("H:i", $time_created_original);
@@ -81,11 +81,7 @@
       ;
 
     if($_SESSION['username'] == $username or $user_type == ADMIN){
-      $data = array('post_id' => $post_id, 'return_url' => "teacher_profile.php");
-      $query_string = http_build_query($data);
-      $url = "post_delete.php?".$query_string;
-
-      $post .= "<a href=\"{$url}\" class=\"btn btn-outline-danger btn-sm\">Delete</a>";
+      $post .= '<button type="button" class="btn btn-outline-danger btn-sm" onclick="deletePost('.$post_id.');">Delete</button>';
     }
 
     $post .= '</div>
@@ -200,7 +196,7 @@
                                 <img class="img-fluid rounded-circle" src='.$profile_photo.' alt="Card image">
                               </div>
                               <div class="col-8">
-                                <a href="organisation_profile.php?username='. $organisation->username() . '"><h4>' . $organisation->name() . '</h4></a>
+                                <h4>' . $organisation->name() . '</h4>
                                 <h5 class="card-title">'. $job_title .'</h5>
                                 <h5 class="card-title">'. $type .'</h5>
                                 <h5 class="card-title">Posted at '. $posted_at .' on the '. $posted_at2 .'</h5>
