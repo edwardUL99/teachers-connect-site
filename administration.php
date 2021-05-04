@@ -224,7 +224,7 @@
           $img_src = ($value->profile_photo == null) ? (($type == TEACHER) ? DEFAULT_TEACHER_PROFILE_PIC:DEFAULT_ORG_PROFILE_PIC):"{$value->profile_photo}";
           $name = $value->name;
           $reason = $value->reason;
-          $link = "ban_user.php?".http_build_query(getUnbanQuery($value->username), '', '&amp;');
+          $link = "administration_action.php?".http_build_query(getUnbanQuery($value->username), '', '&amp;');
           echo "<div class=\"card m-2 align-items-center person-card-banned\">";
           echo "<img class=\"card-img-top rounded-circle\" src=\"{$img_src}\" alt=\"Profile image\">";
           echo "<div class=\"card-body\">";
@@ -283,7 +283,7 @@
         global $blacklisted_emails;
 
         foreach ($blacklisted_emails as $key => $value) {
-          $link = "ban_user.php?".http_build_query(getUnblacklistQuery($value), '', '&amp;');
+          $link = "administration_action.php?".http_build_query(getUnblacklistQuery($value), '', '&amp;');
           echo "<div class=\"row mt-2\">";
           echo "<div class=\"col align-self-start\"><h5>{$value}</h5></div>";
           echo "<div class=\"col align-self-end\"><a class=\"btn btn-dark\" href=\"{$link}\">Unblacklist</a></div>";
@@ -360,7 +360,7 @@
         $data = array('action' => 'ban', 'username' => $entered_username,
         'admin' => $loggedin_username, 'reason' => $reason, 'date_to' => $date_to, 'time_to' => $time_to, 'return_url' => "administration.php");
 
-        $url = "ban_user.php?".http_build_query($data, '', '&amp;');
+        $url = "administration_action.php?".http_build_query($data, '', '&amp;');
         header("Location: {$url}");
         exit;
       }
@@ -388,7 +388,7 @@
         $loggedin_username = $_SESSION[USERNAME];
         $data = array('action' => 'blacklist', 'email' => $email, 'admin' => $loggedin_username, 'return_url' => "administration.php");
 
-        $url = "ban_user.php?".http_build_query($data, '', '&amp;');
+        $url = "administration_action.php?".http_build_query($data, '', '&amp;');
         echo $url;
         header("Location: {$url}");
         exit;
@@ -414,7 +414,7 @@
         $loggedin_username = $_SESSION[USERNAME];
         $data = array('action' => 'delete_user', 'username' => $username, 'admin' => $loggedin_username, 'return_url' => "administration.php");
 
-        $url = "ban_user.php?".http_build_query($data, '', '&amp;');
+        $url = "administration_action.php?".http_build_query($data, '', '&amp;');
         echo $url;
         header("Location: {$url}");
         exit;
@@ -429,15 +429,15 @@
         }
       }
 
-      $success = (isset($_SESSION['SUCCESS'])) ? $_SESSION['SUCCESS']:null;
-      $success_message = (isset($_SESSION['SUCCESS_MESSAGE'])) ? $_SESSION['SUCCESS_MESSAGE']:null;
+      $success = (isset($_SESSION['ADMIN_SUCCESS'])) ? $_SESSION['ADMIN_SUCCESS']:null;
+      $success_message = (isset($_SESSION['ADMIN_SUCCESS_MESSAGE'])) ? $_SESSION['ADMIN_SUCCESS_MESSAGE']:null;
 
       if ($success != null) {
-        unset($_SESSION['SUCCESS']);
+        unset($_SESSION['ADMIN_SUCCESS']);
       }
 
       if ($success_message != null) {
-        unset($_SESSION['SUCCESS_MESSAGE']);
+        unset($_SESSION['ADMIN_SUCCESS_MESSAGE']);
       }
 
       /**

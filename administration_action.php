@@ -27,8 +27,8 @@
     function returnToURL($success_message, bool $success) {
       global $return_url;
 
-      $_SESSION['SUCCESS_MESSAGE'] = $success_message;
-      $_SESSION['SUCCESS'] = $success;
+      $_SESSION['ADMIN_SUCCESS_MESSAGE'] = $success_message;
+      $_SESSION['ADMIN_SUCCESS'] = $success;
       header("Location: ".$return_url);
     }
 

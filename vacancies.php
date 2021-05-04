@@ -435,15 +435,10 @@
            $description = $row['description'];
            $type = $row['type'];
            $posted_at = $row['posted_at'];
-
-
-
+           
            $timestamp = strtotime($posted_at . "+ 5 hours");
-
            $posted_at = date("H:i:s", $timestamp);
            $posted_at2 = date("d/m/Y", $timestamp);
-
-
 
            $profile_photo = $row['profile_photo'];
            $profile_photo = (!empty($profile_photo)) ? $profile_photo:DEFAULT_ORG_PROFILE_PIC;
@@ -455,12 +450,8 @@
                                     </div>
                                     <div class="col-8">
                                         <h4>' . $job_title . '</h4>
-
-
                                         <h5 class="card-title">'. $type .'</h5>
                                         <h5 class="card-title">Posted at '. $posted_at .' on the '. $posted_at2 .'</h5>
-
-
                                     </div>
                                 </div>
                             </div>

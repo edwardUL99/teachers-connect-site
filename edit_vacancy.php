@@ -140,10 +140,8 @@
                 <div class="form-group">
                   <label>Job Type</label>
                   <select class="form-select" id="type" name="type">
-
                   <option value="Full-time" <?php if($vacancy_type == 'Full-time') echo 'selected' ?>>Full-time</option>
                   <option value="Part-time" <?php if($vacancy_type == 'Part-time') echo 'selected' ?>>Part-time</option>
-
                 </select>
                   <div class="form-text">
                     Tell us the hours here
