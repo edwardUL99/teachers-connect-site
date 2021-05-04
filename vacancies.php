@@ -41,6 +41,26 @@
          ?>
       <?php
 
+        function insertVacancySkill($vacancy_id, $skill_id) {
+          global $conn;
+
+          $sql = "INSERT INTO vacancy_skills (vacancy_id, skill_id) VALUES (?, ?);";
+
+          if ($stmt = $conn->prepare($sql)) {
+            $stmt->bind_param("ii", $param_vacancy, $param_skill);
+            $param_vacancy = $vacancy_id;
+            $param_skill = $skill_id;
+
+            if (!$stmt->execute()) {
+              die("Database Error: {$stmt2->error}");
+            }
+
+            $stmt->close();
+          } else {
+            die("Database Error: {$conn->error}");
+          }
+        }
+
         if($user_type=='organisation'){
 
        echo '<div class="container main-background">
@@ -87,8 +107,6 @@
                   </div>
                 </div>
 
-
-
             <div class="row text-end">
               <div class="col">
                 <button type="submit" class="btn btn-primary">Create</button>
@@ -99,10 +117,7 @@
         </div>
         </div>';
 
-
-
-         if(isset($_POST['job_title']) && isset($_POST['description']) && isset($_POST['type'])){
-
+         if(isset($_POST['job_title']) && isset($_POST['description']) && isset($_POST['type'])) {
 
                 $username = $_SESSION['username'];
                 $query8 = mysqli_query($conn, "select * from organisations where username = '$username'");
@@ -114,50 +129,79 @@
         $type = $_POST['type'];
         $skills = $_POST['skills'];
 
-        $sql = "INSERT INTO vacancies (organisation_id, job_title, description, type)
-        VALUES ('".$organisation_id."', '".$job_title."', '".$description."','".$type."')";
-        $conn->query($sql);
-        $last_id = $conn->insert_id;
+        $sql = "INSERT INTO vacancies (organisation_id, job_title, description, type) VALUES (?, ?, ?, ?);";
 
-        $myArray = explode(',', $skills);
+        if ($stmt = $conn->prepare($sql)) {
+          $stmt->bind_param("isss", $param_id, $param_job_title, $param_description, $param_type);
+          $param_id = $organisation_id;
+          $param_job_title = $job_title;
+          $param_description = $description;
+          $param_type = $type;
 
-        foreach ($myArray as $value) {
+          if (!$stmt->execute()) {
+            die("Database Error: {$conn->error}");
+          }
 
-            $query9 = mysqli_query($conn, "select * from skills where name = '$value'");
-                while($row = mysqli_fetch_array($query9)){
-                $skill_id = $row['skill_id'];}
+          $last_id = $stmt->insert_id;
+          $stmt->close();
+
+          $myArray = explode(',', $skills);
+
+          $sql = "SELECT * FROM skills WHERE name = ?;";
+
+          if ($stmt1 = $conn->prepare($sql)) {
+            $stmt1->bind_param("s", $param_name);
+
+            foreach ($myArray as $value) {
+              $param_name = trim($value);
+
+              if ($stmt1->execute()) {
+                $result = $stmt1->get_result();
+                while ($row = $result->fetch_assoc()) {
+                  $skill_id = $row['skill_id'];
+                }
 
                 if(isset($skill_id)){
-                    $sql2 = "INSERT INTO vacancy_skills (vacancy_id, skill_id)
-                    VALUES ('".$last_id."', '".$skill_id."')";
-                    $conn->query($sql2);
-                    unset($skill_id);
+                  insertVacancySkill($last_id, $skill_id);
+                  unset($skill_id);
+                } else {
+                  $sql = "INSERT INTO skills (name) VALUES (?);";
+
+                  if ($stmt2 = $conn->prepare($sql)) {
+                    $stmt2->bind_param("s", $param_name);
+                    $param_name = $value;
+
+                    if (!$stmt2->execute()) {
+                      die("Database Error: {$stmt2->error}");
+                    }
+
+                    $last_id2 = $stmt2->insert_id;
+
+                    insertVacancySkill($last_id, $last_id2);
+                    $stmt2->close();
+                  } else {
+                    die("Database Error: {$conn->error}");
+                  }
                 }
-
-                else{
-                    $sql3 = "INSERT INTO skills (name)
-                    VALUES ('".$value."')";
-                    $conn->query($sql3);
-                    $last_id2 = $conn->insert_id;
-                    $sql4 = "INSERT INTO vacancy_skills (vacancy_id, skill_id)
-                    VALUES ('".$last_id."', '".$last_id2."')";
-                    $conn->query($sql4);
-
-
-                }
-
+              } else {
+                die("Database Error: {$stmt1->error}");
+              }
             }
+
+            $stmt1->close();
 
             $success_message = "Vacancy added successfully!";
 
-                echo "<div class=\"row alert m-auto  mt-2 mb-2 alert-success alert-dismissable fade show\" role=\"alert\">{$success_message}";
-                echo "<div class=\"col text-end\">";
-                echo "<button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button></div></div>";
-
-
-
-
-         }
+            echo "<div class=\"row alert m-auto  mt-2 mb-2 alert-success alert-dismissable fade show\" role=\"alert\">{$success_message}";
+            echo "<div class=\"col text-end\">";
+            echo "<button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button></div></div>";
+          } else {
+            die("Database Error: {$conn->error}");
+          }
+        } else {
+          die("Database Error: {$conn->error}");
+        }
+      }
          echo '</div>';
     }
 
@@ -324,15 +368,15 @@
               while ($row = $result->fetch_assoc()) {
                     $teacherSkills = $teacherSkills . $row['name'] . ', ';
                     $teacherSkillsForRecs = $teacherSkillsForRecs . " name = '".$row['name']."' or";
+              }
+            }
+          }
+        }
 
-
-
-              }}}}
-
-              $teacherSkills = substr($teacherSkills, 0, -2 );
-              $url = "edit_teacher.php?";
-              $data = array('username' => $username, 'scroll_to_id' => "add_skills");
-              $url = $url . http_build_query($data);
+        $teacherSkills = substr($teacherSkills, 0, -2 );
+        $url = "edit_teacher.php?";
+        $data = array('username' => $username, 'scroll_to_id' => "add_skills");
+        $url = $url . http_build_query($data);
             if($user_type=='teacher'){
              echo '<br><h6>Recommended just for you, based on skills: <p style="color:blue"><i>' . $teacherSkills . '</i></p></h6>
                     <p><a href="'.$url.'">Click here</a> to edit</p>';}
@@ -350,7 +394,7 @@
 
             $count = 0;
 
-             $queryString =   "select distinct vacancies.vacancy_id, vacancies.organisation_id, job_title, description, type, profile_photo, posted_at from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where vacancy_skills.skill_id in (select skill_id from skills where $teacherSkillsForRecs) order by posted_at desc";
+             $queryString = "select distinct vacancies.vacancy_id, vacancies.organisation_id, job_title, description, type, profile_photo, posted_at from vacancies JOIN organisations ON vacancies.organisation_id = organisations.organisation_id join vacancy_skills on vacancies.vacancy_id = vacancy_skills.vacancy_id where vacancy_skills.skill_id in (select skill_id from skills where $teacherSkillsForRecs) order by posted_at desc";
              $query100 = mysqli_query($conn, $queryString);
              while($row = mysqli_fetch_array($query100)){
                  $count = $count + 1;

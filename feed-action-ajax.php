@@ -69,6 +69,93 @@
         }
     }
 
+    function processTags($post_id) {
+      global $conn;
+
+      $added_tags = null;
+      if(!empty($_POST['tags'])) {
+        $added_tags = array();
+        $tags = $_POST['tags'];
+        $myArray = explode(',', $tags);
+
+        $sql = "SELECT * FROM tags WHERE name = ?;";
+
+        if ($stmt = $conn->prepare($sql)) {
+          $stmt->bind_param("s", $param_name);
+
+          foreach ($myArray as $value) {
+            $value = trim($value);
+            $param_name = $value;
+
+            if ($stmt->execute()) {
+              $result = $stmt->get_result();
+              while ($row = $result->fetch_assoc()) {
+                $tag_id = $row['tag_id'];
+              }
+
+              if(isset($tag_id)){
+                $sql = "INSERT INTO post_tags (post_id, tag_id) VALUES (?, ?);";
+
+                if ($stmt1 = $conn->prepare($sql)) {
+                  $stmt1->bind_param("ii", $param_post, $param_tag);
+                  $param_post = $post_id;
+                  $param_tag = $tag_id;
+
+                  if (!$stmt1->execute()) {
+                    respond(false, "Database Error: {$stmt1->error}");
+                  }
+
+                  $stmt1->close();
+
+                  $added_tags[$tag_id] = $value;
+                  unset($tag_id);
+                }
+              } else {
+                $sql = "INSERT INTO tags (name) VALUES (?);";
+
+                if ($stmt1 = $conn->prepare($sql)) {
+                  $stmt1->bind_param("s", $param_name);
+                  $param_name = $value;
+
+                  if (!$stmt1->execute()) {
+                    respond(false, "Database Error: {$stmt1->error}");
+                  }
+
+                  $tag_id = $stmt1->insert_id;
+                  $stmt1->close();
+
+                  $sql = "INSERT INTO post_tags (post_id, tag_id) VALUES (?, ?);";
+
+                  if ($stmt1 = $conn->prepare($sql)) {
+                    $stmt1->bind_param("ii", $param_post, $param_tag);
+                    $param_post = $post_id;
+                    $param_tag = $tag_id;
+
+                    if (!$stmt1->execute()) {
+                      respond(false, "Database Error: {$stmt1->error}");
+                    }
+
+                    $added_tags[$tag_id] = $value;
+                    $stmt1->close();
+
+                    unset($tag_id);
+                  } else {
+                    respond(false, "Database Error: {$stmt1->error}");
+                  }
+                } else {
+                  respond(false, "Database Error: {$conn->error}");
+                }
+              }
+            } else {
+              respond(false, "Database Error: {$stmt->error}");
+            }
+          }
+        }
+      }
+
+      return $added_tags;
+    }
+
     function processPostCreation() {
         global $conn;
         global $username;
@@ -77,63 +164,44 @@
             $content = $_POST['content'];
 
             $timestamp = date('Y-m-d H:i:s');
-            $sql = "INSERT INTO posts (`username`, `content`, `created_at`) VALUES ('{$username}', '{$content}', '{$timestamp}');";
+            $sql = "INSERT INTO posts (`username`, `content`, `created_at`) VALUES (?, ?, ?);";
 
-            $timestamp = strtotime($timestamp);
-            $time = date("H:i", $timestamp);
-            $date = date("d/m/Y", $timestamp);
+            if ($stmt = $conn->prepare($sql)) {
+              $stmt->bind_param("sss", $param_username, $param_content, $param_created_at);
+              $param_username = $username;
+              $param_content = $content;
+              $param_created_at = $timestamp;
 
-            if ($conn->query($sql) === FALSE) {
-                respond(false, "Error uploading post, try again");
+              if (!$stmt->execute()) {
+                respond(false, "Database Error: {$stmt->error}");
+              }
+
+              $post_id = $stmt->insert_id;
+              $stmt->close();
+
+              $timestamp = strtotime($timestamp);
+              $time = date("H:i", $timestamp);
+              $date = date("d/m/Y", $timestamp);
+
+              $added_tags = processTags($post_id);
+
+              $type = getUserType($username);
+              $profile_url = ($type == TEACHER) ? "teacher_profile.php?username={$username}":"organisation_profile.php?username={$username}";
+
+              $data = array();
+              $data['post_tags'] = $added_tags;
+              $data['time_created'] = $time;
+              $data['date_created'] = $date;
+              $data['content'] = $content;
+              $data['post_id'] = $post_id;
+              $data['profile_photo'] = getProfilePhoto($username, $type);
+              $data['post_name'] = getSenderName($username, $type);
+              $data['username'] = $username;
+              $data['profile_url'] = $profile_url;
+
+              respondData(true, "CREATED", $data);
             } else {
-                $post_id = $conn->insert_id;
-                $added_tags = null;
-                if(!empty($_POST['tags'])){
-                    $added_tags = array();
-                    $tags = $_POST['tags'];
-                    $myArray = explode(',', $tags);
-
-                    foreach ($myArray as $value) {
-                        $query9 = mysqli_query($conn, "select * from tags where name = '$value'");
-                        while($row = mysqli_fetch_array($query9)){
-                            $tag_id = $row['tag_id'];
-                        }
-
-                        if(isset($tag_id)){
-                            $sql2 = "INSERT INTO post_tags (post_id, tag_id)
-                            VALUES ('".$post_id."', '".$tag_id."')";
-                            $conn->query($sql2);
-
-                            $added_tags[$tag_id] = $value;
-                            unset($tag_id);
-                        } else {
-                            $sql3 = "INSERT INTO tags (name)
-                            VALUES ('".$value."')";
-                            $conn->query($sql3);
-                            $tag_id = $conn->insert_id;
-                            $sql4 = "INSERT INTO post_tags (post_id, tag_id)
-                            VALUES ('".$post_id."', '".$tag_id."')";
-                            $conn->query($sql4);
-                            $added_tags[$tag_id] = $value;
-                        }
-                    }
-                }
-
-                $type = getUserType($username);
-                $profile_url = ($type == TEACHER) ? "teacher_profile.php?username={$username}":"organisation_profile.php?username={$username}";
-
-                $data = array();
-                $data['post_tags'] = $added_tags;
-                $data['time_created'] = $time;
-                $data['date_created'] = $date;
-                $data['content'] = $content;
-                $data['post_id'] = $post_id;
-                $data['profile_photo'] = getProfilePhoto($username, $type);
-                $data['post_name'] = getSenderName($username, $type);
-                $data['username'] = $username;
-                $data['profile_url'] = $profile_url;
-
-                respondData(true, "CREATED", $data);
+              respond(false, "Database Error: {$conn->error}");
             }
         } else {
             respond(false, "You need to enter post content");

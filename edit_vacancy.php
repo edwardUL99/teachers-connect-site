@@ -244,7 +244,7 @@
           <form id="delete_vacancy_form">
             <div class="form-group">
               <label>CONFIRM</label>
-              <input type="password" minlength="8" class="form-control" name="delete_password" id="delete_password" required>
+              <input type="text" class="form-control" name="delete_password" id="delete_password" required>
               <div class="form-text">
                 Type here
               </div>
@@ -255,9 +255,6 @@
               </div>
             </div>
           </form>
-
-          <p>This form is used to delete a vacancy.</p>
-
 
         </div>
       </div>
