@@ -39,7 +39,19 @@
 
               } }}}
 
+function parseURL() {
+        global $id;
 
+        if ($_SERVER["REQUEST_METHOD"] == "GET") {
+          $parsed_url = parse_url($_SERVER["REQUEST_URI"], PHP_URL_QUERY);
+          $params = array();
+          parse_str($parsed_url, $params);
+
+          if (isset($params['id'])) {
+            $id = $params['id'];
+          }
+        }
+      }
 
 
     function loadContactButton() {
@@ -47,6 +59,7 @@
         global $conn;
         global $contact_button;
         global $org_id;
+        global $id;
 
 
 
@@ -68,9 +81,18 @@
 
                 while($row = mysqli_fetch_array($query)){
                         $name = $row['first_name'] . " " . $row['last_name'];
+
+                        $queryA = mysqli_query($conn, "select * from vacancies where vacancy_id = '".$id."'");
+
+
+                            while($row = mysqli_fetch_array($queryA)){
+                                    $job = $row['job_title'];
+                            }
+
+
                 }
 
-                $contact_button = '<a href="mailto:'. $email . '?subject=Message from ' . $name . ' on TeachersConnect" class="btn btn-primary" style="margin-right: 1vw;">Apply!</a>';
+                $contact_button = '<a href="mailto:'. $email . '?subject=Vacancy Application: '.$job.' - ' . $name . '" class="btn btn-primary" style="margin-right: 1vw;">Apply!</a>';
               }
             }
 
@@ -92,19 +114,7 @@
       /**
        * Parses the URL for any GET parameters
        */
-        function parseURL() {
-        global $id;
 
-        if ($_SERVER["REQUEST_METHOD"] == "GET") {
-          $parsed_url = parse_url($_SERVER["REQUEST_URI"], PHP_URL_QUERY);
-          $params = array();
-          parse_str($parsed_url, $params);
-
-          if (isset($params['id'])) {
-            $id = $params['id'];
-          }
-        }
-      }
 
 
       function loadSkills() {
