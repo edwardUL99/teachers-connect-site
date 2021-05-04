@@ -255,7 +255,7 @@
             }
             else
                   {
-              return "$minutes minutes ago";
+              return "$minutes min ago";
             }
           }
              else if($hours <=24)
