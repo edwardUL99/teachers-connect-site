@@ -875,10 +875,10 @@
       <div class="row shadow profile-card">
           <div class="row">
             <div class="col-2">
-              <h4 class="underlined-header">Friend Requests</h4>
+              <h4 class="underlined-header">Connections Requests</h4>
             </div>
             <div class="col-4 text-center">
-              <p>These people want to be your friends!</p>
+              <p>These people want to connect with you!</p>
             </div>
           </div>
           <div class="row">
@@ -896,10 +896,10 @@
         <div class="row shadow profile-card">
           <div class="row">
             <div class="col-2">
-              <h4 class="underlined-header">Friends</h4>
+              <h4 class="underlined-header">Connections</h4>
             </div>
             <div class="col-4 text-center">
-              <p>These are your friends!</p>
+              <p>These are your connections!</p>
             </div>
           </div>
           <div class="row">
