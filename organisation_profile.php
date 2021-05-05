@@ -278,7 +278,7 @@
           <h5><?php echo $organisation->location(); ?></h5>
           <p class="about-me-text new-line-text"><?php $about = $organisation->about(); echo ($about == null) ? "":$about; ?></p>
         </div>
-        <?php if (!$own_profile || $user_type == ORGANISATION): ?>
+        <?php if ((!$own_profile || $user_type == ADMIN) || $user_type == ORGANISATION): ?>
         <div class="row mt-2">
           <div class="btn-toolbar">
             <?php echo getPrimaryProfileButton(); ?>

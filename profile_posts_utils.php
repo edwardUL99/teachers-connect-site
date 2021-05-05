@@ -52,8 +52,8 @@
     $liked = alreadyLiked($post_id, $_SESSION['username']);
     $post = '<div class="border mb-2" id="post-card-'. $post_id . '">
       <div class="row">
-        <div class="col-3"">
-          <img class="rounded-circle" style="margin-left:auto; margin-right: auto; display: block;" src="'. $profile_photo . '" alt="Profile image"">
+        <div class="col-3">
+          <img class="img-fluid rounded-circle" src="'. $profile_photo . '" alt="Profile image">
         </div>
         <div class="col-7">
           <h3 class="card-title"><b>'. $name .'</b></h3>

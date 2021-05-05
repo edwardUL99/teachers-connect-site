@@ -372,10 +372,10 @@
                       if($count > 0){
                     echo '<div class="row shadow profile-card">
           <div class="row">
-            <div class="col-2">
+            <div class="col-3">
               <h4 class="underlined-header">Results</h4>
             </div>
-            <div class="col-4 text-center">
+            <div class="col text-start">
               <p>Results for name: <i>'.$r.'</i>, organisation: <i>'.$t.'</i></p>
             </div>
           </div>
@@ -878,10 +878,10 @@
     echo '<div class="container main-background">
       <div class="row shadow profile-card">
           <div class="row">
-            <div class="col-2">
+            <div class="col-3">
               <h4 class="underlined-header">Connection Requests</h4>
             </div>
-            <div class="col-4 text-center">
+            <div class="col text-start">
               <p>These people want to connect with you!</p>
             </div>
           </div>
@@ -899,10 +899,10 @@
 
         <div class="row shadow profile-card">
           <div class="row">
-            <div class="col-2">
+            <div class="col-3">
               <h4 class="underlined-header">Connections</h4>
             </div>
-            <div class="col-4 text-center">
+            <div class="col text-start">
               <p>These are your connections!</p>
             </div>
           </div>
@@ -920,10 +920,10 @@
 
         <div class="row shadow profile-card">
           <div class="row">
-            <div class="col-2">
+            <div class="col-3">
               <h4 class="underlined-header">Organisations Followed</h4>
             </div>
-            <div class="col-4 text-center">
+            <div class="col text-start">
               <p>These are the organisations you follow!</p>
             </div>
           </div>

@@ -864,6 +864,11 @@
 
                     connection_pending = false;
                     connected = false;
+                    request_sent = false;
+                    accept_connection = false;
+
+                    connection_sender = loggedin_username;
+                    connection_receiver = username;
                   }
 
                   update_progress("", false);
@@ -1113,7 +1118,7 @@
 				var data = {};
 				data['post_id'] = post_id;
 				data['creator_username'] = creator_username;
-				data['username'] = username;
+				data['username'] = loggedin_username;
 				data['edit_form'] = 'post_like';
         data['like_source'] = 'teacher_profile.php';
 

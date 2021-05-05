@@ -272,7 +272,7 @@ function parseURL() {
 
 
         <?php
-        if($org_id == $org || $user_type == 'admin'){
+        if(($user_type == ORGANISATION && $org_id == $org) || $user_type == 'admin'){
 
         echo "<button class=\"btn btn-primary\" style=\"margin-right: 1vw;\" id=\"connect-button\" onclick=\"handleEdit();\">Edit</button></a>";
 

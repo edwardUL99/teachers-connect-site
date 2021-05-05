@@ -93,8 +93,6 @@
           $stmt->bind_param("s", $param_username);
           $param_username = $username;
 
-          $type = null;
-
           if ($stmt->execute()) {
             $result = $stmt->get_result();
 
@@ -109,7 +107,7 @@
           }
 
           $stmt->close();
-          return $type;
+          return null;
         } else {
           doSQLError($conn->error);
         }
@@ -121,13 +119,11 @@
       function getOrganisation($username) {
         global $conn;
 
-        $sql = "SELECT * FROM teachers WHERE username = ?;";
+        $sql = "SELECT * FROM organisations WHERE username = ?;";
 
         if ($stmt = $conn->prepare($sql)) {
           $stmt->bind_param("s", $param_username);
           $param_username = $username;
-
-          $type = null;
 
           if ($stmt->execute()) {
             $result = $stmt->get_result();
@@ -142,7 +138,7 @@
           }
 
           $stmt->close();
-          return $type;
+          return null;
         } else {
           doSQLError($conn->error);
         }
@@ -235,6 +231,7 @@
           echo "<p class=\"card-text\">From: {$value->banned_from}</p>";
           echo "<p class=\"card-text\">To: {$value->banned_to}</p>";
           echo "</div>";
+          echo "</div><div class=\"text-center m-auto mb-2\">";
           echo "<a href=\"{$link}\" class=\"btn btn-danger\">Unban</a>";
           echo "</div></div>";
         }

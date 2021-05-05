@@ -329,8 +329,8 @@
 								echo '<div class="card" id="post-card-'. $post_id . '">
 								<div class="card-body">
 									<div class="row">
-										<div class="col-3"">
-											<img class="card-img-top rounded-circle" style="margin-left:auto; margin-right: auto; display: block;" src="'. $profile_photo . '" alt="Profile image"">
+										<div class="col-3">
+											<img class="img-fluid rounded-circle" src="'. $profile_photo . '" alt="Profile image">
 										</div>
 										<div class="col-7">
 											<a href="'. $profile_url . '"><h3 class="card-title"><b>'. $post_name .'</b></h3></a>
