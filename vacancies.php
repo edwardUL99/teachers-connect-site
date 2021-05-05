@@ -101,7 +101,7 @@
               <div class="col-12">
                 <div class="form-group">
                   <label>Skills</label>
-                  <input type="text" name="skills" id="skills" class="form-control" maxlength="64" placeholder="English,Arithmetic,JAVA" >
+                  <input type="text" name="skills" id="skills" class="form-control" placeholder="English,Arithmetic,JAVA" >
                   <div class="form-text">
                     Enter relevant skills in a comma-separated (,) list
                   </div>

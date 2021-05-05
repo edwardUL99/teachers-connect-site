@@ -182,3 +182,7 @@ html, body {
   background-color: #F5F5F5;
   cursor: pointer;
 }
+
+.new-line-text {
+  white-space: pre-line;
+}

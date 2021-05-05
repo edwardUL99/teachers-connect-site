@@ -57,7 +57,7 @@
         </div>
         <div class="col-7">
           <h3 class="card-title"><b>'. $name .'</b></h3>
-          <p class="card-text">'. $content .'</p>';
+          <p class="card-text new-line-text">'. $content .'</p>';
     if ($liked) {
       $post .= '<button type="button" class="btn btn-danger btn-sm" id="post-'. $post_id . '" onclick="handlePostLike('. $post_id . ', \''. $username . '\');">Unlike 👍</button>';
     } else {

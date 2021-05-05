@@ -362,9 +362,9 @@
               <div class="col-9">
                 <div class="form-group">
                   <label>Headline</label>
-                  <input type="text" name="headline" id="headline" class="form-control" maxlength="64" placeholder="Headline" value="<?php echo $headline; ?>">
+                  <input type="text" name="headline" id="headline" class="form-control" maxlength="255" placeholder="Headline" value="<?php echo $headline; ?>">
                   <div class="form-text">
-                    Enter a short summary (up to 64 characters) outlining your current position, job you're seeking etc.
+                    Enter a short summary (up to 255 characters) outlining your current position, job you're seeking etc.
                   </div>
                 </div>
               </div>
@@ -793,7 +793,7 @@
 
                   clearValidation('update_profile_form');
                 } catch (e) {
-                  alert(response);
+                  alert(e);
                 }
               }
             }
@@ -836,7 +836,7 @@
 
                   clearValidation('update_password_form');
                 } catch (e) {
-                  alert(response);
+                  alert(e);
                 }
               }
             }
@@ -941,7 +941,7 @@
 
                   clearValidation('join_organisation_form');
                 } catch (e) {
-                  alert(response);
+                  alert(e);
                 }
               }
             }
@@ -1045,7 +1045,7 @@
                     document.getElementById('new_education_form').reset();
                     onDegreeChosen();}, 2000);
                 } catch (e) {
-                  alert(response);
+                  alert(e);
                 }
               }
             }
@@ -1097,7 +1097,7 @@
                   clearValidation('delete_education_form');
                   onQualificationChosen();
                 } catch (e) {
-                  alert(response);
+                  alert(e);
                 }
               }
             }
@@ -1185,7 +1185,7 @@
                     document.getElementById('add_employment_history_form').reset();
                     onOrganisationEmployerChosen();}, 2000);
                 } catch (e) {
-                  alert(response);
+                  alert(e);
                 }
               }
             }
@@ -1237,7 +1237,7 @@
                   clearValidation('remove_employment_history_form');
                   remove_emp_button.disabled = true;
                 } catch (e) {
-                  alert(response);
+                  alert(e);
                 }
               }
             }
@@ -1295,7 +1295,7 @@
                     document.getElementById('add_skills_form').reset();
                     add_skills_button.disabled = true;}, 2000);
                 } catch (e) {
-                  alert(response);
+                  alert(e);
                 }
               }
             }
@@ -1367,7 +1367,7 @@
                   document.getElementById('remove_skill_form').reset();
                   remove_skill_button.disabled = true;
                 } catch (e) {
-                  alert(response);
+                  alert(e);
                 }
               }
             }
@@ -1415,7 +1415,7 @@
                     addAlertMessage(false, "An error occurred deleting your account: " + message, "delete_account");
                   }
                 } catch (e) {
-                  alert(response);
+                  alert(e);
                 }
               }
             }

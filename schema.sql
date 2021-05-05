@@ -36,12 +36,12 @@ CREATE TABLE IF NOT EXISTS accounts (
   but it also references the accounts table
 */
 CREATE TABLE IF NOT EXISTS teachers (
-  username VARCHAR(32) NOT NULL,
-  first_name VARCHAR(32),
-  last_name VARCHAR(32),
-  headline VARCHAR(64),
+  username VARCHAR(64) NOT NULL,
+  first_name VARCHAR(64),
+  last_name VARCHAR(64),
+  headline VARCHAR(255),
   about TEXT,
-  location VARCHAR(32),
+  location VARCHAR(64),
   profile_photo VARCHAR(255),
   PRIMARY KEY (username),
   FOREIGN KEY (username) REFERENCES accounts(username)
@@ -59,11 +59,11 @@ CREATE TABLE IF NOT EXISTS teachers (
 */
 CREATE TABLE IF NOT EXISTS organisations (
   organisation_id INTEGER NOT NULL AUTO_INCREMENT,
-  username VARCHAR(32),
-  name VARCHAR(32),
-  headline VARCHAR(64),
+  username VARCHAR(64),
+  name VARCHAR(64),
+  headline VARCHAR(255),
   about TEXT,
-  location VARCHAR(32),
+  location VARCHAR(64),
   profile_photo VARCHAR(255),
   PRIMARY KEY (organisation_id),
   FOREIGN KEY (username) REFERENCES accounts(username)

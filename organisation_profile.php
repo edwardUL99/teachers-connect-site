@@ -276,7 +276,7 @@
           <h3><?php echo "{$organisation->name()}"; ?></h3>
           <h4 class="subtitle"><?php $headline = $organisation->headline(); echo ($headline == null) ? "":$headline; ?></h4>
           <h5><?php echo $organisation->location(); ?></h5>
-          <p class="about-me-text"><?php $about = $organisation->about(); echo ($about == null) ? "":$about; ?></p>
+          <p class="about-me-text new-line-text"><?php $about = $organisation->about(); echo ($about == null) ? "":$about; ?></p>
         </div>
         <?php if (!$own_profile || $user_type == ORGANISATION): ?>
         <div class="row mt-2">

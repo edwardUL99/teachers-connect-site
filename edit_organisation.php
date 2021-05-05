@@ -73,9 +73,9 @@
               <div class="col-9">
                 <div class="form-group">
                   <label>Headline</label>
-                  <input type="text" name="headline" id="headline" class="form-control" maxlength="64" placeholder="Headline" value="<?php echo $headline; ?>">
+                  <input type="text" name="headline" id="headline" class="form-control" maxlength="255" placeholder="Headline" value="<?php echo $headline; ?>">
                   <div class="form-text">
-                    Enter a short summary (up to 64 characters) outlining your organisation goal etc.
+                    Enter a short summary (up to 255 characters) outlining your organisation goal etc.
                   </div>
                 </div>
               </div>
@@ -208,7 +208,7 @@
 
                   clearValidation('update_profile_form');
                 } catch (e) {
-                  alert(response);
+                  alert(e);
                 }
               }
             }
@@ -251,7 +251,7 @@
 
                   clearValidation('update_password_form');
                 } catch (e) {
-                  alert(response);
+                  alert(e);
                 }
               }
             }
@@ -333,7 +333,7 @@
                     addAlertMessage(false, "An error occurred deleting your account: " + message, "delete_account");
                   }
                 } catch (e) {
-                  alert(response);
+                  alert(e);
                 }
               }
             }

@@ -148,16 +148,9 @@
                   </div>
                 </div>
               </div>
-
-
-
-
                 </div>
 
               <div class="row">
-
-
-
             <div class="form-group">
               <label>Description</label>
               <textarea name="description" id="description" class="form-control" rows="5" placeholder="Nyeeeeeerrrrmmmmmmmm"><?php echo $vacancy_description; ?></textarea>
@@ -165,27 +158,15 @@
                 Enter a detailed piece of information about the position here
               </div>
             </div>
-            <div class="row">
+            <div class="row" id="update_vacancy_message_block">
               <div class="col-12">
                 <div class="form-group">
                   <label>Skills</label>
-                  <input type="text" name="skills" id="skills" class="form-control" maxlength="64" placeholder="Shooting, Flying, Barrel Roll" >
+                  <input type="text" name="skills" id="skills" class="form-control" placeholder="Shooting, Flying, Barrel Roll" >
                   <div class="form-text">
                     Enter relevant skills in a comma-separated (,) list
                   </div>
                 </div>
-
-
-
-
-
-
-
-
-
-
-
-
             <div class="row text-end">
               <div class="col">
                 <button type="button" onclick="handleUpdateVacancy();" class="btn btn-primary">Save</button>
@@ -193,19 +174,6 @@
             </div>
           </form>
         </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         </div>
         </div>
@@ -295,12 +263,14 @@
                     for (var property in data) {
                       addToSelect('skills_choice', property, data[property]);
                     }
-                    addAlertMessage(true, "Vacancy has been updated successfully", "update_vacancy");
+                    addAlertMessage(true, "Vacancy has been updated successfully", "update_vacancy_message_block");
                   } else {
-                    addAlertMessage(false, "An error occurred updating your vacancy: " + message, "update_vacancy");
+                    addAlertMessage(false, "An error occurred updating your vacancy: " + message, "update_vacancy_message_block");
                   }
+
+                  clearValidation('update_vacancy_form');
                 } catch (e) {
-                  alert(response);
+                  alert(e);
                 }
               }
             }
@@ -308,12 +278,8 @@
 
           ajax.open("POST", "edit_vacancy_ajax.php", true);
           ajax.send(JSON.stringify(data));
-
-
-
-
-
-      }}
+      }
+    }
 
     function handleDeleteVacancy() {
 
@@ -391,6 +357,8 @@
                   } else {
                     addAlertMessage(false, "An error occurred removing skills from your vacancy: " + message, "remove_skill");
                   }
+
+                  clearValidation('remove_skill_form');
                 } catch (e) {
                   alert(response);
                 }

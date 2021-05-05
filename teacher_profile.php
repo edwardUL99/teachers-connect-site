@@ -546,7 +546,7 @@
           <h3><?php echo "{$teacher->firstName()} {$teacher->lastName()}"; ?></h3>
           <h4 class="subtitle"><?php $headline = $teacher->headline(); echo ($headline == null) ? "":$headline; ?></h4>
           <h5><?php echo $teacher->location(); ?></h5>
-          <p class="about-me-text"><?php $about = $teacher->about(); echo ($about == null) ? "":$about; ?></p>
+          <p class="about-me-text new-line-text"><?php $about = $teacher->about(); echo ($about == null) ? "":$about; ?></p>
         </div>
         <?php
           if (isset($current_organisation)):
@@ -641,7 +641,7 @@
                   <h4><?php echo $employment_history->organisation()->name(); ?></h4>
                 </a>
               <?php else: ?>
-                <h4><?php $organisation = $employment_history->organisation(); echo "{$organisation->name()}, {$organisation->location()}"; ?></h4> <!-- TODO consider how location is displayed here -->
+                <h4><?php $organisation = $employment_history->organisation(); echo "{$organisation->name()}, {$organisation->location()}"; ?></h4>
               <?php endif; ?>
               <h5><?php echo $employment_history->job_title()?></h5>
               <h5 class="subtitle"><?php echo getEmploymentDates(); ?></h5>

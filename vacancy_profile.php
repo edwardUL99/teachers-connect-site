@@ -295,7 +295,7 @@ function parseURL() {
           <h4 class="underlined-header">Job Description</h4>
         </div>
 
-        <p class="about-me-text"><?php echo $description; ?></p>
+        <p class="about-me-text new-line-text"><?php echo $description; ?></p>
       </div>
 
         <div class="row shadow profile-card">

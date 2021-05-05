@@ -334,7 +334,7 @@
 										</div>
 										<div class="col-7">
 											<a href="'. $profile_url . '"><h3 class="card-title"><b>'. $post_name .'</b></h3></a>
-											<p class="card-text">'. $content .'</p>';
+											<p class="card-text new-line-text">'. $content .'</p>';
 											if ($liked) {
 												echo '<button type="button" class="btn btn-danger btn-sm" id="post-'. $post_id . '" onclick="handlePostLike('. $post_id . ', \''. $username . '\');">Unlike 👍</button>';
 											} else {
