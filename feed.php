@@ -197,11 +197,11 @@
 					<div class="card" style="margin-top:20px;" id="post_creation">
 						<div class="form-group" style="margin:10px;">
 							<form id="post_creation_form">
-								<textarea class="form-control" name="content" id="content" rows="3" placeholder="Share your thoughts" style="margin-bottom:10px;"></textarea>
+								<textarea class="form-control" name="content" id="content" rows="3" placeholder="Share your thoughts" style="margin-bottom:10px;" required></textarea>
 								<input class="form-control" name="tags" id="tags" placeholder="Add tags to your post (e.g. Math, English, Irish)" style="margin-bottom:5px;">
 								<p style="font-size:12px; margin-left:4px; color:grey;">Enter tags to add in a comma-separated (,) list</p>
 								<div class="card-body text-center">
-									<button type="button" onclick="handlePostCreation();" class="btn btn-primary">Post</button>
+									<button type="button" onclick="handlePostCreation();" class="btn btn-primary" id="post-button">Post</button>
 								</div>
 							</form>
 						</div>
@@ -384,6 +384,7 @@
 			const username = <?php echo json_encode($_SESSION['username']); ?>;
 
 			const post_id_scroll = <?php echo json_encode($post_id_scroll); ?>;
+			const post_button = document.getElementById('post-button');
 
 			if (post_id_scroll != -1) {
 				var post = document.getElementById(`post-card-${post_id_scroll}`);
@@ -495,6 +496,7 @@
 			}
 
 			function handlePostCreation() {
+				post_button.disabled = true;
 				var valid = validateForm('post_creation_form');
 				if (valid) {
 					var data = serializeForm('post_creation', 'textarea,input');
@@ -524,6 +526,8 @@
 									var form = document.getElementById('post_creation_form');
 									form.classList.remove('was-validated');
 									form.reset();
+
+									post_button.disabled = false;
 								} catch (e) {
 									alert(e);
 								}
@@ -532,7 +536,11 @@
 
 						ajax.open("POST", "feed-action-ajax.php", true);
 						ajax.send(JSON.stringify(data));
+					} else {
+						post_button.disabled = false;
 					}
+				} else {
+					post_button.disabled = false;
 				}
 			}
 

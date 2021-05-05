@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Vacancy Profile</title>
+    <title>Network</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
     <link type="text/css" href="css/styles.css" rel="stylesheet">
     <link type="text/css" href="css/feed.css" rel="stylesheet">
@@ -19,12 +19,6 @@
 
       $loggedin_username = $_SESSION[USERNAME];
       $user_type = $_SESSION[USER_TYPE];
-
-
-
-
-
-
 
       /**
         * Retrieve the number of followers for this organisation
@@ -82,9 +76,6 @@
                             $row['last_name'], $row['headline'], $row['about'], $row['location'], $row['profile_photo']);
                             $countFriends++;
 
-
-
-
                 }}
 
       }
@@ -108,6 +99,7 @@
           echo "<div class=\"card-body\">";
           echo "<h5 class=\"card-title\">{$name}</h5>";
           echo "<p class=\"card-text\">{$headline}</p>";
+          echo "</div><div class=\"text-center m-auto mb-2\">";
           echo "<a href=\"{$link}\" class=\"btn btn-primary\">View Profile</a>";
           echo "</div></div>";
         }
@@ -125,6 +117,7 @@
           echo "<div class=\"card-body\">";
           echo "<h5 class=\"card-title\">{$name}</h5>";
           echo "<p class=\"card-text\">{$headline}</p>";
+          echo "</div><div class=\"text-center m-auto mb-2\">";
           echo "<a href=\"{$link}\" class=\"btn btn-primary\">View Profile</a>";
           echo "</div></div>";
         }
@@ -134,7 +127,7 @@
 
 
         foreach ($orgFriends as $key => $value) {
-          $img_src = ($value->profile_photo() == null) ? DEFAULT_TEACHER_PROFILE_PIC:"{$value->profile_photo()}";
+          $img_src = ($value->profile_photo() == null) ? DEFAULT_ORG_PROFILE_PIC:"{$value->profile_photo()}";
           $name = "{$value->firstName()} {$value->lastName()}";
           $headline = "{$value->headline()}";
           $link = "teacher_profile.php?username={$value->username()}";
@@ -143,6 +136,7 @@
           echo "<div class=\"card-body\">";
           echo "<h5 class=\"card-title\">{$name}</h5>";
           echo "<p class=\"card-text\">{$headline}</p>";
+          echo "</div><div class=\"text-center m-auto mb-2\">";
           echo "<a href=\"{$link}\" class=\"btn btn-primary\">View Profile</a>";
           echo "</div></div>";
         }
@@ -187,7 +181,7 @@
 
         foreach ($theseOrgs as $key => $value) {
 
-          $img_src = ($value->profile_photo() == null) ? DEFAULT_TEACHER_PROFILE_PIC:"{$value->profile_photo()}";
+          $img_src = ($value->profile_photo() == null) ? DEFAULT_ORG_PROFILE_PIC:"{$value->profile_photo()}";
           $name = "{$value->name()}";
           $about = "{$value->about()}";
           $headline = "{$value->headline()}";
@@ -200,6 +194,7 @@
           echo "<p class=\"card-text\">{$headline}</p>";
           //echo "<p class=\"card-text\">{$about}</p>";
           echo "<p class=\"card-text\">{$location}</p>";
+          echo "</div><div class=\"text-center m-auto mb-2\">";
           echo "<a href=\"{$link}\" class=\"btn btn-primary\">View Profile</a>";
           echo "</div></div>";
 
@@ -884,7 +879,7 @@
       <div class="row shadow profile-card">
           <div class="row">
             <div class="col-2">
-              <h4 class="underlined-header">Connections Requests</h4>
+              <h4 class="underlined-header">Connection Requests</h4>
             </div>
             <div class="col-4 text-center">
               <p>These people want to connect with you!</p>

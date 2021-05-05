@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS accounts (
   but it also references the accounts table
 */
 CREATE TABLE IF NOT EXISTS teachers (
-  username VARCHAR(64) NOT NULL,
+  username VARCHAR(32) NOT NULL,
   first_name VARCHAR(64),
   last_name VARCHAR(64),
   headline VARCHAR(255),
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS teachers (
 */
 CREATE TABLE IF NOT EXISTS organisations (
   organisation_id INTEGER NOT NULL AUTO_INCREMENT,
-  username VARCHAR(64),
+  username VARCHAR(32),
   name VARCHAR(64),
   headline VARCHAR(255),
   about TEXT,
