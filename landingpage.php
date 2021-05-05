@@ -32,7 +32,7 @@
                 <div class="landing-info">
                     <img class="landing-image" src="./images/LandingPageimg.jpg">
                     <h2>Welcome to your professional education community</h2>
-                    <button class="landing-btn3" onclick="window.location.href='/teachers-connect-site-main/teacher_signup.php'">Continue</button>
+                    <button class="landing-btn3" onclick="window.location.href='teacher_signup.php'">Continue</button>
                 </div>
             </div>
 
